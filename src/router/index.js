@@ -1,11 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginRegistrationView from '../views/LoginRegistrationView.vue'
+import VerifiedAccountView from '../views/VerifiedAccountView.vue'
 
 const routes = [
   {
     path: '/',
     name: 'loginregistration',
     component: LoginRegistrationView
+  },
+  {
+    path: '/verified-account/:user_id/:token',
+    name: 'verifiedaccount',
+    component: VerifiedAccountView
   },
   {
     path: '/about',
