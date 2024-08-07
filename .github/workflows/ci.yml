@@ -13,9 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: checkout
+    - name: Checkout
       uses: actions/checkout@v4
-    - name: build
+    - name: Build
       run: docker build . -t ramoro/convocarte-frontend-docker-hub:latest
-    - name: publish
-      run: docker push ramoro/convocarte-frontend-docker-hub:latest
+    - name: Publish
+      run: |
+       docker login -u ramoro -p ${{ secrets.DOCKERHUB_TOKEN }}
+       docker push ramoro/convocarte-frontend-docker-hub:latest
