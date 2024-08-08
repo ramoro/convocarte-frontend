@@ -227,6 +227,7 @@ export default {
           fullname: this.registrationForm.fullname,
           email: this.registrationForm.email,
           password: this.registrationForm.password,
+          password_confirmation: this.registrationForm.passwordConfirmation
         };
 
         axios.post('http://localhost/users', payload)
