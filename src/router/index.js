@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginRegistrationView from '../views/LoginRegistrationView.vue'
 import VerifiedAccountView from '../views/VerifiedAccountView.vue'
+import ForgotPasswordView from '../views/ForgotPasswordView.vue'
+import ResetPasswordView from '../views/ResetPasswordView.vue'
 
 const routes = [
   {
@@ -12,6 +14,16 @@ const routes = [
     path: '/verified-account/:user_id/:token',
     name: 'verifiedaccount',
     component: VerifiedAccountView
+  },
+  {
+    path: '/forgot-password',
+    name: 'forgotpassword',
+    component: ForgotPasswordView
+  },
+  {
+    path: '/reset-password/:token',
+    name: 'resetpassword',
+    component: ResetPasswordView
   },
   {
     path: '/about',
