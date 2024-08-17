@@ -16,7 +16,10 @@
                       <v-col cols="12" sm="8" xl="9">
                         <v-text-field :rules="emailRules" ref="emailField" v-model="loginForm.email" label="Email" variant="outlined" dense color="blue" autocomplete="false" class="mt-16" type="email" @keyup.enter="submitLogin"></v-text-field>
                         <v-text-field :rules="passwordRules" ref="passwordField" v-model="loginForm.password" label="Contraseña" variant="outlined" dense color="blue" autocomplete="false" type="password" class="mt-2" @keyup.enter="submitLogin"></v-text-field>
-                        <v-btn color="cyan-darken-2" dark block class="text-white mb-16 mt-2" @click="submitLogin" :loading="loading">Ingresar</v-btn>
+                        <v-btn color="cyan-darken-2" dark block class="text-white mb-5 mt-2" @click="submitLogin" :loading="loading">Ingresar</v-btn>
+                        <p class="forgot password text-center">
+                          <router-link to="forgot-password">Olvidé mi contraseña</router-link>
+                        </p>
                       </v-col>
                     </v-row>
                   </v-card-text>
@@ -38,73 +41,87 @@
               </v-row>
             </v-window-item>
             <v-window-item :value="2">
-  <v-row>
-    <v-col cols="12" sm="6" xl="6" class="cyan-background rounded-br-xl">
-      <div style="text-align:center; padding: 120px 0;">
-        <v-card-text class="text-white">
-          <p class="text-h6 text-center mb-2">¿Ya te registraste?</p>
-          <p class="caption text-center">
-            Ingresá con tu cuenta para seguir buscando las mejores<br/>
-            convocatorias que se adecúen a tu perfil
-          </p>
-        </v-card-text>
-        <div class="text-center">
-          <v-btn variant="outlined" class="text-white" @click="goToPrevStep">Ingresar</v-btn>
-        </div>
-      </div>
-    </v-col>
-    <v-col cols="12" sm="6">
-      <v-card-text class="mt-6">
-        <p class="text-h6 text-center">Crea tu cuenta</p>
-        <p v-if="weakPassword" class="caption text-center text-red" style="font-size:12px;">
-          La contraseña deben tener al menos 8 caracteres, 1 letra mayúscula, 1 minúscula, 1 número y 1 símbolo (#,-,_,$,%,&,*)
-        </p>
-        <v-row class="align-center" justify="center">
-          <v-col cols="12" sm="10" md="8" xl="9">
-            <v-text-field :rules="fullnameRules" ref="regFullnameField" v-model="registrationForm.fullname" label="Nombre y Apellido" variant="outlined" dense color="blue" autocomplete="false" class="mt-6"></v-text-field>
-            <v-text-field :rules="emailRules" ref="regEmailField" v-model="registrationForm.email" label="Email" variant="outlined" dense color="blue" autocomplete="false" class="mt-2"></v-text-field>
-            <v-text-field :rules="passwordRules" ref="regPasswordField" v-model="registrationForm.password" label="Contraseña" variant="outlined" dense color="blue" autocomplete="false" type="password" class="mt-2" @keyup.enter="submitRegistration"></v-text-field>
-            <v-text-field :rules="passwordConfRules" ref="regPasswordField" v-model="registrationForm.passwordConfirmation" label="Confirmar Contraseña" variant="outlined" dense color="blue" autocomplete="false" type="password" class="mt-2" @keyup.enter="submitRegistration"></v-text-field>
-            <v-btn color="cyan-darken-2" dark block class="text-white mt-4" @click="submitRegistration" :loading="loading">Registrarme</v-btn>
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-col>
-  </v-row>
-</v-window-item>
+              <v-row>
+                <v-col cols="12" sm="6" xl="6" class="cyan-background rounded-br-xl">
+                  <div style="text-align:center; padding: 120px 0;">
+                    <v-card-text class="text-white">
+                      <p class="text-h6 text-center mb-2">¿Ya te registraste?</p>
+                      <p class="caption text-center">
+                        Ingresá con tu cuenta para seguir buscando las mejores<br/>
+                        convocatorias que se adecúen a tu perfil
+                      </p>
+                    </v-card-text>
+                    <div class="text-center">
+                      <v-btn variant="outlined" class="text-white" @click="goToPrevStep">Ingresar</v-btn>
+                    </div>
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-card-text class="mt-6">
+                    <p class="text-h6 text-center">Crea tu cuenta</p>
+                    <p v-if="weakPassword" class="caption text-center text-red" style="font-size:12px;">
+                      La contraseña deben tener al menos 8 caracteres, 1 letra mayúscula, 1 minúscula, 1 número y 1 símbolo (#,-,_,$,%,&,*)
+                    </p>
+                    <v-row class="align-center" justify="center">
+                      <v-col cols="12" sm="10" md="8" xl="9">
+                        <v-text-field :rules="fullnameRules" ref="regFullnameField" v-model="registrationForm.fullname" label="Nombre y Apellido" variant="outlined" dense color="blue" autocomplete="false" class="mt-6"></v-text-field>
+                        <v-text-field :rules="emailRules" ref="regEmailField" v-model="registrationForm.email" label="Email" variant="outlined" dense color="blue" autocomplete="false" class="mt-2"></v-text-field>
+                        <v-text-field :rules="passwordRules" ref="regPasswordField" v-model="registrationForm.password" label="Contraseña" variant="outlined" dense color="blue" autocomplete="false" class="mt-2" @keyup.enter="submitRegistration" 
+                        :append-inner-icon="showPass1 ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="showPass1 ? 'text' : 'password'"
+                        @click:append-inner="showPass1 = !showPass1"></v-text-field>
+                        <v-text-field :rules="passwordConfRules" ref="regPasswordConfirmationField" v-model="registrationForm.passwordConfirmation" label="Confirmar Contraseña" variant="outlined" dense color="blue" autocomplete="false" class="mt-2" @keyup.enter="submitRegistration"
+                        :append-inner-icon="showPass2 ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="showPass2 ? 'text' : 'password'"
+                        @click:append-inner="showPass2 = !showPass2"></v-text-field>
+                        <v-btn color="cyan-darken-2" dark block class="text-white mt-4" @click="submitRegistration" :loading="loading">Registrarme</v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                  <v-dialog v-model="accountRegisteredDialog" max-width="500">
+                    <v-card>
+                      <v-card-title class="headline text-center">Cuenta creada correctamente</v-card-title>
+
+                      <v-card-text class="text-center">
+                        Gracias por registrarte en Convocarte. Se ha enviado un mail al correo electrónico: <br><br><v-icon class="mr-1" color="cyan">mdi-email</v-icon>{{auxEmail}}<br><br><strong>Revisá tu correo para activar la cuenta</strong>
+                      </v-card-text>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue darken-1" text @click="accountRegisteredDialog = false">Cerrar</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-col>
+              </v-row>
+            </v-window-item>
           </v-window>
         </v-card>
       </v-col>
     </v-row>
-    <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" :timeout="5000" :color="snackbarColor">
-        <v-icon class="mr-1" v-if="snackbarColor == 'green'">mdi-check-circle</v-icon>
-        <span v-html="snackbarText"></span>
-
-        <template v-slot:actions>
-          
-          <v-btn
-            :color="snackbarButtonColor"
-            variant="text"
-            @click="snackbar = false"
-          >
-            Cerrar
-          </v-btn>
-        </template>
-      </v-snackbar>
-      
-    </div>
-    
+    <InformationSnackbar ref="InformationSnackbar"/>
   </v-container>
 </template>
 
 <script>
 import axios from 'axios'
+import InformationSnackbar from '@/components/InformationSnackbar.vue'
 
 export default {
   props: ['source'],
+  components: {
+    InformationSnackbar
+  },
+  mounted() {
+      this.$root.InformationSnackbar = this.$refs.InformationSnackbar
+      // Verifica si se pasa un mensaje a través del estado de la ruta
+      if (this.$route.query.message == 'password-recovered') {
+        this.$root.InformationSnackbar.show({message: 'Tu contraseña ya ha sido restaurada. Ya podés logearte con la nueva contraseña.', color: 'green', buttonColor:'white', timer:100000})
+      }
+  },
   data () {
     return {
+      accountRegisteredDialog: false,
       step: 1,
       loginForm: {
         email: '',
@@ -116,10 +133,7 @@ export default {
         password: '',
         passwordConfirmation: ''
       },
-      snackbar: false,
-      snackbarText: '',
-      snackbarColor: '',
-      snackbarButtonColor: 'red',
+      auxEmail: '',
       emailRules: [
         v => !!v || 'El email es requerido',
         v => /^\S+@\S+\.\S+$/.test(v) || 'El email debe ser válido'
@@ -135,7 +149,9 @@ export default {
         v => !!v || 'El nombre y apellido son requeridos',
       ],
       loading: false,
-      weakPassword: false
+      weakPassword: false,
+      showPass1: false,
+      showPass2: false
     }
   },
   methods: {
@@ -143,6 +159,7 @@ export default {
       this.$refs.regFullnameField.reset();
       this.$refs.regEmailField.reset();
       this.$refs.regPasswordField.reset();
+      this.$refs.regPasswordConfirmationField.reset();
       this.weakPassword = false;
     },
     goToNextStep() {
@@ -154,15 +171,11 @@ export default {
       this.step--;
       this.resetRegistrationForm();
     },
-    showSnackbarSuccess() {
-      this.snackbarColor = 'green';
-      this.snackbarButtonColor = 'white'; 
-      this.snackbar = true;
+    showSnackbarSuccess(snackbarMessage) {
+      this.$root.InformationSnackbar.show({message: snackbarMessage, color: 'green', buttonColor:'white'})
     },
-    showSnackbarError() {
-      this.snackbarColor = 'dark'; 
-      this.snackbarButtonColor = 'red'; 
-      this.snackbar = true;
+    showSnackbarError(snackbarMessage) {
+      this.$root.InformationSnackbar.show({message: snackbarMessage, color: 'dark', buttonColor:'red'})
     },
     validateEmailAndPassword(email, password) {
       const emailValid = this.emailRules.every(rule => rule(email) === true);
@@ -170,7 +183,7 @@ export default {
 
       return passwordValid && emailValid;
     },
-    submitLogin() {
+    async submitLogin() {
       if(this.validateEmailAndPassword(this.loginForm.email, this.loginForm.password)) {
         this.loading = true;
 
@@ -191,16 +204,17 @@ export default {
         })
         .catch(error => {
           this.loading = false;  
+          var snackbarText = '';
           if (error.response) {
             if (error.response.status === 403) {
-              this.snackbarText = 'El Email o la Contraseña son incorrectos';
+              snackbarText = 'El Email o la Contraseña son incorrectos';
             } else {
-              this.snackbarText = 'Hubo un problema con la solicitud';
+              snackbarText = 'Hubo un problema con la solicitud';
             }
           } else if (error.request) {
-              this.snackbarText = 'No se pudo conectar con el servidor';
+            snackbarText = 'No se pudo conectar con el servidor';
           }
-          this.showSnackbarError();
+          this.showSnackbarError(snackbarText);
           
         });
       }
@@ -220,7 +234,7 @@ export default {
       return fullnameValid && passConfValid && 
       this.validateEmailAndPassword(this.registrationForm.email, this.registrationForm.password) && strongPassword;
     },
-    submitRegistration() {
+    async submitRegistration() {
       if(this.validateRegistration()) {
         this.loading = true;
         const payload = {
@@ -229,31 +243,28 @@ export default {
           password: this.registrationForm.password,
           password_confirmation: this.registrationForm.passwordConfirmation
         };
-
         axios.post('http://localhost/users', payload)
         .then(response => {
           console.log('Registration successful:', response.data);
           this.loading = false;
-          this.goToPrevStep();
-          
-          this.snackbarText = 'Cuenta registrada exitosamente. <strong>Revise su email</strong> para activarla.';
-          this.showSnackbarSuccess();
-
+          this.accountRegisteredDialog = true;
+          this.auxEmail = this.registrationForm.email;
           this.resetRegistrationForm();
 
         })
         .catch(error => {
           if (error.response) {
             this.loading = false;
+            var snackbarText = '';
             if (error.response.status === 409) {
-              this.snackbarText = 'El Email ya se encuentra registrado';
+              snackbarText = 'El Email ya se encuentra registrado';
             } else {
-              this.snackbarText = 'Hubo un problema con la solicitud';
+              snackbarText = 'Hubo un problema con la solicitud';
             }
           } else if (error.request) {
-              this.snackbarText = 'No se pudo conectar con el servidor';
+            snackbarText = 'No se pudo conectar con el servidor';
           }
-          this.showSnackbarError();
+          this.showSnackbarError(snackbarText);
         });
       }
     }
