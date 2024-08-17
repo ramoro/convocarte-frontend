@@ -66,12 +66,32 @@
                       <v-col cols="12" sm="10" md="8" xl="9">
                         <v-text-field :rules="fullnameRules" ref="regFullnameField" v-model="registrationForm.fullname" label="Nombre y Apellido" variant="outlined" dense color="blue" autocomplete="false" class="mt-6"></v-text-field>
                         <v-text-field :rules="emailRules" ref="regEmailField" v-model="registrationForm.email" label="Email" variant="outlined" dense color="blue" autocomplete="false" class="mt-2"></v-text-field>
-                        <v-text-field :rules="passwordRules" ref="regPasswordField" v-model="registrationForm.password" label="Contraseña" variant="outlined" dense color="blue" autocomplete="false" type="password" class="mt-2" @keyup.enter="submitRegistration"></v-text-field>
-                        <v-text-field :rules="passwordConfRules" ref="regPasswordConfirmationField" v-model="registrationForm.passwordConfirmation" label="Confirmar Contraseña" variant="outlined" dense color="blue" autocomplete="false" type="password" class="mt-2" @keyup.enter="submitRegistration"></v-text-field>
+                        <v-text-field :rules="passwordRules" ref="regPasswordField" v-model="registrationForm.password" label="Contraseña" variant="outlined" dense color="blue" autocomplete="false" class="mt-2" @keyup.enter="submitRegistration" 
+                        :append-inner-icon="showPass1 ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="showPass1 ? 'text' : 'password'"
+                        @click:append-inner="showPass1 = !showPass1"></v-text-field>
+                        <v-text-field :rules="passwordConfRules" ref="regPasswordConfirmationField" v-model="registrationForm.passwordConfirmation" label="Confirmar Contraseña" variant="outlined" dense color="blue" autocomplete="false" class="mt-2" @keyup.enter="submitRegistration"
+                        :append-inner-icon="showPass2 ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="showPass2 ? 'text' : 'password'"
+                        @click:append-inner="showPass2 = !showPass2"></v-text-field>
                         <v-btn color="cyan-darken-2" dark block class="text-white mt-4" @click="submitRegistration" :loading="loading">Registrarme</v-btn>
                       </v-col>
                     </v-row>
                   </v-card-text>
+                  <v-dialog v-model="accountRegisteredDialog" max-width="500">
+                    <v-card>
+                      <v-card-title class="headline text-center">Cuenta creada correctamente</v-card-title>
+
+                      <v-card-text class="text-center">
+                        Gracias por registrarte en Convocarte. Se ha enviado un mail al correo electrónico: <br><br><v-icon class="mr-1" color="cyan">mdi-email</v-icon>{{auxEmail}}<br><br><strong>Revisá tu correo para activar la cuenta</strong>
+                      </v-card-text>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue darken-1" text @click="accountRegisteredDialog = false">Cerrar</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
                 </v-col>
               </v-row>
             </v-window-item>
@@ -101,6 +121,7 @@ export default {
   },
   data () {
     return {
+      accountRegisteredDialog: false,
       step: 1,
       loginForm: {
         email: '',
@@ -112,6 +133,7 @@ export default {
         password: '',
         passwordConfirmation: ''
       },
+      auxEmail: '',
       emailRules: [
         v => !!v || 'El email es requerido',
         v => /^\S+@\S+\.\S+$/.test(v) || 'El email debe ser válido'
@@ -127,7 +149,9 @@ export default {
         v => !!v || 'El nombre y apellido son requeridos',
       ],
       loading: false,
-      weakPassword: false
+      weakPassword: false,
+      showPass1: false,
+      showPass2: false
     }
   },
   methods: {
@@ -223,11 +247,8 @@ export default {
         .then(response => {
           console.log('Registration successful:', response.data);
           this.loading = false;
-          this.goToPrevStep();
-          
-          var snackbarText = 'Cuenta registrada exitosamente. <strong>Revise su email</strong> para activarla.';
-          this.showSnackbarSuccess(snackbarText);
-
+          this.accountRegisteredDialog = true;
+          this.auxEmail = this.registrationForm.email;
           this.resetRegistrationForm();
 
         })
