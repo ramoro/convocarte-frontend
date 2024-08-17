@@ -16,3 +16,9 @@ export default {
   }),
 }
 </script>
+
+<style>
+.v-application--wrap {
+  background-color: inherit; /* Asegura que el fondo se aplique correctamente */
+}
+</style>
