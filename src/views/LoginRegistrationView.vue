@@ -201,6 +201,7 @@ export default {
         .then(response => {
           console.log('Login successful:', response.data);
           this.loading = false;
+          this.$router.push({ path: '/user-profile' });
         })
         .catch(error => {
           this.loading = false;  
