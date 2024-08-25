@@ -38,8 +38,8 @@
 </template>
 
 <script>
-  import axios from 'axios'
   import InformationSnackbar from '@/components/InformationSnackbar.vue'
+  import UserService from '../services/user.service';
 
   export default {
     name: 'ResetPasswordView',
@@ -72,7 +72,7 @@
             new_password: this.password,
             password_confirmation: this.passwordConfirmation
           };
-          axios.post('http://localhost/users/reset-password', payload)
+          UserService.resetPassword(payload)
           .then(response => {
             console.log('Password reseting successfull:', response.data);
             this.$router.push({ path: '/', query: { message: 'password-recovered' } });
