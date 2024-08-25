@@ -4,7 +4,7 @@
       <v-navigation-drawer v-model="drawer" color="white" dark temporary>
         <v-row>
             <v-col class="mt-5 ml-3 d-flex align-center">
-                <v-avatar size="43">
+                <v-avatar size="43" class="elevation-3">
                 <img :src="require('@/assets/logo.png')" alt="" />
                 </v-avatar>
                 <p v-if="currentUser" class="white--text text-subtitle-1 ml-3">
@@ -12,29 +12,31 @@
                 </p>
             </v-col>
         </v-row>
-        <v-divider
-              class="mt-8 mb-4 mx-auto"
-              inset
-              color="cyan-darken-4"
-              thickness="8px"
-        ></v-divider>            
-            <v-list>
-                <v-list-item
-                        class="ml-1"
-                        v-for="link in links"
-                        :key="link.text"
-                        color="primary"
-                        rounded="shaped"
-                        router
-                        :to="link.route"
-                    >
-                    <template v-slot:prepend>
-                    <v-icon :icon="link.icon"></v-icon>
-                    </template>
 
-                    <v-list-item-title v-text="link.text"></v-list-item-title>
-                </v-list-item>
-            </v-list>
+        <v-divider
+              color="purple"
+              class="mt-8 mb-4 mx-auto border-opacity-50"
+              inset
+              style="width: 100%;"
+        ></v-divider>       
+     
+        <v-list>
+            <v-list-item
+                    class="ml-1"
+                    v-for="link in links"
+                    :key="link.text"
+                    color="primary"
+                    rounded="shaped"
+                    router
+                    :to="link.route"
+                >
+                <template v-slot:prepend>
+                <v-icon :icon="link.icon"></v-icon>
+                </template>
+
+                <v-list-item-title v-text="link.text"></v-list-item-title>
+            </v-list-item>
+        </v-list>
       </v-navigation-drawer>
   
       <!-- App Bar fija -->
