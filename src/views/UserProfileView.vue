@@ -8,6 +8,8 @@
 export default {
   computed: {
     currentUser() {
+      console.log("STOREUSER");
+      console.log(this.$store.state.auth.user);
       return this.$store.state.auth.user;
     }
   },

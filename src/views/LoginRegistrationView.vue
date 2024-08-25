@@ -153,6 +153,7 @@ export default {
   },
   computed: {
     loggedIn() {
+      console.log("LOGGEDIN?");
       console.log(this.$store.state.auth.status.loggedIn);
       return this.$store.state.auth.status.loggedIn;
     }

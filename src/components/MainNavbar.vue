@@ -23,7 +23,6 @@
                         class="ml-1"
                         v-for="link in links"
                         :key="link.text"
-                        :value="item"
                         color="primary"
                         rounded="shaped"
                         router
@@ -60,7 +59,7 @@
         return {
             drawer: false, //El drawer va a servir para manejar visibilidad del navigation drawer
             links: [
-                { icon: 'mdi-account', text: 'Mi Perfil', route: '/' },
+                { icon: 'mdi-account', text: 'Mi Perfil', route: '/user-profile' },
                 { icon: 'mdi-folder', text: 'My Projects', route: '/projects' },
                 { icon: 'mdi-account', text: 'Team', route: '/team' },
                 { icon: 'mdi-test-tube', text: 'Test', route: '/test' },

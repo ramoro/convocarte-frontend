@@ -19,6 +19,7 @@ class AuthService {
       .then(response => {
         if (response.data.accessToken) {
           console.log(response.data.accessToken);
+          console.log("ENTRO A setitem");
           localStorage.setItem('user', JSON.stringify(response.data));
         }
 
@@ -27,6 +28,7 @@ class AuthService {
   }
 
   logout() {
+    console.log("ENTRO A REMOVEItem");
     localStorage.removeItem('user');
   }
 
