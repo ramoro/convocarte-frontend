@@ -1,5 +1,5 @@
 import axios from 'axios';
-import authHeader from './auth-header';
+import {authHeader, authHeaderMultipartFormData} from './auth-header';
 
 const API_URL = 'http://localhost/';
 
@@ -19,6 +19,10 @@ class UserService {
 
     startPasswordRecoveringWithEmail(payload) {
         return axios.post(API_URL + 'users/password-recovering', payload);
+    }
+
+    updateProfilePicture(formData) {
+        return axios.post(API_URL + 'users/upload-profile-picture', formData, { headers: authHeaderMultipartFormData() });
     }
 
     //ejemplo a modificar

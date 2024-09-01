@@ -15,7 +15,11 @@
                     <v-row class="align-center" justify="center">
                       <v-col cols="12" sm="8" xl="9">
                         <v-text-field :rules="emailRules" ref="emailField" v-model="user.email" label="Email" variant="outlined" dense color="blue" autocomplete="false" class="mt-16" type="email" @keyup.enter="submitLogin"></v-text-field>
-                        <v-text-field :rules="passwordRules" ref="passwordField" v-model="user.password" label="Contraseña" variant="outlined" dense color="blue" autocomplete="false" type="password" class="mt-2" @keyup.enter="submitLogin"></v-text-field>
+                        <v-text-field :rules="passwordRules" ref="passwordField" v-model="user.password" label="Contraseña" variant="outlined" dense color="blue" autocomplete="false" class="mt-2" @keyup.enter="submitLogin"
+                        :append-inner-icon="showPassLogin ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="showPassLogin ? 'text' : 'password'"
+                        @click:append-inner="showPassLogin = !showPassLogin">
+                        </v-text-field>
                         <v-btn color="cyan-darken-2" dark block class="text-white mb-5 mt-2" @click="submitLogin" :loading="loading">Ingresar</v-btn>
                         <p class="forgot password text-center">
                           <router-link to="forgot-password">Olvidé mi contraseña</router-link>
@@ -147,14 +151,13 @@ export default {
       ],
       loading: false,
       weakPassword: false,
+      showPassLogin: false,
       showPass1: false,
       showPass2: false
     }
   },
   computed: {
     loggedIn() {
-      console.log("LOGGEDIN?");
-      console.log(this.$store.state.auth.status.loggedIn);
       return this.$store.state.auth.status.loggedIn;
     }
   },

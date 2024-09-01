@@ -10,28 +10,20 @@
 
       <!-- Row con las dos cards -->
       <v-row>
-        <!-- Card con ImageUploader -->
+        <!-- Card con la imagen y el cropper -->
         <v-col cols="12" md="3">
           <v-card class="d-flex flex-column align-center pa-4 purple-border">
-            <ImageUploader @change-avatar="handleAvatarChange">
-              <template v-slot:activator>
-                <v-avatar size="100px" v-ripple v-if="!avatar" color="white" class="gray-border elevation-3 lighten-3 mb-3" style="cursor: pointer;">
-                  <v-img :src="require('@/assets/add-photo.png')" alt="avatar" class="avatar-img2"></v-img>
-                  <v-btn style="display:none;"></v-btn>
-                </v-avatar>
-                <v-avatar size="100px" v-ripple v-else class="mb-3 ml-1 gray-border elevation-3" style="cursor: pointer;">
-                  <v-img :src="avatar.imageURL" alt="avatar" class="avatar-img" contain></v-img>
-                </v-avatar>
-              </template>
-            </ImageUploader>
-            <v-slide-x-transition>
-              <div v-if="avatar && saved == false">
-                <v-btn color="purple lighten-1" @click="uploadImage" :loading="saving" small
-                       class="my-custom-btn mb-3"
-                       style="margin-left: 8px;">Guardar Foto</v-btn>
-              </div>
-            </v-slide-x-transition>
-            <p class="caption" style="font-weight: bold;">{{ currentUser.fullname }}</p>
+            <v-img 
+              :src="resizedImage || require('@/assets/add-photo.png')"
+              v-ripple 
+              alt="avatar" 
+              class="avatar-img gray-border elevation-4"
+              width="120"
+              height="120"
+              @click="openCropperDialog"
+            ></v-img>
+            <p v-if="currentUser" class="caption" style="font-weight: bold;">{{ currentUser.fullname }}</p>
+            <p v-if="currentUser" class="caption mt-2"><v-icon class="mr-1" color="blue">mdi-email-outline</v-icon>{{ currentUser.email }}</p>
           </v-card>
         </v-col>
 
@@ -41,45 +33,87 @@
           </v-card>
         </v-col>
       </v-row>
+
+      <!-- Dialogo del Image Cropper -->
+      <v-dialog v-model="cropperDialog" max-width="400px" max-height="400px">
+        <v-card outlined class="primary cyan-border" style="position: relative;">
+          <v-btn icon flat @click="cropperDialog = false" style="position: absolute; top: 1px; right: 8px;">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-card-title class="text-center">
+            Seleccioná tu Foto de Perfil
+          </v-card-title>
+          <v-card-text>
+            <ImageCropper v-if="cropperDialog"
+              @image-cropped="handleCroppedImage"/>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </v-container>
   </div>
 </template>
 
 <script>
-import ImageUploader from '@/components/ImageUploader.vue'
+import UserService from '../services/user.service';
+import ImageCropper from '@/components/ImageCropper.vue'
+
 export default {
   components: {
-    ImageUploader: ImageUploader
-  },
-  watch: {
-    avatar: {
-      handler(newValue) {
-        console.log('Nuevo avatar:', newValue); // Verifica que se actualiza correctamente
-        this.saved = false;
-      },
-      deep: true
-    }
+    ImageCropper: ImageCropper
   },
   data () {
     return {
-      avatar: null,
-      saving: false,
-      saved: false
+      saved: false,
+      resizedImage: '',
+      cropperDialog: false,
+      selectedImage: null,
     }
   },
   methods: {
-    uploadImage() {
-      this.saving = true
-      setTimeout(() => this.savedAvatar(), 1000)
+    openCropperDialog() {
+      this.selectedImage = this.resizedImage; // Pasas la imagen actual si ya hay una
+      this.cropperDialog = true;
     },
-    handleAvatarChange(data) {
+    handleCroppedImage(croppedImageBlob, fileName) {
+      this.cropperDialog = false;
+      //const imageUrl = URL.createObjectURL(croppedImageBlob);
+      //this.resizedImage = imageUrl;
+      this.saved = false;
+
+      const formData = new FormData();
+      formData.append('file', croppedImageBlob,fileName);
+
+      UserService.updateProfilePicture(formData)
+      .then(response => {
+          console.log('Se actualizo foto:', response.data);
+          this.resizedImage = response.data.filename; //Contiene el fileUrl que apunta a la imagen en el server
+          this.$store.dispatch('auth/changeUserPictureProfile', response.data.filename);
+        })
+        .catch(error => {
+          if (error.response) {
+            console.log('Error de response actualizando foto');
+          } else if (error.request) {
+            console.log('Error de request actualizando foto');
+          }
+        });
+    },
+    async handleAvatarChange(data) {
       console.log('Nuevo avatar:', data);
       this.avatar = data;
       this.saved = false;
-    },
-    savedAvatar() {
-      this.saving = false
-      this.saved = true
+
+      UserService.updateProfilePicture(data.formData)
+      .then(response => {
+          console.log('Se actualizo foto:', response.data);
+          this.resizedImage = `data:image/jpeg;base64,${response.data.image}`;
+        })
+        .catch(error => {
+          if (error.response) {
+            console.log('error');
+          } else if (error.request) {
+            console.log('error');
+          }
+        });
     }
   },
   computed: {
@@ -92,6 +126,8 @@ export default {
   beforeMount() {
     if (!this.currentUser) {
       this.$router.push('/');
+    } else if (this.currentUser.profile_picture != "") {
+      this.resizedImage = this.currentUser.profile_picture;
     }
   }
 };
@@ -120,15 +156,13 @@ export default {
   }
 
   .avatar-img {
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
-    filter: contrast(1.1) brightness(1.05); /* Aumenta el contraste y brillo para mejorar la claridad */
+    border-radius: 50%;
+    margin-bottom: 15px;
+    cursor: pointer;
   }
 
-  .avatar-img {
-    width: 50%;
-    height: 50%;
-    filter: contrast(1.1) brightness(1.05); /* Aumenta el contraste y brillo para mejorar la claridad */
-  }
+  .cyan-border {
+    border-top: 1px solid cyan;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); 
+  } 
 </style>

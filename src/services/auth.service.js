@@ -4,12 +4,11 @@ const API_URL = 'http://localhost/';
 
 class AuthService {
   login(user) {
-
     const formData = new FormData();
     formData.append('username', user.email);
     formData.append('password', user.password);
 
-     formData.forEach(x=> console.log(x));
+    formData.forEach(x=> console.log(x));
     return axios
       .post(API_URL + 'login', formData, {
         headers: {
@@ -17,9 +16,7 @@ class AuthService {
         }
       })
       .then(response => {
-        if (response.data.accessToken) {
-          console.log(response.data.accessToken);
-          console.log("ENTRO A setitem");
+        if (response.data.token) {
           localStorage.setItem('user', JSON.stringify(response.data));
         }
 
@@ -28,12 +25,10 @@ class AuthService {
   }
 
   logout() {
-    console.log("ENTRO A REMOVEItem");
     localStorage.removeItem('user');
   }
 
   register(user_registration) {
-    console.log(user_registration)
     return axios.post(API_URL + 'users', {
       fullname: user_registration.fullname,
       email: user_registration.email,

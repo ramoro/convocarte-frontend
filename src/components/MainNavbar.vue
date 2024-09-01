@@ -5,7 +5,7 @@
         <v-row>
             <v-col class="mt-5 ml-3 d-flex align-center">
                 <v-avatar size="43" class="elevation-3">
-                <img :src="require('@/assets/logo.png')" alt="" />
+                    <v-img :src="currentUser?.profile_picture || require('@/assets/empty-photo.png')" alt="" />
                 </v-avatar>
                 <p v-if="currentUser" class="white--text text-subtitle-1 ml-3">
                     {{ currentUser.fullname }}
@@ -46,9 +46,10 @@
             <span class="font-weight-light">Convoc</span>
             <span>Arte</span>
         </v-toolbar-title>
-            <a class="nav-link" href @click.prevent="logOut">
-                <font-awesome-icon icon="sign-out-alt" />LogOut
-            </a>
+            <v-btn class="ml-3 mr-2 font-weight-light" color="white" text @click="logOut()">
+                <span>Salir</span>
+                <v-icon right>mdi-exit-to-app</v-icon>
+            </v-btn>
       </v-app-bar>
   
     </nav>
@@ -66,7 +67,7 @@
                 { icon: 'mdi-account', text: 'Team', route: '/team' },
                 { icon: 'mdi-test-tube', text: 'Test', route: '/test' },
             ],
-            snackbar: false
+            avatarImage: ""
         }
     },
     computed: {

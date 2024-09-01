@@ -37,7 +37,9 @@ export const auth = {
         }
       );
     },
-    
+    changeUserPictureProfile({ commit }, profilePic) {
+      commit('changePicProfile', profilePic);
+    }
   },
   mutations: {
     loginSuccess(state, user) {
@@ -57,6 +59,11 @@ export const auth = {
     },
     registerFailure(state) {
       state.status.loggedIn = false;
+    },
+    changePicProfile(state, newPicture) {
+      if (state.user) {
+        state.user.profile_picture = newPicture;
+      }
     }
   }
 };
