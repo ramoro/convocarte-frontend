@@ -25,9 +25,20 @@ class UserService {
         return axios.post(API_URL + 'users/upload-profile-picture', formData, { headers: authHeaderMultipartFormData() });
     }
 
-    //ejemplo a modificar
-    getUserByBoard() {
-        return axios.get(API_URL + 'user', { headers: authHeader() });
+    addAcademicExperience(payload) {
+        return axios.post(API_URL + 'users/add-academic-experience', payload, { headers: authHeader() });
+    }
+
+    getUserAcademicExperiences() {
+        return axios.get(API_URL + 'users/my-academic-experiences', { headers: authHeader() });
+    }
+
+    deleteAcademicExperience(id) {
+        return axios.delete(API_URL + 'users/delete-academic-experience/' + id, { headers: authHeader() });
+    }
+
+    updateAcademicExperience(id, payload) {
+        return axios.put(API_URL + 'users/update-academic-experience/' + id, payload, { headers: authHeader() });
     }
 }
 

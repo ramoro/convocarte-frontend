@@ -27,9 +27,30 @@
           </v-card>
         </v-col>
 
+        <!-- Card con las secciones de perfil de usuario -->
         <v-col cols="12" md="9">
           <v-card class="pa-4 purple-border">
-            <p>Contenido adicional del perfil de usuario...</p>
+            <!-- Tabs para navegación -->
+            <v-tabs v-model="tab" bg-color="transparent" color="purple" grow>
+              <v-tab style="font-size: 12px" v-for="item in items" :key="item">
+                {{ item }}
+              </v-tab>
+            </v-tabs>
+
+            <!-- Contenido de cada sección -->
+            <v-tabs-items v-model="tab">
+                <v-card flat>
+                  <v-card-text>
+                    <!-- Mostrar el componente solo si el tab actual es "Estudios" -->
+                    <EducationProfileArea v-if="items[tab] === 'Estudios'"
+                      :educationItems="educationItems" 
+                      @add-education="handleAddEducation"
+                      @delete-education="handleDeletedEducation"
+                      @update-education="handleUpdatedEducation"
+                    />
+                  </v-card-text>
+                </v-card>
+            </v-tabs-items>
           </v-card>
         </v-col>
       </v-row>
@@ -44,8 +65,7 @@
             Seleccioná tu Foto de Perfil
           </v-card-title>
           <v-card-text>
-            <ImageCropper v-if="cropperDialog"
-              @image-cropped="handleCroppedImage"/>
+            <ImageCropper v-if="cropperDialog" @image-cropped="handleCroppedImage" />
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -55,38 +75,41 @@
 
 <script>
 import UserService from '../services/user.service';
-import ImageCropper from '@/components/ImageCropper.vue'
+import ImageCropper from '@/components/ImageCropper.vue';
+import EducationProfileArea from '@/components/EducationProfileArea.vue';
 
 export default {
   components: {
-    ImageCropper: ImageCropper
+    ImageCropper,
+    EducationProfileArea
   },
-  data () {
+  data() {
     return {
       saved: false,
       resizedImage: '',
       cropperDialog: false,
       selectedImage: null,
-    }
+      tab: 'Info Básica',
+      items: ['Info Básica', 'Características Físicas', 'Habilidades', 'Experiencia Laboral', 'Estudios'],
+      educationItems: []
+    };
   },
   methods: {
     openCropperDialog() {
       this.selectedImage = this.resizedImage; // Pasas la imagen actual si ya hay una
       this.cropperDialog = true;
     },
-    handleCroppedImage(croppedImageBlob, fileName) {
+    async handleCroppedImage(croppedImageBlob, fileName) {
       this.cropperDialog = false;
-      //const imageUrl = URL.createObjectURL(croppedImageBlob);
-      //this.resizedImage = imageUrl;
       this.saved = false;
 
       const formData = new FormData();
-      formData.append('file', croppedImageBlob,fileName);
+      formData.append('file', croppedImageBlob, fileName);
 
       UserService.updateProfilePicture(formData)
-      .then(response => {
+        .then(response => {
           console.log('Se actualizo foto:', response.data);
-          this.resizedImage = response.data.filename; //Contiene el fileUrl que apunta a la imagen en el server
+          this.resizedImage = response.data.filename; // Contiene el fileUrl que apunta a la imagen en el server
           this.$store.dispatch('auth/changeUserPictureProfile', response.data.filename);
         })
         .catch(error => {
@@ -97,23 +120,14 @@ export default {
           }
         });
     },
-    async handleAvatarChange(data) {
-      console.log('Nuevo avatar:', data);
-      this.avatar = data;
-      this.saved = false;
-
-      UserService.updateProfilePicture(data.formData)
-      .then(response => {
-          console.log('Se actualizo foto:', response.data);
-          this.resizedImage = `data:image/jpeg;base64,${response.data.image}`;
-        })
-        .catch(error => {
-          if (error.response) {
-            console.log('error');
-          } else if (error.request) {
-            console.log('error');
-          }
-        });
+    handleAddEducation(newEducation) {
+      this.educationItems.push(newEducation);
+    },
+    handleDeletedEducation(index) {
+      this.educationItems.splice(index, 1);
+    },
+    handleUpdatedEducation(updatedEducation, index) {
+      this.educationItems.splice(index, 1, updatedEducation);
     }
   },
   computed: {
@@ -129,40 +143,50 @@ export default {
     } else if (this.currentUser.profile_picture != "") {
       this.resizedImage = this.currentUser.profile_picture;
     }
+
+     // Cargar la lista de estudios del usuario
+     UserService.getUserAcademicExperiences()
+      .then(response => {
+        this.educationItems = response.data; // `response.data` es  una lista de experiencias academicas
+      })
+      .catch(error => {
+        console.log('Error al obtener experiencias académicas', error);
+      });
   }
 };
 </script>
 
 <style scoped>
-  .my-custom-btn {
-    font-size: 12px;
-    padding: 4px 8px;
-    margin-left: 0px;
-  }
+.my-custom-btn {
+  font-size: 12px;
+  padding: 4px 8px;
+  margin-left: 0px;
+}
 
-  .profile-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
+.profile-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
 
-  .purple-border {
-    border-top: 3px solid purple;
-  }
+.purple-border {
+  border-top: 3px solid purple;
+}
 
-  .gray-border {
-    border: 1px solid gray !important;
-    border-radius: 50%;
-  }
+.gray-border {
+  border: 1px solid gray !important;
+  border-radius: 50%;
+}
 
-  .avatar-img {
-    border-radius: 50%;
-    margin-bottom: 15px;
-    cursor: pointer;
-  }
+.avatar-img {
+  border-radius: 50%;
+  margin-bottom: 15px;
+  cursor: pointer;
+}
 
-  .cyan-border {
-    border-top: 1px solid cyan;
-    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); 
-  } 
+.cyan-border {
+  border-top: 1px solid cyan;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); 
+} 
+
 </style>
