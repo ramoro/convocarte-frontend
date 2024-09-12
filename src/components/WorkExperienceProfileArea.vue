@@ -4,7 +4,7 @@
   <v-card>
     <v-card-title class="text-h6">Confirmación de Eliminación</v-card-title>
     <v-card-text>
-      ¿Estás seguro de que deseás eliminar este item de estudio?
+      ¿Estás seguro de que deseás eliminar este item de experiencia laboral?
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
@@ -15,10 +15,10 @@
 </v-dialog>
 
 <!-- Dialogo para agregar estudios -->
-<v-dialog v-model="educationDialog" max-width="600px">
+<v-dialog v-model="workExperienceDialog" max-width="600px">
   <v-card>
     <v-card-title class="justify-center text-center">
-      <span class="text-h5">{{ isEditMode ? 'Editar Estudio' : 'Agregar Estudio' }}</span>
+      <span class="text-h5">{{ isEditMode ? 'Editar Experiencia Laboral' : 'Agregar Experiencia Laboral' }}</span>
     </v-card-title>
     <v-form ref="form" @submit.prevent="handleSubmit">
     <v-card-text>
@@ -26,37 +26,37 @@
           <v-row>
             <v-col cols="6">
               <v-text-field
-                v-model="currentEducation.institution"
-                label="Institución"
-                :rules="classicRules"
+                v-model="currentWorkExperience.workTitle"
+                label="Título del Proyecto"
+                :rules="requiredAndLengthRules"
                 required
                 outlined
                 dense
                 hide-details="auto"
               >
                 <template #label>
-                  <span class="text-red"><strong>* </strong></span>Institución
+                  <span class="text-red"><strong>* </strong></span>Título del Proyecto
                 </template>
               </v-text-field>
             </v-col>
             <v-col cols="6">
               <v-text-field
-                v-model="currentEducation.studyField"
-                label="Disciplina"
-                :rules="classicRules"
+                v-model="currentWorkExperience.role"
+                label="Rol"
+                :rules="requiredAndLengthRules"
                 required
                 outlined
                 dense
                 hide-details="auto"
               ><template #label>
-                  <span class="text-red"><strong>* </strong></span>Disciplina
+                  <span class="text-red"><strong>* </strong></span>Rol
                 </template>
               </v-text-field>   
             </v-col>
             <v-col cols="5">
               <v-text-field
                 label="Fecha Inicio"
-                v-model="currentEducation.startDate"
+                v-model="currentWorkExperience.startDate"
                 :rules="startDateRules"
                 type="date"
                 class="date-field"
@@ -72,7 +72,7 @@
             <v-col cols="5">
               <v-text-field
                 label="Fecha Fin"
-                v-model="currentEducation.endDate"
+                v-model="currentWorkExperience.endDate"
                 type="date"
                 :rules="endDateRules"
                 :disabled="isDateFieldDisabled"
@@ -95,10 +95,35 @@
                 En curso
               </v-btn>
             </v-col>
+            <v-col cols="6">
+              <v-text-field
+                v-model="currentWorkExperience.producer"
+                label="Productora"
+                :rules="onlyLengthRule"
+                required
+                outlined
+                dense
+                hide-details="auto"
+              >
+              </v-text-field>
+            </v-col>
+            <v-col cols="6">
+              <v-text-field
+                v-model="currentWorkExperience.projectUrl"
+                label="Link al Proyecto"
+                :append-inner-icon="'mdi-link-variant'"
+                :rules="onlyLengthRule"
+                required
+                outlined
+                dense
+                hide-details="auto"
+              >
+              </v-text-field>
+            </v-col>
             <v-col cols="12">
               <v-textarea
                 :append-inner-icon="'mdi-pencil'"
-                v-model="currentEducation.description"
+                v-model="currentWorkExperience.description"
                 label="Descripción"
                 :rules="descriptionRules"
                 outlined
@@ -113,55 +138,65 @@
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="purple" type="submit">{{ isEditMode ? 'Actualizar' : 'Guardar' }}</v-btn>
-      <v-btn color="grey" @click="educationDialog = false">Cancelar</v-btn>
+      <v-btn color="grey" @click="workExperienceDialog = false">Cancelar</v-btn>
     </v-card-actions>
   </v-form>
   </v-card>
 </v-dialog>
 
 
-<v-card class="pa-3 my-8 elevation-2" variant="tonal" color="purple-lighten-2" v-for="(education, index) in educationItems" :key="index">
+<v-card class="pa-3 my-8 elevation-2" variant="tonal" color="cyan-darken-2" v-for="(workExperience, index) in workExperienceItems" :key="index">
   <v-row>
     <v-col cols="3" md="3">
-      <div class="caption">Institución</div>
-      <div style="color:black !important">{{education.institution}}</div>
+      <div class="caption">Título del Proyecto</div>
+      <div style="color:black !important">{{workExperience.workTitle}}</div>
     </v-col>
     <v-col cols="3" md="3">
-      <div class="caption">Disciplina</div>
-      <div style="color:black !important">{{education.field_of_study}}</div>
+      <div class="caption">Rol</div>
+      <div style="color:black !important">{{workExperience.role}}</div>
     </v-col>
     <v-col cols="3" md="3">
       <div class="caption">Fecha de Inicio</div>
-      <div style="color:black !important">{{formatDate(education.start_date)}}</div>
+      <div style="color:black !important">{{formatDate(workExperience.start_date)}}</div>
     </v-col>
     <v-col cols="2" md="2">
       <div class="caption">Fecha de Fin</div>
-      <div style="color:black !important">{{education.end_date ? formatDate(education.end_date) : '-'}}</div>
+      <div style="color:black !important">{{workExperience.end_date ? formatDate(workExperience.end_date) : '-'}}</div>
     </v-col>
     <v-col cols="1" md="1">
       <div style="text-align: right;">
         <v-tooltip text="Editar" location="top">
           <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" @click="openEditEducationDialog(education, index)">mdi-pencil</v-icon>
+            <v-icon v-bind="props" @click="openEditWorkExperienceDialog(workExperience, index)">mdi-pencil</v-icon>
           </template>
         </v-tooltip>
         <v-tooltip text="Eliminar" location="top">
           <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" @click="prepareDelete(education, index)">mdi-delete</v-icon>
+            <v-icon v-bind="props" @click="prepareDelete(workExperience, index)">mdi-delete</v-icon>
           </template>
         </v-tooltip>
       </div>
 
     </v-col>
-    <v-col v-if="education.description" cols="12">
+    <v-col v-if="workExperience.producer" cols="3">
+      <div class="caption">Productora</div>
+      <div style="color:black !important">{{workExperience.producer}}</div>
+    </v-col>
+    <v-col v-if="workExperience.projectUrl" cols="6">
+      <div class="caption">Link al Proyecto</div>
+      <div style="color:black !important" >    <a :href="formattedUrl(workExperience.projectUrl)">
+      {{ workExperience.projectUrl }}
+    </a></div>
+    </v-col>
+    <v-col v-if="workExperience.description" cols="12">
       <div class="caption">Descripción</div>
-      <div style="color:black !important">{{education.description}}</div>
+      <div style="color:black !important">{{workExperience.description}}</div>
     </v-col>
   </v-row>  
 </v-card>
 
 <div class="text-center ma-1">
-  <v-btn @click="openAddEducationDialog" color="purple" icon small class="add-study-btn">
+  <v-btn @click="openAddWorkExperienceDialog" color="cyan" icon small class=" text-white add-study-btn">
     <v-icon>mdi-plus</v-icon>
   </v-btn>
 </div>
@@ -169,30 +204,33 @@
 </template>
 
 <script>
-import Education from '@/models/education'
+import WorkExperience from '@/models/work-experience'
 import UserService from '../services/user.service';
 import { formatDate } from '@/utils';
 
 export default {
-name: "EducationProfileArea",
+name: "WorkExperienceProfileArea",
 props: {
-  educationItems: {
+  workExperienceItems: {
     type: Array,
     default: () => []
   }
 },
 data() {
   return {
-    educationDialog: false,
+    workExperienceDialog: false,
     isEditMode: false,
     deleteDialog: false,
     itemToDelete: null,
     deleteIndex: null,
-    currentEducation: new Education(null,'','','','',''),
+    currentWorkExperience: new WorkExperience(null,'', '', '','','','',''),
     isDateFieldDisabled: false,
     indexToUpdate: null,
-    classicRules: [
+    requiredAndLengthRules: [
       value => !!value || 'Campo requerido',
+      value => (value.length <= 50) || 'Máximo 50 caracteres',
+    ],
+    onlyLengthRule: [
       value => (value.length <= 50) || 'Máximo 50 caracteres',
     ],
     startDateRules: [
@@ -202,7 +240,7 @@ data() {
     endDateBaseRules: [
       value => !!value || 'Campo requerido',
       value => value.split('-')[0] >= 1900 && value.split('-')[0] <= 3000 || 'La fecha no es valida', //Validacion de año
-      value => (this.currentEducation.startDate && value > this.currentEducation.startDate) || 'La fecha de fin debe ser mayor a la de inicio'
+      value => (this.currentWorkExperience.startDate && value > this.currentWorkExperience.startDate) || 'La fecha de fin debe ser mayor a la de inicio'
     ],
     endDateRules: [],
     descriptionRules: [
@@ -211,67 +249,72 @@ data() {
   }
 },
 methods: {
-  openAddEducationDialog() {
+  openAddWorkExperienceDialog() {
     this.isEditMode = false;
-    this.educationDialog = true;
-    this.currentEducation = new Education(null, '','','','','');
+    this.workExperienceDialog = true;
+    this.currentWorkExperience = new WorkExperience(null, '', '', '','','','','');
     this.isDateFieldDisabled = false;
     this.endDateRules = this.endDateBaseRules;
   },
-  openEditEducationDialog(education, index) {
+  openEditWorkExperienceDialog(workExperience, index) {
     this.isEditMode = true;
-    this.educationDialog = true;
+    this.workExperienceDialog = true;
     //Hago mapeo entre el nombre de las variables que uso en jscript y 
     //el nombre de variables que uso en el back (python)
-    this.currentEducation = {
-      id: education.id,
-      institution: education.institution,
-      studyField: education.field_of_study,
-      startDate: education.start_date,
-      endDate: education.end_date,
-      description: education.description
+    this.currentWorkExperience = {
+      id: workExperience.id,
+      workTitle: workExperience.workTitle,
+      role: workExperience.role,
+      startDate: workExperience.start_date,
+      endDate: workExperience.end_date,
+      producer: workExperience.producer,
+      projectUrl: workExperience.projectUrl,
+      description: workExperience.description
     };
 
     this.indexToUpdate = index;
     //Valido que si fecha viene vacia se refiere a que esta en curso y no se
     //debe validar el campo
-    if (!this.currentEducation.endDate) {
+    if (!this.currentWorkExperience.endDate) {
       this.endDateRules = [];
     }
-    this.isDateFieldDisabled = !this.currentEducation.endDate;
+    this.isDateFieldDisabled = !this.currentWorkExperience.endDate;
   },
   async handleSubmit() {
 
     this.$refs.form.validate().then(result => {
       if (result.valid) {
+
         const payload = {
-            institution: this.currentEducation.institution,
-            field_of_study: this.currentEducation.studyField,
-            start_date: this.currentEducation.startDate,
-            end_date: this.currentEducation.endDate,
-            description: this.currentEducation.description
+            workTitle: this.currentWorkExperience.workTitle,
+            role: this.currentWorkExperience.role,
+            start_date: this.currentWorkExperience.startDate,
+            end_date: this.currentWorkExperience.endDate,
+            producer: this.currentWorkExperience.producer,
+            projectUrl: this.currentWorkExperience.projectUrl,
+            description: this.currentWorkExperience.description
           };
 
         if (this.isEditMode) {
-          UserService.updateAcademicExperience(this.currentEducation.id, payload)
+          UserService.updateWorkExperience(this.currentWorkExperience.id, payload)
             .then(response => {
-              console.log('Se actualizó la experiencia académica:', response.data);
-              payload.id = this.currentEducation.id;
-              this.$emit('update-education', payload, this.indexToUpdate);
-              this.educationDialog = false;
+              console.log('Se actualizó la experiencia laboral:', response.data);
+              payload.id = this.currentWorkExperience.id;
+              this.$emit('update-work-experience', payload, this.indexToUpdate);
+              this.workExperienceDialog = false;
             })
             .catch(error => {
-              console.error('Error al actualizar la experiencia académica', error);
+              console.error('Error al actualizar la experiencia laboral', error);
             });
         } else {
-          UserService.addAcademicExperience(payload)
+          UserService.addWorkExperience(payload)
             .then(response => {
-              console.log('Se agregó una nueva experiencia académica:', response.data);
-              this.educationDialog = false;
-              this.$emit('add-education', response.data);
+              console.log('Se agregó una nueva experiencia laboral:', response.data);
+              this.workExperienceDialog = false;
+              this.$emit('add-work-experience', response.data);
             })
             .catch(error => {
-              console.error('Error al agregar la experiencia académica', error);
+              console.error('Error al agregar la experiencia laboral', error);
             });
         }
       } else {
@@ -288,27 +331,34 @@ methods: {
     this.endDateRules = this.endDateBaseRules;
     if (this.isDateFieldDisabled) {
       this.endDateRules = [];
-      this.currentEducation.endDate = '';
+      this.currentWorkExperience.endDate = '';
     }
   },
   formatDate(dateString) {
     return formatDate(dateString);
   },
-  prepareDelete(education, index) {
-    this.itemToDelete = education;
+  prepareDelete(workExperience, index) {
+    this.itemToDelete = workExperience;
     this.deleteIndex = index;
     this.deleteDialog = true;
   },
   async confirmDelete() {
     console.log(this.itemToDelete.id);
-    UserService.deleteAcademicExperience(this.itemToDelete.id)
+    UserService.deleteWorkExperience(this.itemToDelete.id)
       .then( () => {
-        this.$emit('delete-education', this.deleteIndex);
+        this.$emit('delete-work-experience', this.deleteIndex);
         this.deleteDialog = false;
       })
       .catch(error => {
         console.error('Error al eliminar experiencia académica', error);
       });
+  },
+  formattedUrl(url) {
+    //Para que redireccione bien se agrega el https
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = `https://${url}`;
+      }
+    return url;
   }
 }
 };

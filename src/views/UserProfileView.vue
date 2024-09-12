@@ -48,6 +48,14 @@
                       @delete-education="handleDeletedEducation"
                       @update-education="handleUpdatedEducation"
                     />
+
+                    <!-- Mostrar el componente solo si el tab actual es "Experiencia Laboral" -->
+                    <WorkExperienceProfileArea v-if="items[tab] === 'Experiencia Laboral'"
+                      :workExperienceItems="workExperienceItems" 
+                      @add-work-experience="handleAddWorkExperience"
+                      @delete-work-experience="handleDeletedWorkExperience"
+                      @update-work-experience="handleUpdatedWorkExperience"
+                    />
                   </v-card-text>
                 </v-card>
             </v-tabs-items>
@@ -77,11 +85,13 @@
 import UserService from '../services/user.service';
 import ImageCropper from '@/components/ImageCropper.vue';
 import EducationProfileArea from '@/components/EducationProfileArea.vue';
+import WorkExperienceProfileArea from '@/components/WorkExperienceProfileArea.vue';
 
 export default {
   components: {
     ImageCropper,
-    EducationProfileArea
+    EducationProfileArea,
+    WorkExperienceProfileArea
   },
   data() {
     return {
@@ -91,7 +101,8 @@ export default {
       selectedImage: null,
       tab: 'Info Básica',
       items: ['Info Básica', 'Características Físicas', 'Habilidades', 'Experiencia Laboral', 'Estudios'],
-      educationItems: []
+      educationItems: [],
+      workExperienceItems: []
     };
   },
   methods: {
@@ -128,6 +139,15 @@ export default {
     },
     handleUpdatedEducation(updatedEducation, index) {
       this.educationItems.splice(index, 1, updatedEducation);
+    },
+    handleAddWorkExperience(newWorkExperience) {
+      this.workExperienceItems.push(newWorkExperience);
+    },
+    handleDeletedWorkExperience(index) {
+      this.workExperienceItems.splice(index, 1);
+    },
+    handleUpdatedWorkExperience(updatedWorkExperience, index) {
+      this.workExperienceItems.splice(index, 1, updatedWorkExperience);
     }
   },
   computed: {
@@ -144,14 +164,25 @@ export default {
       this.resizedImage = this.currentUser.profile_picture;
     }
 
-     // Cargar la lista de estudios del usuario
-     UserService.getUserAcademicExperiences()
+    // Cargar la lista de estudios del usuario
+    UserService.getUserAcademicExperiences()
       .then(response => {
         this.educationItems = response.data; // `response.data` es  una lista de experiencias academicas
       })
       .catch(error => {
         console.log('Error al obtener experiencias académicas', error);
-      });
+      }
+    );
+
+    // Cargar la lista de experiencias laborales del usuario
+    UserService.getUserWorkExperiences()
+      .then(response => {
+        this.workExperienceItems = response.data; // `response.data` es  una lista de experiencias laborales
+      })
+      .catch(error => {
+        console.log('Error al obtener experiencias laborales', error);
+      }
+    );
   }
 };
 </script>

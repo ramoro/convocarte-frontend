@@ -25,6 +25,7 @@ class UserService {
         return axios.post(API_URL + 'users/upload-profile-picture', formData, { headers: authHeaderMultipartFormData() });
     }
 
+    //Sector de Estudios/Experiencias Academicas del Usuario
     addAcademicExperience(payload) {
         return axios.post(API_URL + 'users/add-academic-experience', payload, { headers: authHeader() });
     }
@@ -39,6 +40,23 @@ class UserService {
 
     updateAcademicExperience(id, payload) {
         return axios.put(API_URL + 'users/update-academic-experience/' + id, payload, { headers: authHeader() });
+    }
+
+    //Sector Experiencia Laboral del Usuario
+    addWorkExperience(payload) {
+        return axios.post(API_URL + 'users/add-work-experience', payload, { headers: authHeader() });
+    }
+
+    getUserWorkExperiences() {
+        return axios.get(API_URL + 'users/my-work-experiences', { headers: authHeader() });
+    }
+
+    deleteWorkExperience(id) {
+        return axios.delete(API_URL + 'users/delete-work-experience/' + id, { headers: authHeader() });
+    }
+
+    updateWorkExperience(id, payload) {
+        return axios.put(API_URL + 'users/update-work-experience/' + id, payload, { headers: authHeader() });
     }
 }
 
