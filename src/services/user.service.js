@@ -13,6 +13,10 @@ class UserService {
         });
     }
 
+    getUserById(user_id) {
+        return axios.get(API_URL + 'users/' + user_id, { headers: authHeader() });
+    }
+
     resetPassword(payload) {
         return axios.post(API_URL + 'users/reset-password', payload);
     }
@@ -57,6 +61,11 @@ class UserService {
 
     updateWorkExperience(id, payload) {
         return axios.put(API_URL + 'users/update-work-experience/' + id, payload, { headers: authHeader() });
+    }
+
+    //Sector de Características Físicas
+    updateUserPhysicalCharacteristics(id, payload) {
+        return axios.patch(API_URL + 'users/' + id, payload, { headers: authHeader() });
     }
 }
 

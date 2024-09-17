@@ -48,13 +48,17 @@
                       @delete-education="handleDeletedEducation"
                       @update-education="handleUpdatedEducation"
                     />
-
                     <!-- Mostrar el componente solo si el tab actual es "Experiencia Laboral" -->
                     <WorkExperienceProfileArea v-if="items[tab] === 'Experiencia Laboral'"
                       :workExperienceItems="workExperienceItems" 
                       @add-work-experience="handleAddWorkExperience"
                       @delete-work-experience="handleDeletedWorkExperience"
                       @update-work-experience="handleUpdatedWorkExperience"
+                    />
+                    <!-- Mostrar el componente solo si el tab actual es "Caracteristicas fisicas" -->
+                    <PhysicalCharacteristicsProfileArea v-if="items[tab] === 'Características Físicas'"
+                      :phCharacteristics = "physicalCharacteristics"
+                      @update-physical-characteristics="handleUpdatedPhysicalCharacteristics"
                     />
                   </v-card-text>
                 </v-card>
@@ -86,12 +90,14 @@ import UserService from '../services/user.service';
 import ImageCropper from '@/components/ImageCropper.vue';
 import EducationProfileArea from '@/components/EducationProfileArea.vue';
 import WorkExperienceProfileArea from '@/components/WorkExperienceProfileArea.vue';
+import PhysicalCharacteristicsProfileArea from '@/components/PhysicalCharacteristicsProfileArea.vue';
 
 export default {
   components: {
     ImageCropper,
     EducationProfileArea,
-    WorkExperienceProfileArea
+    WorkExperienceProfileArea,
+    PhysicalCharacteristicsProfileArea
   },
   data() {
     return {
@@ -102,7 +108,8 @@ export default {
       tab: 'Info Básica',
       items: ['Info Básica', 'Características Físicas', 'Habilidades', 'Experiencia Laboral', 'Estudios'],
       educationItems: [],
-      workExperienceItems: []
+      workExperienceItems: [],
+      physicalCharacteristics: {}
     };
   },
   methods: {
@@ -148,6 +155,35 @@ export default {
     },
     handleUpdatedWorkExperience(updatedWorkExperience, index) {
       this.workExperienceItems.splice(index, 1, updatedWorkExperience);
+    },
+    handleUpdatedPhysicalCharacteristics(updatedCharacteristics) {
+      this.physicalCharacteristics = updatedCharacteristics;
+    },
+    mapUserData(data) {
+      this.physicalCharacteristics = {
+        weight: data.weight || '',
+        height: data.height || '',
+        eyesColor: data.eyes_color || '-----------',
+        skinColor: data.skin_color || '-----------',
+        waistMeasurement: data.waist_measurement || '',
+        hipMeasurement: data.hip_measurement || '',
+        bustMeasurement: data.bust_measurement || '',
+        hairColor: data.hair_color || '-----------',
+        pantSize: data.pant_size || '',
+        tshirtSize: data.tshirt_size || '',
+        jacketSize: data.jacket_size || '',
+        shoesSize: data.shoes_size || '',
+        hands: data.hands || '-----------',
+        feet: data.feet || '-----------',
+        teeth: data.teeth || '-----------',
+        braces: data.braces || '-----------',
+        tattoos: data.tattoos || '-----------',
+        tattoosArea: data.tattoosArea || '',
+        piercings: data.piercings || '-----------',
+        piercingsArea: data.piercingsArea || '',
+        extraInformation: data.physical_characs_extra_info || ''
+      };
+
     }
   },
   computed: {
@@ -181,6 +217,15 @@ export default {
       })
       .catch(error => {
         console.log('Error al obtener experiencias laborales', error);
+      }
+    );
+
+    UserService.getUserById(this.$store.state.auth.user.id)      
+    .then(response => {
+        this.mapUserData(response.data);
+      })
+      .catch(error => {
+        console.log('Error al obtener caracteristicas del usuario', error);
       }
     );
   }
