@@ -64,7 +64,9 @@ class UserService {
     }
 
     //Sector de Características Físicas
-    updateUserPhysicalCharacteristics(id, payload) {
+    updateUserData(id, payload) {
+        console.log(API_URL + 'users/' + id)
+        console.log(payload)
         return axios.patch(API_URL + 'users/' + id, payload, { headers: authHeader() });
     }
 }

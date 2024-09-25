@@ -385,12 +385,6 @@ export default {
     };
   },
   methods: {
-    activateEditMode() {
-      this.originalForm = { ...this.formData }; // Crear una copia de los datos actuales
-    },
-    cancelEditMode() {
-      this.formData = { ...this.originalForm }; // Restaurar los datos originales
-    },
     cancelEdition() {
       this.physicalCharacteristicsDialog = false;
     },
@@ -398,12 +392,12 @@ export default {
       this.physicalCharacteristicsDialog = true;
       this.formData = JSON.parse(JSON.stringify(this.phCharacteristics));
       for (let field in this.formData) {
-          if (this.formData[field] == true) {
-            this.formData[field] = 'Sí';
-          } else if (this.formData[field] == false) {
-            this.formData[field] = 'No';
-          }
+        if (this.formData[field] == true) {
+          this.formData[field] = 'Sí';
+        } else if (this.formData[field] == false) {
+          this.formData[field] = 'No';
         }
+      }
     },
     async handleSubmit() {
       this.$refs.form.validate().then(result => {
@@ -430,20 +424,12 @@ export default {
       } else {
         console.log("FORM INVALIDO");
         console.log(result.errors);
-        //this.formData = { ...this.originalForm };
       }
     }).catch(error => {
       console.error("Error al validar el formulario", error);
       this.physicalCharacteristicsDialog = false;
     });
     }
-  },
-  beforeMount() {
-    /*this.formData = JSON.parse(JSON.stringify(this.phCharacteristics));
-    console.log("Before mount Form data:")
-    console.log(this.formData);
-    console.log("Before mount PhCharacteristics:")
-    console.log(this.phCharacteristics);*/
   }
 };
 

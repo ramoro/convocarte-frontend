@@ -41,7 +41,11 @@
             <v-tabs-window v-model="tab">
                 <v-card flat>
                   <v-card-text>
-
+                    <!-- Mostrar el componente solo si el tab actual es "Habilidades" -->
+                    <SkillsProfileArea v-if="items[tab] === 'Habilidades'"
+                      :skills = "skills"
+                      @update-skills="handleUpdatedSkills"
+                    />
                     <!-- Mostrar el componente solo si el tab actual es "Estudios" -->
                     <EducationProfileArea v-if="items[tab] === 'Estudios'"
                       :educationItems="educationItems" 
@@ -92,13 +96,15 @@ import ImageCropper from '@/components/ImageCropper.vue';
 import EducationProfileArea from '@/components/EducationProfileArea.vue';
 import WorkExperienceProfileArea from '@/components/WorkExperienceProfileArea.vue';
 import PhysicalCharacteristicsProfileArea from '@/components/PhysicalCharacteristicsProfileArea.vue';
+import SkillsProfileArea from '@/components/SkillsProfileArea.vue';
 
 export default {
   components: {
     ImageCropper,
     EducationProfileArea,
     WorkExperienceProfileArea,
-    PhysicalCharacteristicsProfileArea
+    PhysicalCharacteristicsProfileArea,
+    SkillsProfileArea
   },
   data() {
     return {
@@ -110,29 +116,8 @@ export default {
       items: ['Info Básica', 'Características Físicas', 'Habilidades', 'Experiencia Laboral', 'Estudios'],
       educationItems: [],
       workExperienceItems: [],
-      physicalCharacteristics: {
-        weight: null,
-        height: null,
-        eyes_color: null,
-        skin_color: null,
-        waist_measurement: null,
-        hip_measurement: null,
-        bust_measurement: null,
-        hair_color: null,
-        pant_size: null,
-        tshirt_size: null,
-        jacket_size: null,
-        shoes_size: null,
-        hands: null,
-        feet: null,
-        teeth: null,
-        braces: null,
-        tattoos: null,
-        tattoos_area: null,
-        piercings: null,
-        piercings_area: null,
-        extra_information: null,
-      }
+      physicalCharacteristics: {},
+      skills: {}
     };
   },
   methods: {
@@ -181,6 +166,48 @@ export default {
     },
     handleUpdatedPhysicalCharacteristics(updatedCharacteristics) {
       this.physicalCharacteristics = { ...updatedCharacteristics };
+    },
+    handleUpdatedSkills(updatedSkills) {
+      this.skills = { ...updatedSkills };
+    },
+    setPhysicalCharacteristics(data) {
+      this.physicalCharacteristics = {
+        weight: data.weight,
+        height: data.height,
+        eyes_color: data.eyes_color,
+        skin_color: data.skin_color,
+        waist_measurement: data.waist_measurement,
+        hip_measurement: data.hip_measurement,
+        bust_measurement: data.bust_measurement,
+        hair_color: data.hair_color,
+        pant_size: data.pant_size,
+        tshirt_size: data.tshirt_size,
+        jacket_size: data.jacket_size,
+        shoes_size: data.shoes_size,
+        hands: data.hands,
+        feet: data.feet,
+        teeth: data.teeth,
+        braces: data.braces,
+        tattoos: data.tattoos,
+        tattoos_area: data.tattoos_area,
+        piercings: data.piercings,
+        piercings_area: data.piercings_area,
+        extra_information: data.extra_information,
+      };
+    },
+    setSkills(data) {
+      this.skills = {
+        language_skills: data.language_skills,
+        sports_skills: data.sports_skills,
+        instruments_skills: data.instruments_skills,
+        other_skills: data.other_skills,
+        is_singer: data.is_singer,
+        is_dancer: data.is_dancer,
+        dance_types: data.dance_types,
+        car_drivers_license: data.car_drivers_license,
+        moto_drivers_license: data.moto_drivers_license,
+        skills_additionals: data.skills_additionals
+      }
     }
   },
   computed: {
@@ -219,13 +246,14 @@ export default {
 
     UserService.getUserById(this.$store.state.auth.user.id)      
     .then(response => {
-        this.physicalCharacteristics = { ...response.data};
+        this.setPhysicalCharacteristics(response.data);
+        this.setSkills(response.data);
       })
       .catch(error => {
         console.log('Error al obtener caracteristicas del usuario', error);
       }
     );
-  }
+  },
 };
 </script>
 
