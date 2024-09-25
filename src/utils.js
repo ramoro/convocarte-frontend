@@ -4,7 +4,6 @@
  * @returns {string} Fecha en formato DD/MM/YYYY
  */
 export function formatDate(dateString) {
-    console.log("ENTRO");
     const [year, month, day] = dateString.split('-');
     const date = new Date(year, month - 1, day);
 

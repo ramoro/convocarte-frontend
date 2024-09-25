@@ -38,9 +38,10 @@
             </v-tabs>
 
             <!-- Contenido de cada sección -->
-            <v-tabs-items v-model="tab">
+            <v-tabs-window v-model="tab">
                 <v-card flat>
                   <v-card-text>
+
                     <!-- Mostrar el componente solo si el tab actual es "Estudios" -->
                     <EducationProfileArea v-if="items[tab] === 'Estudios'"
                       :educationItems="educationItems" 
@@ -62,7 +63,7 @@
                     />
                   </v-card-text>
                 </v-card>
-            </v-tabs-items>
+            </v-tabs-window>
           </v-card>
         </v-col>
       </v-row>
@@ -109,7 +110,29 @@ export default {
       items: ['Info Básica', 'Características Físicas', 'Habilidades', 'Experiencia Laboral', 'Estudios'],
       educationItems: [],
       workExperienceItems: [],
-      physicalCharacteristics: {}
+      physicalCharacteristics: {
+        weight: null,
+        height: null,
+        eyes_color: null,
+        skin_color: null,
+        waist_measurement: null,
+        hip_measurement: null,
+        bust_measurement: null,
+        hair_color: null,
+        pant_size: null,
+        tshirt_size: null,
+        jacket_size: null,
+        shoes_size: null,
+        hands: null,
+        feet: null,
+        teeth: null,
+        braces: null,
+        tattoos: null,
+        tattoos_area: null,
+        piercings: null,
+        piercings_area: null,
+        extra_information: null,
+      }
     };
   },
   methods: {
@@ -157,33 +180,7 @@ export default {
       this.workExperienceItems.splice(index, 1, updatedWorkExperience);
     },
     handleUpdatedPhysicalCharacteristics(updatedCharacteristics) {
-      this.physicalCharacteristics = updatedCharacteristics;
-    },
-    mapUserData(data) {
-      this.physicalCharacteristics = {
-        weight: data.weight || '',
-        height: data.height || '',
-        eyesColor: data.eyes_color || '-----------',
-        skinColor: data.skin_color || '-----------',
-        waistMeasurement: data.waist_measurement || '',
-        hipMeasurement: data.hip_measurement || '',
-        bustMeasurement: data.bust_measurement || '',
-        hairColor: data.hair_color || '-----------',
-        pantSize: data.pant_size || '',
-        tshirtSize: data.tshirt_size || '',
-        jacketSize: data.jacket_size || '',
-        shoesSize: data.shoes_size || '',
-        hands: data.hands || '-----------',
-        feet: data.feet || '-----------',
-        teeth: data.teeth || '-----------',
-        braces: data.braces || '-----------',
-        tattoos: data.tattoos || '-----------',
-        tattoosArea: data.tattoosArea || '',
-        piercings: data.piercings || '-----------',
-        piercingsArea: data.piercingsArea || '',
-        extraInformation: data.physical_characs_extra_info || ''
-      };
-
+      this.physicalCharacteristics = { ...updatedCharacteristics };
     }
   },
   computed: {
@@ -222,7 +219,7 @@ export default {
 
     UserService.getUserById(this.$store.state.auth.user.id)      
     .then(response => {
-        this.mapUserData(response.data);
+        this.physicalCharacteristics = { ...response.data};
       })
       .catch(error => {
         console.log('Error al obtener caracteristicas del usuario', error);

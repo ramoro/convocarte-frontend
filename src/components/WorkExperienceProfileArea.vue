@@ -26,7 +26,7 @@
           <v-row>
             <v-col cols="6">
               <v-text-field
-                v-model="currentWorkExperience.workTitle"
+                v-model="currentWorkExperience.work_title"
                 label="Título del Proyecto"
                 :rules="requiredAndLengthRules"
                 required
@@ -56,7 +56,7 @@
             <v-col cols="5">
               <v-text-field
                 label="Fecha Inicio"
-                v-model="currentWorkExperience.startDate"
+                v-model="currentWorkExperience.start_date"
                 :rules="startDateRules"
                 type="date"
                 class="date-field"
@@ -72,7 +72,7 @@
             <v-col cols="5">
               <v-text-field
                 label="Fecha Fin"
-                v-model="currentWorkExperience.endDate"
+                v-model="currentWorkExperience.end_date"
                 type="date"
                 :rules="endDateRules"
                 :disabled="isDateFieldDisabled"
@@ -109,7 +109,7 @@
             </v-col>
             <v-col cols="6">
               <v-text-field
-                v-model="currentWorkExperience.projectUrl"
+                v-model="currentWorkExperience.project_url"
                 label="Link al Proyecto"
                 :append-inner-icon="'mdi-link-variant'"
                 :rules="onlyLengthRule"
@@ -144,12 +144,23 @@
   </v-card>
 </v-dialog>
 
+<v-row align="center" justify="start">
+  <v-col cols="auto">
+    <p class="font-weight-bold text-h6">Experiencias Laborales</p>
+  </v-col>
+  <v-col cols="auto">
+    <v-btn @click="openAddWorkExperienceDialog" style="margin-left:0px;" color="cyan" icon size="35" class="text-white">
+      <v-icon>mdi-plus</v-icon>
+    </v-btn>
+  </v-col>
+</v-row>
+
 
 <v-card class="pa-3 my-8 elevation-2" variant="tonal" color="cyan-darken-2" v-for="(workExperience, index) in workExperienceItems" :key="index">
   <v-row>
     <v-col cols="3" md="3">
       <div class="caption">Título del Proyecto</div>
-      <div style="color:black !important">{{workExperience.workTitle}}</div>
+      <div style="color:black !important">{{workExperience.work_title}}</div>
     </v-col>
     <v-col cols="3" md="3">
       <div class="caption">Rol</div>
@@ -182,10 +193,10 @@
       <div class="caption">Productora</div>
       <div style="color:black !important">{{workExperience.producer}}</div>
     </v-col>
-    <v-col v-if="workExperience.projectUrl" cols="6">
+    <v-col v-if="workExperience.project_url" cols="6">
       <div class="caption">Link al Proyecto</div>
-      <div style="color:black !important" >    <a :href="formattedUrl(workExperience.projectUrl)">
-      {{ workExperience.projectUrl }}
+      <div style="color:black !important" >    <a :href="formattedUrl(workExperience.project_url)">
+      {{ workExperience.project_url }}
     </a></div>
     </v-col>
     <v-col v-if="workExperience.description" cols="12">
@@ -194,12 +205,6 @@
     </v-col>
   </v-row>  
 </v-card>
-
-<div class="text-center ma-1">
-  <v-btn @click="openAddWorkExperienceDialog" color="cyan" icon small class=" text-white add-study-btn">
-    <v-icon>mdi-plus</v-icon>
-  </v-btn>
-</div>
 
 </template>
 
@@ -216,6 +221,7 @@ props: {
     default: () => []
   }
 },
+emits: ['add-work-experience', 'delete-work-experience', 'update-work-experience'],
 data() {
   return {
     workExperienceDialog: false,
@@ -240,7 +246,7 @@ data() {
     endDateBaseRules: [
       value => !!value || 'Campo requerido',
       value => value.split('-')[0] >= 1900 && value.split('-')[0] <= 3000 || 'La fecha no es valida', //Validacion de año
-      value => (this.currentWorkExperience.startDate && value > this.currentWorkExperience.startDate) || 'La fecha de fin debe ser mayor a la de inicio'
+      value => (this.currentWorkExperience.start_date && value > this.currentWorkExperience.start_date) || 'La fecha de fin debe ser mayor a la de inicio'
     ],
     endDateRules: [],
     descriptionRules: [
@@ -259,55 +265,32 @@ methods: {
   openEditWorkExperienceDialog(workExperience, index) {
     this.isEditMode = true;
     this.workExperienceDialog = true;
-    //Hago mapeo entre el nombre de las variables que uso en jscript y 
-    //el nombre de variables que uso en el back (python)
-    this.currentWorkExperience = {
-      id: workExperience.id,
-      workTitle: workExperience.workTitle,
-      role: workExperience.role,
-      startDate: workExperience.start_date,
-      endDate: workExperience.end_date,
-      producer: workExperience.producer,
-      projectUrl: workExperience.projectUrl,
-      description: workExperience.description
-    };
 
+    this.currentWorkExperience = JSON.parse(JSON.stringify(workExperience));
     this.indexToUpdate = index;
     //Valido que si fecha viene vacia se refiere a que esta en curso y no se
     //debe validar el campo
-    if (!this.currentWorkExperience.endDate) {
+    if (!this.currentWorkExperience.end_date) {
       this.endDateRules = [];
     }
-    this.isDateFieldDisabled = !this.currentWorkExperience.endDate;
+    this.isDateFieldDisabled = !this.currentWorkExperience.end_date;
   },
   async handleSubmit() {
 
     this.$refs.form.validate().then(result => {
       if (result.valid) {
-
-        const payload = {
-            workTitle: this.currentWorkExperience.workTitle,
-            role: this.currentWorkExperience.role,
-            start_date: this.currentWorkExperience.startDate,
-            end_date: this.currentWorkExperience.endDate,
-            producer: this.currentWorkExperience.producer,
-            projectUrl: this.currentWorkExperience.projectUrl,
-            description: this.currentWorkExperience.description
-          };
-
         if (this.isEditMode) {
-          UserService.updateWorkExperience(this.currentWorkExperience.id, payload)
+          UserService.updateWorkExperience(this.currentWorkExperience.id, this.currentWorkExperience)
             .then(response => {
               console.log('Se actualizó la experiencia laboral:', response.data);
-              payload.id = this.currentWorkExperience.id;
-              this.$emit('update-work-experience', payload, this.indexToUpdate);
+              this.$emit('update-work-experience', this.currentWorkExperience, this.indexToUpdate);
               this.workExperienceDialog = false;
             })
             .catch(error => {
               console.error('Error al actualizar la experiencia laboral', error);
             });
         } else {
-          UserService.addWorkExperience(payload)
+          UserService.addWorkExperience(this.currentWorkExperience)
             .then(response => {
               console.log('Se agregó una nueva experiencia laboral:', response.data);
               this.workExperienceDialog = false;
@@ -331,7 +314,7 @@ methods: {
     this.endDateRules = this.endDateBaseRules;
     if (this.isDateFieldDisabled) {
       this.endDateRules = [];
-      this.currentWorkExperience.endDate = '';
+      this.currentWorkExperience.end_date = '';
     }
   },
   formatDate(dateString) {

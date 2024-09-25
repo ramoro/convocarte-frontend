@@ -41,7 +41,7 @@
             </v-col>
             <v-col cols="6">
               <v-text-field
-                v-model="currentEducation.studyField"
+                v-model="currentEducation.field_of_study"
                 label="Disciplina"
                 :rules="classicRules"
                 required
@@ -56,7 +56,7 @@
             <v-col cols="5">
               <v-text-field
                 label="Fecha Inicio"
-                v-model="currentEducation.startDate"
+                v-model="currentEducation.start_date"
                 :rules="startDateRules"
                 type="date"
                 class="date-field"
@@ -72,7 +72,7 @@
             <v-col cols="5">
               <v-text-field
                 label="Fecha Fin"
-                v-model="currentEducation.endDate"
+                v-model="currentEducation.end_date"
                 type="date"
                 :rules="endDateRules"
                 :disabled="isDateFieldDisabled"
@@ -119,6 +119,16 @@
   </v-card>
 </v-dialog>
 
+<v-row align="center" justify="start">
+  <v-col cols="auto">
+    <p class="font-weight-bold text-h6">Estudios</p>
+  </v-col>
+  <v-col cols="auto">
+    <v-btn @click="openAddEducationDialog" style="margin-left:0px;" color="purple" icon size="35">
+      <v-icon>mdi-plus</v-icon>
+    </v-btn>
+  </v-col>
+</v-row>
 
 <v-card class="pa-3 my-8 elevation-2" variant="tonal" color="purple-lighten-2" v-for="(education, index) in educationItems" :key="index">
   <v-row>
@@ -160,12 +170,6 @@
   </v-row>  
 </v-card>
 
-<div class="text-center ma-1">
-  <v-btn @click="openAddEducationDialog" color="purple" icon small class="add-study-btn">
-    <v-icon>mdi-plus</v-icon>
-  </v-btn>
-</div>
-
 </template>
 
 <script>
@@ -181,6 +185,7 @@ props: {
     default: () => []
   }
 },
+emits: ['add-education', 'delete-education', 'update-education'],
 data() {
   return {
     educationDialog: false,
@@ -202,7 +207,7 @@ data() {
     endDateBaseRules: [
       value => !!value || 'Campo requerido',
       value => value.split('-')[0] >= 1900 && value.split('-')[0] <= 3000 || 'La fecha no es valida', //Validacion de año
-      value => (this.currentEducation.startDate && value > this.currentEducation.startDate) || 'La fecha de fin debe ser mayor a la de inicio'
+      value => (this.currentEducation.start_date && value > this.currentEducation.start_date) || 'La fecha de fin debe ser mayor a la de inicio'
     ],
     endDateRules: [],
     descriptionRules: [
@@ -221,50 +226,31 @@ methods: {
   openEditEducationDialog(education, index) {
     this.isEditMode = true;
     this.educationDialog = true;
-    //Hago mapeo entre el nombre de las variables que uso en jscript y 
-    //el nombre de variables que uso en el back (python)
-    this.currentEducation = {
-      id: education.id,
-      institution: education.institution,
-      studyField: education.field_of_study,
-      startDate: education.start_date,
-      endDate: education.end_date,
-      description: education.description
-    };
 
     this.indexToUpdate = index;
+    this.currentEducation = JSON.parse(JSON.stringify(education));
     //Valido que si fecha viene vacia se refiere a que esta en curso y no se
     //debe validar el campo
-    if (!this.currentEducation.endDate) {
+    if (!this.currentEducation.end_date) {
       this.endDateRules = [];
     }
-    this.isDateFieldDisabled = !this.currentEducation.endDate;
+    this.isDateFieldDisabled = !this.currentEducation.end_date;
   },
   async handleSubmit() {
-
     this.$refs.form.validate().then(result => {
       if (result.valid) {
-        const payload = {
-            institution: this.currentEducation.institution,
-            field_of_study: this.currentEducation.studyField,
-            start_date: this.currentEducation.startDate,
-            end_date: this.currentEducation.endDate,
-            description: this.currentEducation.description
-          };
-
         if (this.isEditMode) {
-          UserService.updateAcademicExperience(this.currentEducation.id, payload)
+          UserService.updateAcademicExperience(this.currentEducation.id, this.currentEducation)
             .then(response => {
               console.log('Se actualizó la experiencia académica:', response.data);
-              payload.id = this.currentEducation.id;
-              this.$emit('update-education', payload, this.indexToUpdate);
+              this.$emit('update-education', this.currentEducation, this.indexToUpdate);
               this.educationDialog = false;
             })
             .catch(error => {
               console.error('Error al actualizar la experiencia académica', error);
             });
         } else {
-          UserService.addAcademicExperience(payload)
+          UserService.addAcademicExperience(this.currentEducation)
             .then(response => {
               console.log('Se agregó una nueva experiencia académica:', response.data);
               this.educationDialog = false;
@@ -288,7 +274,7 @@ methods: {
     this.endDateRules = this.endDateBaseRules;
     if (this.isDateFieldDisabled) {
       this.endDateRules = [];
-      this.currentEducation.endDate = '';
+      this.currentEducation.end_date = '';
     }
   },
   formatDate(dateString) {
