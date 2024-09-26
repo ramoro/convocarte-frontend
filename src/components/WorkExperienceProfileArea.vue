@@ -195,7 +195,7 @@
     </v-col>
     <v-col v-if="workExperience.project_url" cols="6">
       <div class="caption">Link al Proyecto</div>
-      <div style="color:black !important" >    <a :href="formattedUrl(workExperience.project_url)">
+      <div style="color:black !important" >    <a :href="formatUrl(workExperience.project_url)">
       {{ workExperience.project_url }}
     </a></div>
     </v-col>
@@ -211,7 +211,7 @@
 <script>
 import WorkExperience from '@/models/work-experience'
 import UserService from '../services/user.service';
-import { formatDate } from '@/utils';
+import { formatDate, formatUrl } from '@/utils';
 
 export default {
 name: "WorkExperienceProfileArea",
@@ -320,6 +320,9 @@ methods: {
   formatDate(dateString) {
     return formatDate(dateString);
   },
+  formatUrl(url) {
+    return formatUrl(url);
+  },
   prepareDelete(workExperience, index) {
     this.itemToDelete = workExperience;
     this.deleteIndex = index;
@@ -336,13 +339,7 @@ methods: {
         console.error('Error al eliminar experiencia académica', error);
       });
   },
-  formattedUrl(url) {
-    //Para que redireccione bien se agrega el https
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = `https://${url}`;
-      }
-    return url;
-  }
+
 }
 };
 </script>

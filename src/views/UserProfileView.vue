@@ -24,6 +24,8 @@
             ></v-img>
             <p v-if="currentUser" class="caption" style="font-weight: bold;">{{ currentUser.fullname }}</p>
             <p v-if="currentUser" class="caption mt-2"><v-icon class="mr-1" color="blue">mdi-email-outline</v-icon>{{ currentUser.email }}</p>
+            <p v-if="currentUser && basicInfo.instagram" class="caption mt-2"><v-icon class="mr-1" color="pink-lighten-1">mdi-instagram</v-icon><a :href="currentInstagram.fullLink">{{ currentInstagram.shortLink }}</a></p>
+            <p v-if="currentUser && basicInfo.phone_number" class="caption mt-2"><v-icon class="mr-1" color="blue-darken-4">mdi-phone-outline</v-icon>{{ basicInfo.phone_number }}</p>
           </v-card>
         </v-col>
 
@@ -41,6 +43,11 @@
             <v-tabs-window v-model="tab">
                 <v-card flat>
                   <v-card-text>
+                    <!-- Mostrar el componente solo si el tab actual es "Info Básica" -->
+                    <BasicInfoAndContactProfileArea v-if="items[tab] === 'Info Básica'"
+                      :basicInfo = "basicInfo"
+                      @update-basic-info="handleUpdatedBasicInfo"
+                    />
                     <!-- Mostrar el componente solo si el tab actual es "Habilidades" -->
                     <SkillsProfileArea v-if="items[tab] === 'Habilidades'"
                       :skills = "skills"
@@ -97,6 +104,8 @@ import EducationProfileArea from '@/components/EducationProfileArea.vue';
 import WorkExperienceProfileArea from '@/components/WorkExperienceProfileArea.vue';
 import PhysicalCharacteristicsProfileArea from '@/components/PhysicalCharacteristicsProfileArea.vue';
 import SkillsProfileArea from '@/components/SkillsProfileArea.vue';
+import BasicInfoAndContactProfileArea from '@/components/BasicInfoAndContactProfileArea.vue';
+import { formatUrl } from '@/utils';
 
 export default {
   components: {
@@ -104,7 +113,8 @@ export default {
     EducationProfileArea,
     WorkExperienceProfileArea,
     PhysicalCharacteristicsProfileArea,
-    SkillsProfileArea
+    SkillsProfileArea,
+    BasicInfoAndContactProfileArea
   },
   data() {
     return {
@@ -117,7 +127,8 @@ export default {
       educationItems: [],
       workExperienceItems: [],
       physicalCharacteristics: {},
-      skills: {}
+      skills: {},
+      basicInfo: {}
     };
   },
   methods: {
@@ -170,6 +181,30 @@ export default {
     handleUpdatedSkills(updatedSkills) {
       this.skills = { ...updatedSkills };
     },
+    handleUpdatedBasicInfo(updatedBasicInfo) {
+      this.basicInfo = { ...updatedBasicInfo };
+
+      if (this.currentUser.fullname != this.basicInfo.fullname) {
+        this.$store.dispatch('auth/changeUserFullname', this.basicInfo.fullname);
+      }
+    },
+    setBasicInfo(data) {
+      this.basicInfo = {
+        fullname: data.fullname,
+        age: data.age,
+        gender: data.gender,
+        residence_country: data.residence_country,
+        locality: data.locality,
+        nationality: data.nationality,
+        birth_date: data.birth_date,
+        phone_number: data.phone_number,
+        phone_number_two: data.phone_number_two,
+        instagram: data.instagram,
+        facebook: data.facebook,
+        youtube_channel: data.youtube_channel,
+        website: data.website
+      }
+    },
     setPhysicalCharacteristics(data) {
       this.physicalCharacteristics = {
         weight: data.weight,
@@ -215,6 +250,19 @@ export default {
       console.log("STOREUSER");
       console.log(this.$store.state.auth.user);
       return this.$store.state.auth.user;
+    },
+    currentInstagram() {
+      if (this.basicInfo.instagram) {
+        var fullLink = formatUrl(this.basicInfo.instagram)
+        const regex = /https:\/\/www.instagram.com\/([^]+)\//;
+        const match = this.basicInfo.instagram.match(regex);
+        // Si se encuentra una coincidencia, devolvemos el nombre de usuario, si no, 
+        // devolvemos null o vacío
+        var shortLink = match ? match[1] : null;
+        return {fullLink: fullLink, shortLink: shortLink} 
+      } else {
+        return null;
+      }
     }
   },
   beforeMount() {
@@ -248,9 +296,10 @@ export default {
     .then(response => {
         this.setPhysicalCharacteristics(response.data);
         this.setSkills(response.data);
+        this.setBasicInfo(response.data);
       })
       .catch(error => {
-        console.log('Error al obtener caracteristicas del usuario', error);
+        console.log('Error al obtener datos del usuario', error);
       }
     );
   },

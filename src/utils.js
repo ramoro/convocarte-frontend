@@ -13,3 +13,14 @@ export function formatDate(dateString) {
     
     return `${dayFormatted}/${monthFormatted}/${yearFormatted}`;
 }
+
+export function formatUrl(url) {
+    if (!url) {
+        return ''; 
+    }
+    //Para que redireccione bien se agrega el https
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = `https://${url}`;
+        }
+    return url;
+}

@@ -39,6 +39,9 @@ export const auth = {
     },
     changeUserPictureProfile({ commit }, profilePic) {
       commit('changePicProfile', profilePic);
+    },
+    changeUserFullname({ commit }, fullname) {
+      commit('changeFullname', fullname);
     }
   },
   mutations: {
@@ -63,6 +66,11 @@ export const auth = {
     changePicProfile(state, newPicture) {
       if (state.user) {
         state.user.profile_picture = newPicture;
+      }
+    },
+    changeFullname(state, fullname) {
+      if (state.user) {
+        state.user.fullname = fullname;
       }
     }
   }
