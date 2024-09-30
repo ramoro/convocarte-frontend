@@ -29,6 +29,10 @@ class UserService {
         return axios.post(API_URL + 'users/upload-profile-picture', formData, { headers: authHeaderMultipartFormData() });
     }
 
+    updateCV(formData) {
+        return axios.post(API_URL + 'users/upload-cv', formData, { headers: authHeaderMultipartFormData() });
+    }
+
     //Sector de Estudios/Experiencias Academicas del Usuario
     addAcademicExperience(payload) {
         return axios.post(API_URL + 'users/add-academic-experience', payload, { headers: authHeader() });

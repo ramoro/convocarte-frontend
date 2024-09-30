@@ -3,8 +3,9 @@
     <v-container grid-list-xl>
       <!-- Título del perfil de usuario -->
       <v-row>
-        <v-col cols="12">
+        <v-col cols="12" class="d-flex justify-space-between align-center">
           <h1 class="profile-title">Perfil de usuario</h1>
+          <UploadFileButton button-text="Subir CV" @add-uploaded-cv="handleUploadedCV"/>
         </v-col>
       </v-row>
 
@@ -26,6 +27,11 @@
             <p v-if="currentUser" class="caption mt-2"><v-icon class="mr-1" color="blue">mdi-email-outline</v-icon>{{ currentUser.email }}</p>
             <p v-if="currentUser && basicInfo.instagram" class="caption mt-2"><v-icon class="mr-1" color="pink-lighten-1">mdi-instagram</v-icon><a :href="currentInstagram.fullLink">{{ currentInstagram.shortLink }}</a></p>
             <p v-if="currentUser && basicInfo.phone_number" class="caption mt-2"><v-icon class="mr-1" color="blue-darken-4">mdi-phone-outline</v-icon>{{ basicInfo.phone_number }}</p>
+            <p v-if="currentUser && cv" class="caption mt-2">            
+                <v-chip v-if="cv" color="red" class="ma-2" closable @click:close="deleteCV">
+                  <a @click="downloadCV" href="#" class="cv-link">Curriculum</a>
+                </v-chip>
+            </p>
           </v-card>
         </v-col>
 
@@ -105,7 +111,9 @@ import WorkExperienceProfileArea from '@/components/WorkExperienceProfileArea.vu
 import PhysicalCharacteristicsProfileArea from '@/components/PhysicalCharacteristicsProfileArea.vue';
 import SkillsProfileArea from '@/components/SkillsProfileArea.vue';
 import BasicInfoAndContactProfileArea from '@/components/BasicInfoAndContactProfileArea.vue';
+import UploadFileButton from '@/components/UploadFileButton.vue';
 import { formatUrl } from '@/utils';
+import axios from 'axios';
 
 export default {
   components: {
@@ -114,11 +122,11 @@ export default {
     WorkExperienceProfileArea,
     PhysicalCharacteristicsProfileArea,
     SkillsProfileArea,
-    BasicInfoAndContactProfileArea
+    BasicInfoAndContactProfileArea,
+    UploadFileButton
   },
   data() {
     return {
-      saved: false,
       resizedImage: '',
       cropperDialog: false,
       selectedImage: null,
@@ -128,7 +136,8 @@ export default {
       workExperienceItems: [],
       physicalCharacteristics: {},
       skills: {},
-      basicInfo: {}
+      basicInfo: {},
+      cv: ''
     };
   },
   methods: {
@@ -138,14 +147,13 @@ export default {
     },
     async handleCroppedImage(croppedImageBlob, fileName) {
       this.cropperDialog = false;
-      this.saved = false;
 
       const formData = new FormData();
       formData.append('file', croppedImageBlob, fileName);
 
       UserService.updateProfilePicture(formData)
         .then(response => {
-          console.log('Se actualizo foto:', response.data);
+          console.log('Se actualizo foto de perfil:', response.data);
           this.resizedImage = response.data.filename; // Contiene el fileUrl que apunta a la imagen en el server
           this.$store.dispatch('auth/changeUserPictureProfile', response.data.filename);
         })
@@ -156,6 +164,54 @@ export default {
             console.log('Error de request actualizando foto');
           }
         });
+    },
+    async handleUploadedCV(cvFile, fileName) {
+      const formData = new FormData();
+      formData.append('file', cvFile, fileName);
+
+      UserService.updateCV(formData)
+        .then(response => {
+          console.log('Se actualizo CV:', response.data);
+          this.cv = response.data.filename; 
+        })
+        .catch(error => {
+          if (error.response) {
+            console.log('Error de response actualizando cv');
+          } else if (error.request) {
+            console.log('Error de request actualizando cv');
+          }
+        });
+    },
+    async downloadCV() {
+      try {
+
+        const response = await axios({
+          url: this.cv, // URL del archivo PDF en tu backend
+          method: 'GET',
+          responseType: 'blob'
+        });
+
+        // Crear un enlace invisible para descargar el archivo
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'Curriculum-' + this.currentUser.fullname.replace(/\s+/g, '') + '.pdf'); // Nombre del archivo a descargar
+        document.body.appendChild(link);
+        link.click(); // Simula el clic para descargar el archivo
+        document.body.removeChild(link); // Elimina el enlace después de hacer clic
+      } catch (error) {
+        console.error("Error al descargar el CV:", error);
+      }
+    },
+    deleteCV() {
+      UserService.updateUserData(this.$store.state.auth.user.id, {cv: ''})
+      .then(response => {
+        console.log('Se actualizo el cv a vacio:', response.data);
+        this.cv = '';
+      })
+      .catch(error => {
+        console.error('Error al actualizar el cv a vacio', error);
+      });   
     },
     handleAddEducation(newEducation) {
       this.educationItems.push(newEducation);
@@ -297,6 +353,7 @@ export default {
         this.setPhysicalCharacteristics(response.data);
         this.setSkills(response.data);
         this.setBasicInfo(response.data);
+        this.cv = response.data.cv;
       })
       .catch(error => {
         console.log('Error al obtener datos del usuario', error);
