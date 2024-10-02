@@ -9,7 +9,7 @@
             @click="handleFileImport"
         >
             <img 
-                :src="require('@/assets/logo-pdf.png')"
+                :src="require('@/assets/logo-pdf-2.png')"
                 alt="Upload Icon" 
                 class="button-image mr-2"
                 height="25"

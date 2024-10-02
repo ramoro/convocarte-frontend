@@ -1,11 +1,52 @@
 <template>
   <div class="profile">
     <v-container grid-list-xl>
-      <!-- Título del perfil de usuario -->
+      <v-dialog v-model="reelDialog" max-width="600px">
+      <v-card>
+        <v-card-title class="justify-center text-center">
+          <span class="text-h5">{{ 'Agregar Reel' }}</span>
+        </v-card-title>
+        <v-form ref="form" @submit.prevent="handleReelSubmit">
+        <v-card-text>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="reel_link"
+                  label="Link a Reel"
+                  required
+                  outlined
+                  dense
+                  hide-details="auto"
+                  :append-inner-icon="'mdi-link-variant'"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="purple" type="submit">Guardar</v-btn>
+          <v-btn color="grey" @click="reelDialog = false">Cancelar</v-btn>
+        </v-card-actions>
+        </v-form>
+      </v-card> 
+    </v-dialog>
       <v-row>
         <v-col cols="12" class="d-flex justify-space-between align-center">
           <h1 class="profile-title">Perfil de usuario</h1>
-          <UploadFileButton button-text="Subir CV" @add-uploaded-cv="handleUploadedCV"/>
+          <div class="d-flex">
+            <v-btn             
+            class="mr-3"
+            rounded
+            @click="reelDialog = true">            
+              <img 
+                :src="require('@/assets/camera-recorder.png')"
+                alt="Camera Recorder Icon" 
+                class="button-image mr-2"
+                height="25"
+              />Agregar reel
+            </v-btn>
+            <UploadFileButton button-text="Subir CV" @add-uploaded-cv="handleUploadedCV" />
+          </div>
         </v-col>
       </v-row>
 
@@ -29,7 +70,24 @@
             <p v-if="currentUser && basicInfo.phone_number" class="caption mt-2"><v-icon class="mr-1" color="blue-darken-4">mdi-phone-outline</v-icon>{{ basicInfo.phone_number }}</p>
             <p v-if="currentUser && cv" class="caption mt-2">            
                 <v-chip v-if="cv" color="red" class="ma-2" closable @click:close="deleteCV">
-                  <a @click="downloadCV" href="#" class="cv-link">Curriculum</a>
+                  <img 
+                      :src="require('@/assets/logo-pdf-2.png')"
+                      alt="Upload Icon" 
+                      class="button-image mr-2"
+                      height="20"
+                  />
+                  <a @click="downloadCV" href="#">Curriculum</a>
+                </v-chip>
+            </p>
+            <p v-if="currentUser && cv" class="caption mt-2">            
+                <v-chip v-if="reel_link" color="blue-grey-lighten-2" class="ma-2" closable @click:close="deleteReel">
+                  <img 
+                    :src="require('@/assets/camera-recorder.png')"
+                    alt="Camera Recorder Icon" 
+                    class="button-image mr-2"
+                    height="20"
+                  />
+                  <a :href="formatUrl(reel_link)">Reel</a>
                 </v-chip>
             </p>
           </v-card>
@@ -137,7 +195,9 @@ export default {
       physicalCharacteristics: {},
       skills: {},
       basicInfo: {},
-      cv: ''
+      cv: '',
+      reel_link: '',
+      reelDialog: false
     };
   },
   methods: {
@@ -212,6 +272,29 @@ export default {
       .catch(error => {
         console.error('Error al actualizar el cv a vacio', error);
       });   
+    },
+    deleteReel() {
+      UserService.updateUserData(this.$store.state.auth.user.id, {reel_link: ''})
+      .then(response => {
+        console.log('Se actualizo el link del reel a vacio:', response.data);
+        this.reel_link = '';
+      })
+      .catch(error => {
+        console.error('Error al actualizar el link del reel a vacio', error);
+      });   
+    },
+    handleReelSubmit() {
+      UserService.updateUserData(this.$store.state.auth.user.id, {reel_link: this.reel_link})
+      .then(response => {
+        console.log('Se actualizo el link a reel:', response.data);
+        this.reelDialog = false;
+      })
+      .catch(error => {
+        console.error('Error al actualizar link a reel ', error);
+      });   
+    },
+    formatUrl(link) {
+      return formatUrl(link);
     },
     handleAddEducation(newEducation) {
       this.educationItems.push(newEducation);
@@ -354,6 +437,7 @@ export default {
         this.setSkills(response.data);
         this.setBasicInfo(response.data);
         this.cv = response.data.cv;
+        this.reel_link = response.data.reel_link;
       })
       .catch(error => {
         console.log('Error al obtener datos del usuario', error);
