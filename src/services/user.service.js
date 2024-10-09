@@ -30,7 +30,13 @@ class UserService {
     }
 
     updateCV(formData) {
+        console.log(formData);
         return axios.post(API_URL + 'users/upload-cv', formData, { headers: authHeaderMultipartFormData() });
+    }
+
+    updateUserShot(formData) {
+        console.log(formData);
+        return axios.patch(API_URL + 'users/upload-gallery-shot', formData, { headers: authHeaderMultipartFormData() });
     }
 
     //Sector de Estudios/Experiencias Academicas del Usuario
@@ -67,12 +73,16 @@ class UserService {
         return axios.put(API_URL + 'users/update-work-experience/' + id, payload, { headers: authHeader() });
     }
 
-    //Sector de Características Físicas
     updateUserData(id, payload) {
         console.log(API_URL + 'users/' + id)
         console.log(payload)
         return axios.patch(API_URL + 'users/' + id, payload, { headers: authHeader() });
     }
+
+    deleteUserFile(payload) {
+        return axios.patch(API_URL + 'users/delete-file', payload, { headers: authHeader() });
+    }
+    
 }
 
 export default new UserService();

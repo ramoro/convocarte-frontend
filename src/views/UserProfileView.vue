@@ -34,6 +34,15 @@
         <v-col cols="12" class="d-flex justify-space-between align-center">
           <h1 class="profile-title">Perfil de usuario</h1>
           <div class="d-flex">
+            <v-btn class="mr-3" rounded to="/user-gallery">              
+              <img 
+              :src="require('@/assets/gallery-icon.png')"
+              alt="Gallery Icon" 
+              class="button-image mr-2"
+              height="20"
+              />
+              Galería de Fotos
+            </v-btn>
             <v-btn             
             class="mr-3"
             rounded
@@ -49,7 +58,6 @@
           </div>
         </v-col>
       </v-row>
-
       <!-- Row con las dos cards -->
       <v-row>
         <!-- Card con la imagen y el cropper -->
