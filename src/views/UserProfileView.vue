@@ -11,7 +11,7 @@
             <v-row>
               <v-col cols="12">
                 <v-text-field
-                  v-model="reel_link"
+                  v-model="currentTypedReelLink"
                   label="Link a Reel"
                   required
                   outlined
@@ -25,7 +25,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="purple" type="submit">Guardar</v-btn>
-          <v-btn color="grey" @click="reelDialog = false">Cancelar</v-btn>
+          <v-btn color="grey" @click="cancelReelDialog">Cancelar</v-btn>
         </v-card-actions>
         </v-form>
       </v-card> 
@@ -87,15 +87,15 @@
                   <a @click="downloadCV" href="#">Curriculum</a>
                 </v-chip>
             </p>
-            <p v-if="currentUser && cv" class="caption mt-2">            
-                <v-chip v-if="reel_link" color="blue-grey-lighten-2" class="ma-2" closable @click:close="deleteReel">
+            <p v-if="currentUser && reelLink" class="caption mt-2">            
+                <v-chip v-if="reelLink" color="blue-grey-lighten-2" class="ma-2" closable @click:close="deleteReel">
                   <img 
                     :src="require('@/assets/camera-recorder.png')"
                     alt="Camera Recorder Icon" 
                     class="button-image mr-2"
                     height="20"
                   />
-                  <a :href="formatUrl(reel_link)">Reel</a>
+                  <a :href="formatUrl(reelLink)">Reel</a>
                 </v-chip>
             </p>
           </v-card>
@@ -165,6 +165,7 @@
           </v-card-text>
         </v-card>
       </v-dialog>
+      <InformationSnackbar ref="InformationSnackbar"/>
     </v-container>
   </div>
 </template>
@@ -178,6 +179,7 @@ import PhysicalCharacteristicsProfileArea from '@/components/PhysicalCharacteris
 import SkillsProfileArea from '@/components/SkillsProfileArea.vue';
 import BasicInfoAndContactProfileArea from '@/components/BasicInfoAndContactProfileArea.vue';
 import UploadFileButton from '@/components/UploadFileButton.vue';
+import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import { formatUrl } from '@/utils';
 import axios from 'axios';
 
@@ -189,7 +191,11 @@ export default {
     PhysicalCharacteristicsProfileArea,
     SkillsProfileArea,
     BasicInfoAndContactProfileArea,
-    UploadFileButton
+    UploadFileButton,
+    InformationSnackbar
+  },
+  mounted() {
+      this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
   },
   data() {
     return {
@@ -204,8 +210,12 @@ export default {
       skills: {},
       basicInfo: {},
       cv: '',
-      reel_link: '',
-      reelDialog: false
+      reelLink: '',
+      currentTypedReelLink: '',
+      reelDialog: false,
+      requiredRule: [
+        value => !!value || 'Campo requerido'
+      ],
     };
   },
   methods: {
@@ -249,6 +259,7 @@ export default {
         .then(response => {
           console.log('Se actualizo CV:', response.data);
           this.cv = response.data.filename; 
+          this.$root.InformationSnackbar.show({message: "Nuevo curriculum agregado! Buscalo debajo de la foto de perfil", color: 'green', buttonColor:'white'})
         })
         .catch(error => {
           if (error.response) {
@@ -293,21 +304,40 @@ export default {
       UserService.updateUserData(this.$store.state.auth.user.id, {reel_link: ''})
       .then(response => {
         console.log('Se actualizo el link del reel a vacio:', response.data);
-        this.reel_link = '';
+        this.reelLink = '';
       })
       .catch(error => {
         console.error('Error al actualizar el link del reel a vacio', error);
       });   
     },
     handleReelSubmit() {
-      UserService.updateUserData(this.$store.state.auth.user.id, {reel_link: this.reel_link})
-      .then(response => {
-        console.log('Se actualizo el link a reel:', response.data);
-        this.reelDialog = false;
-      })
-      .catch(error => {
-        console.error('Error al actualizar link a reel ', error);
-      });   
+      this.$refs.form.validate().then(result => {
+        if (result.valid) {
+          this.reelLink = this.currentTypedReelLink; 
+          console.log("REEL LINK ENVIANDO A SV: ", this.reelLink);  
+          console.log("current typedENVIANDO A SV: ", this.currentTypedReelLink);  
+          UserService.updateUserData(this.$store.state.auth.user.id, {reel_link: this.reelLink})
+          .then(response => {
+            console.log('Se actualizo el link a reel:', response.data);
+            this.reelDialog = false;
+            this.$root.InformationSnackbar.show({message: "Nuevo link a reel agregado! Buscalo debajo de la foto de perfil", color: 'green', buttonColor:'white'})
+          })
+          .catch(error => {
+            console.error('Error al actualizar link a reel ', error);
+          });   
+
+        } else {
+          console.log("FORM INVALIDO");
+          console.log(result.errors);
+        }
+        this.currentTypedReelLink = '';
+      }).catch(error => {
+        console.error("Error al validar el formulario de reelLink", error);
+      });
+    },
+    cancelReelDialog() {
+      this.reelDialog = false;
+      this.currentTypedReelLink = '';
     },
     formatUrl(link) {
       return formatUrl(link);
@@ -453,7 +483,7 @@ export default {
         this.setSkills(response.data);
         this.setBasicInfo(response.data);
         this.cv = response.data.cv;
-        this.reel_link = response.data.reel_link;
+        this.reelLink = response.data.reel_link;
       })
       .catch(error => {
         console.log('Error al obtener datos del usuario', error);
