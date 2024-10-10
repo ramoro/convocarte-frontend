@@ -18,20 +18,20 @@ class UserService {
     }
 
     resetPassword(payload) {
-        return axios.post(API_URL + 'users/reset-password', payload);
+        return axios.patch(API_URL + 'users/reset-password', payload);
     }
 
     startPasswordRecoveringWithEmail(payload) {
-        return axios.post(API_URL + 'users/password-recovering', payload);
+        return axios.patch(API_URL + 'users/password-recovering', payload);
     }
 
     updateProfilePicture(formData) {
-        return axios.post(API_URL + 'users/upload-profile-picture', formData, { headers: authHeaderMultipartFormData() });
+        return axios.patch(API_URL + 'users/upload-profile-picture', formData, { headers: authHeaderMultipartFormData() });
     }
 
     updateCV(formData) {
         console.log(formData);
-        return axios.post(API_URL + 'users/upload-cv', formData, { headers: authHeaderMultipartFormData() });
+        return axios.patch(API_URL + 'users/upload-cv', formData, { headers: authHeaderMultipartFormData() });
     }
 
     updateUserShot(formData) {
@@ -80,6 +80,7 @@ class UserService {
     }
 
     deleteUserFile(payload) {
+        console.log("payload delete user file, ", payload)
         return axios.patch(API_URL + 'users/delete-file', payload, { headers: authHeader() });
     }
     

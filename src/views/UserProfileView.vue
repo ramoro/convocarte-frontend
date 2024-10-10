@@ -272,7 +272,7 @@ export default {
       }
     },
     deleteCV() {
-      UserService.updateUserData(this.$store.state.auth.user.id, {cv: ''})
+      UserService.deleteUserFile({field_name: 'cv', file_name: this.cv.split('/').pop()})
       .then(response => {
         console.log('Se actualizo el cv a vacio:', response.data);
         this.cv = '';
