@@ -1,5 +1,5 @@
 <template>
-  <div class="profile">
+  <div class="profile mt-2">
     <v-container grid-list-xl>
       <v-dialog v-model="reelDialog" max-width="600px">
       <v-card>

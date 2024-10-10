@@ -80,7 +80,6 @@ class UserService {
     }
 
     deleteUserFile(payload) {
-        console.log("payload delete user file, ", payload)
         return axios.patch(API_URL + 'users/delete-file', payload, { headers: authHeader() });
     }
     

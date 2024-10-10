@@ -26,7 +26,7 @@
             @change="onFileChanged"
         >
         <div v-if="fileError" class="text-error mt-1 text-center" style="font-size:14px;">
-            <div>Máximo {{maxSize / 1024}}MB</div>
+            <p>Máximo {{ Math.round(maxSize * maxSize / 1024 / 1024)}}MB</p>
         </div>  
     </div>
 </template>

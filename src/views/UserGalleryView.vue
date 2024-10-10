@@ -1,5 +1,5 @@
 <template>
-  <div class="gallery">
+  <div class="gallery mt-1">
     <v-container grid-list-xl>
       <v-row style="margin-bottom:20px;">
         <v-col v-if="currentUser" cols="12" class="d-flex justify-between align-center position-relative">
@@ -37,90 +37,123 @@
         </v-col>
         <!-- Columna con botones a la izquierda -->
         <v-col cols="4" class="mt-5 pd-0 justify-center align-center">
-          <v-row justify="space-between">
-            <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[0].iconColor}}">
-              <v-file-input
-              label="Foto Plano Pecho"
-              v-model="userShotsInputs[0].selectedFile"
-              accept="image/*"
-              prepend-icon="mdi-numeric-1-circle"
-              @change="handleImageUpload($event, 0, 'chest_up_shot')"
-              @click:clear="handleImageRemove(0, 'chest_up_shot')"
-              outlined
-              dense
-              hide-details="auto"
-              ></v-file-input>
-            </v-defaults-provider>
-
+          <v-row>
+            <v-col cols="12">
+              <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[0].iconColor}}">
+                <v-file-input
+                label="Foto Plano Pecho"
+                v-model="userShotsInputs[0].selectedFile"
+                accept="image/*"
+                prepend-icon="mdi-numeric-1-circle"
+                @change="handleImageUpload($event, 0, 'chest_up_shot')"
+                @click:clear="handleImageRemove(0, 'chest_up_shot')"
+                outlined
+                dense
+                hide-details="auto"
+                ></v-file-input>
+              </v-defaults-provider>
+            </v-col>
+            <v-col cols="12" v-show="userShotsInputs[0].sizeError">
+              <div class="text-error ml-10 align-right" style="font-size:14px; padding:1px; margin-bottom: -15px; margin-top:-20px; ">
+                <p>Máximo {{ Math.round(maxSize * maxSize / 1024 / 1024)}}MB</p>
+              </div> 
+            </v-col>
           </v-row>
           
-          <v-row class="mt-10">
-            <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[1].iconColor}}">
-              <v-file-input
-              label="Foto Plano General"
-              v-model="userShotsInputs[1].selectedFile"
-              accept="image/*"
-              prepend-icon="mdi-numeric-2-circle"
-              @change="handleImageUpload($event, 1, 'full_body_shot')"
-              @click:clear="handleImageRemove(1, 'full_body_shot')"
-              outlined
-              dense
-              hide-details="auto"
-              ></v-file-input>
-            </v-defaults-provider>
+          <v-row>
+            <v-col cols="12">
+              <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[1].iconColor}}">
+                <v-file-input
+                label="Foto Plano General"
+                v-model="userShotsInputs[1].selectedFile"
+                accept="image/*"
+                prepend-icon="mdi-numeric-2-circle"
+                @change="handleImageUpload($event, 1, 'full_body_shot')"
+                @click:clear="handleImageRemove(1, 'full_body_shot')"
+                outlined
+                dense
+                hide-details="auto"
+                ></v-file-input>
+              </v-defaults-provider>
+            </v-col>
+            <v-col cols="12" v-show="userShotsInputs[1].sizeError">
+              <div class="text-error ml-10 align-right" style="font-size:14px; padding:1px; margin-bottom: -15px; margin-top:-20px; ">
+                <p>Máximo {{ Math.round(maxSize * maxSize / 1024 / 1024)}}MB</p>
+              </div> 
+            </v-col>   
           </v-row>
           
-          <v-row class="mt-10">
-            <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[2].iconColor}}">
-              <v-file-input
-              class="profile-shot-input"
-              label="Foto de un Perfil"
-              v-model="userShotsInputs[2].selectedFile"
-              accept="image/*"
-              prepend-icon="mdi-numeric-3-circle"
-              @change="handleImageUpload($event, 2, 'profile_shot')"
-              @click:clear="handleImageRemove(2, 'profile_shot')"
-              outlined
-              dense
-              hide-details="auto"
-              ></v-file-input>
-            </v-defaults-provider>
+          <v-row>
+            <v-col cols="12">
+              <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[2].iconColor}}">
+                <v-file-input
+                class="profile-shot-input"
+                label="Foto de un Perfil"
+                v-model="userShotsInputs[2].selectedFile"
+                accept="image/*"
+                prepend-icon="mdi-numeric-3-circle"
+                @change="handleImageUpload($event, 2, 'profile_shot')"
+                @click:clear="handleImageRemove(2, 'profile_shot')"
+                outlined
+                dense
+                hide-details="auto"
+                ></v-file-input>
+              </v-defaults-provider>
+            </v-col>
+            <v-col cols="12" v-show="userShotsInputs[2].sizeError">
+              <div class="text-error ml-10 align-right" style="font-size:14px; padding:1px; margin-bottom: -15px; margin-top:-20px; ">
+                <p>Máximo {{ Math.round(maxSize * maxSize / 1024 / 1024)}}MB</p>
+              </div> 
+            </v-col>
           </v-row>
           
-          <v-row class="mt-10">
-            <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[3].iconColor}}">
-              <v-file-input
-              class="additional-shot-input"
-              label="Foto Adicional 1"
-              v-model="userShotsInputs[3].selectedFile"
-              accept="image/*"
-              prepend-icon="mdi-numeric-4-circle"
-              @change="handleImageUpload($event, 3, 'additional_shot_1')"
-              @click:clear="handleImageRemove(3, 'additional_shot_1')"
-              outlined
-              dense
-              hide-details="auto"
-              ></v-file-input>
-            </v-defaults-provider>          
+          <v-row>
+            <v-col cols="12">
+              <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[3].iconColor}}">
+                <v-file-input
+                class="additional-shot-input"
+                label="Foto Adicional 1"
+                v-model="userShotsInputs[3].selectedFile"
+                accept="image/*"
+                prepend-icon="mdi-numeric-4-circle"
+                @change="handleImageUpload($event, 3, 'additional_shot_1')"
+                @click:clear="handleImageRemove(3, 'additional_shot_1')"
+                outlined
+                dense
+                hide-details="auto"
+                ></v-file-input>
+              </v-defaults-provider> 
+            </v-col>
+            <v-col cols="12" v-show="userShotsInputs[3].sizeError">
+              <div class="text-error ml-10 align-right" style="font-size:14px; padding:1px; margin-bottom: -15px; margin-top:-20px; ">
+                <p>Máximo {{ Math.round(maxSize * maxSize / 1024 / 1024)}}MB</p>
+              </div> 
+            </v-col>
           </v-row>
-          <v-row class="mt-10">
-            <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[4].iconColor}}">
-              <v-file-input
-              class="additional-shot-input"
-              label="Foto Adicional 2"
-              v-model="userShotsInputs[4].selectedFile"
-              accept="image/*"
-              prepend-icon="mdi-numeric-5-circle"
-              @change="handleImageUpload($event, 4, 'additional_shot_2')"
-              @click:clear="handleImageRemove(4, 'additional_shot_2')"
-              outlined
-              dense
-              hide-details="auto"
-              ></v-file-input>
-            </v-defaults-provider>          
+          <v-row>
+            <v-col cols="12">
+              <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[4].iconColor}}">
+                <v-file-input
+                class="additional-shot-input"
+                label="Foto Adicional 2"
+                v-model="userShotsInputs[4].selectedFile"
+                accept="image/*"
+                prepend-icon="mdi-numeric-5-circle"
+                @change="handleImageUpload($event, 4, 'additional_shot_2')"
+                @click:clear="handleImageRemove(4, 'additional_shot_2')"
+                outlined
+                dense
+                hide-details="auto"
+                ></v-file-input>
+              </v-defaults-provider>
+            </v-col>
+            <v-col cols="12" v-show="userShotsInputs[4].sizeError">
+              <div class="text-error ml-10 align-right" style="font-size:14px; padding:1px; margin-bottom: -15px; margin-top:-20px; ">
+                <p>Máximo {{ Math.round(maxSize * maxSize / 1024 / 1024)}}MB</p>
+              </div> 
+            </v-col>
           </v-row>
         </v-col>
-
       </v-row>
       <InformationSnackbar ref="InformationSnackbar"/>
     </v-container>
@@ -141,11 +174,11 @@ export default {
   data() {
     return {
       userShotsInputs: [
-        { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null},
-        { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null},
-        { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null},
-        { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null},
-        { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null},
+        { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null, sizeError: false},
+        { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null, sizeError: false},
+        { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null, sizeError: false},
+        { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null, sizeError: false},
+        { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null, sizeError: false},
       ],
       shotsRecentUploadPreviewName : [null, null, null, null, null], //Para guardar y luego recuperar los nombres de las fotos recien subidas 
                                                                     //-> sirve para casos en que se sube una foto, luego se clikea para cambiarla y se cancela
@@ -154,7 +187,7 @@ export default {
         src: require('@/assets/gallery-img-default.jpg'),
       }],
       fileError: false,     // Control de errores por tamaño de archivo
-      maxSize: 1024,
+      maxSize:  1448.16, //2MB
       carouselIndex: 0 //Para manejar lo que se esta viendo del carrusel
     };
   },
@@ -164,7 +197,6 @@ export default {
       formData.append('file', shotFile, fileName);
       formData.append('field_name', shotType);
       formData.append('old_file_name', oldFileName);
-      console.log("index", index);
 
       UserService.updateUserShot(formData)
         .then(response => {
@@ -186,12 +218,18 @@ export default {
       async handleImageUpload(e, index, shotType) {
         const files = e.target.files || e.dataTransfer.files;
         let file = files[0];
+        //Borro mensajes de error
+        this.userShotsInputs.forEach(input => {
+          input.sizeError = false;
+        });
+
         if (files.length) {
           let size = file.size / this.maxSize / this.maxSize
           if (size > 1) {
-            this.fileError = true;
+            this.userShotsInputs[index].sizeError = true;
+            //Al haber error saco el archivo seleccionado del input
+            this.userShotsInputs[index].selectedFile = null;
           } else {
-            this.fileError = false;
             this.selectedFile = files[0];
             
             let oldFileName = null;
@@ -204,6 +242,8 @@ export default {
           //y que de la posibilidad de eliminarlo
           this.userShotsInputs[index].selectedFile = {name: this.shotsRecentUploadPreviewName[index]};
         }
+        console.log(`sizeError para el índice ${index}: `, this.userShotsInputs[index].sizeError);
+
     },
     handleImageRemove(index, shotType) {
       var fileName = this.userShotsInputs[index].img_url.split('/').pop();
