@@ -237,6 +237,14 @@ export default {
       const formData = new FormData();
       formData.append('file', cvFile, fileName);
 
+      //Se manda el nombre del archivo que ya existia si es que habia uno antes
+      //para que el back lo elimine
+      let oldCVName = null;
+      if (this.cv) {
+        oldCVName = this.cv.split('/').pop()
+      }
+      formData.append('old_file_name', oldCVName);
+
       UserService.updateCV(formData)
         .then(response => {
           console.log('Se actualizo CV:', response.data);
