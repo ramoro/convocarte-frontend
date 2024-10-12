@@ -198,7 +198,7 @@ export default {
       formData.append('field_name', shotType);
       formData.append('old_file_name', oldFileName);
 
-      UserService.updateUserShot(formData)
+      UserService.updateUserImage(formData)
         .then(response => {
           this.userShotsInputs[index].img_url = response.data.filename;
           this.userShotsInputs[index].iconColor = 'cyan';

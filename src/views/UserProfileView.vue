@@ -228,8 +228,13 @@ export default {
 
       const formData = new FormData();
       formData.append('file', croppedImageBlob, fileName);
+      formData.append('field_name', 'profile_picture');
+      let oldFileName = null;
+      //Se le pasa al back el nombre del archivo anterior existente para que lo elimine
+      if (this.currentUser.profile_picture) oldFileName = this.currentUser.profile_picture.split('/').pop();
+      formData.append('old_file_name', oldFileName);
 
-      UserService.updateProfilePicture(formData)
+      UserService.updateUserImage(formData)
         .then(response => {
           console.log('Se actualizo foto de perfil:', response.data);
           this.resizedImage = response.data.filename; // Contiene el fileUrl que apunta a la imagen en el server

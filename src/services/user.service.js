@@ -25,18 +25,14 @@ class UserService {
         return axios.patch(API_URL + 'users/password-recovering', payload);
     }
 
-    updateProfilePicture(formData) {
-        return axios.patch(API_URL + 'users/upload-profile-picture', formData, { headers: authHeaderMultipartFormData() });
-    }
-
     updateCV(formData) {
         console.log(formData);
         return axios.patch(API_URL + 'users/upload-cv', formData, { headers: authHeaderMultipartFormData() });
     }
 
-    updateUserShot(formData) {
+    updateUserImage(formData) {
         console.log(formData);
-        return axios.patch(API_URL + 'users/upload-gallery-shot', formData, { headers: authHeaderMultipartFormData() });
+        return axios.patch(API_URL + 'users/upload-image', formData, { headers: authHeaderMultipartFormData() });
     }
 
     //Sector de Estudios/Experiencias Academicas del Usuario
