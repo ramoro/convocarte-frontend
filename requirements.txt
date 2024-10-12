@@ -2,3 +2,7 @@ vue add vuetify
 npm install material-design-icons-iconfont -D
 npm install @fortawesome/fontawesome-free -D
 npm i axios
+npm install date-fns
+npm install --save vuex-persist #Para persisit sesion de usuario cada vez q se refreshea pag (mantiene localStorage)
+vue init webpack-simple image-upload
+npm install --save cropperjs

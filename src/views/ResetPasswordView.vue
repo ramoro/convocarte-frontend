@@ -38,8 +38,8 @@
 </template>
 
 <script>
-  import axios from 'axios'
   import InformationSnackbar from '@/components/InformationSnackbar.vue'
+  import UserService from '../services/user.service';
 
   export default {
     name: 'ResetPasswordView',
@@ -66,31 +66,37 @@
     methods: {
       handleSubmit() {
         this.weakPassword = !(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#,-,_,$,%,&,*]).{8,}$/.test(this.password));
-        if (!this.weakPassword && this.$refs.form.validate()) {
-          const payload = {
-            secret_token: this.$route.params.token,
-            new_password: this.password,
-            password_confirmation: this.passwordConfirmation
-          };
-          axios.post('http://localhost/users/reset-password', payload)
-          .then(response => {
-            console.log('Password reseting successfull:', response.data);
-            this.$router.push({ path: '/', query: { message: 'password-recovered' } });
-          })
-          .catch(error => {
-            if (error.response) {
-              var snackbarMessage = '';
-              if (error.response.status === 500) {
-                snackbarMessage = 'El link ha expirado';
-              } else {
-                snackbarMessage = 'Hubo un problema con la solicitud';
+        this.$refs.form.validate().then(result => {
+          if (result.valid && !this.weakPassword) {
+            const payload = {
+              secret_token: this.$route.params.token,
+              new_password: this.password,
+              password_confirmation: this.passwordConfirmation
+            };
+            UserService.resetPassword(payload)
+            .then(response => {
+              console.log('Password reseting successfull:', response.data);
+              this.$router.push({ path: '/', query: { message: 'password-recovered' } });
+            })
+            .catch(error => {
+              if (error.response) {
+                var snackbarMessage = '';
+                if (error.response.status === 500) {
+                  snackbarMessage = 'El link ha expirado';
+                } else {
+                  snackbarMessage = 'Hubo un problema con la solicitud';
+                }
+              } else if (error.request) {
+                snackbarMessage = 'No se pudo conectar con el servidor';
               }
-            } else if (error.request) {
-              snackbarMessage = 'No se pudo conectar con el servidor';
-            }
-            this.$root.InformationSnackbar.show({message: snackbarMessage, color: 'dark', buttonColor:'red'})
-          });
-        }
+              this.$root.InformationSnackbar.show({message: snackbarMessage, color: 'dark', buttonColor:'red'})
+            });
+          } else {
+            console.log(result.errors);
+          }
+      }).catch(error => {
+        console.error("Error al validar el formulario", error);
+      });
       }
     }
   }

@@ -8,30 +8,44 @@ const routes = [
   {
     path: '/',
     name: 'loginregistration',
-    component: LoginRegistrationView
+    component: LoginRegistrationView,
+    meta: {
+      hideNavbar: true,
+    }
   },
   {
     path: '/verified-account/:user_id/:token',
     name: 'verifiedaccount',
-    component: VerifiedAccountView
+    component: VerifiedAccountView,
+    meta: {
+      hideNavbar: true,
+    }
   },
   {
     path: '/forgot-password',
     name: 'forgotpassword',
-    component: ForgotPasswordView
+    component: ForgotPasswordView,
+    meta: {
+      hideNavbar: true,
+    }
   },
   {
     path: '/reset-password/:token',
     name: 'resetpassword',
-    component: ResetPasswordView
+    component: ResetPasswordView,
+    meta: {
+      hideNavbar: true,
+    }
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    path: '/user-profile',
+    name: 'userprofile',
+    component: () => import('../views/UserProfileView.vue')
+  },
+  {
+    path: '/user-gallery',
+    name: 'usergallery',
+    component: () => import('../views/UserGalleryView.vue')
   }
 ]
 

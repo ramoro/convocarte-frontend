@@ -14,8 +14,12 @@
                     </p>
                     <v-row class="align-center" justify="center">
                       <v-col cols="12" sm="8" xl="9">
-                        <v-text-field :rules="emailRules" ref="emailField" v-model="loginForm.email" label="Email" variant="outlined" dense color="blue" autocomplete="false" class="mt-16" type="email" @keyup.enter="submitLogin"></v-text-field>
-                        <v-text-field :rules="passwordRules" ref="passwordField" v-model="loginForm.password" label="Contraseña" variant="outlined" dense color="blue" autocomplete="false" type="password" class="mt-2" @keyup.enter="submitLogin"></v-text-field>
+                        <v-text-field :rules="emailRules" ref="emailField" v-model="user.email" label="Email" variant="outlined" dense color="blue" autocomplete="false" class="mt-16" type="email" @keyup.enter="submitLogin"></v-text-field>
+                        <v-text-field :rules="passwordRules" ref="passwordField" v-model="user.password" label="Contraseña" variant="outlined" dense color="blue" autocomplete="false" class="mt-2" @keyup.enter="submitLogin"
+                        :append-inner-icon="showPassLogin ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="showPassLogin ? 'text' : 'password'"
+                        @click:append-inner="showPassLogin = !showPassLogin">
+                        </v-text-field>
                         <v-btn color="cyan-darken-2" dark block class="text-white mb-5 mt-2" @click="submitLogin" :loading="loading">Ingresar</v-btn>
                         <p class="forgot password text-center">
                           <router-link to="forgot-password">Olvidé mi contraseña</router-link>
@@ -104,8 +108,8 @@
 </template>
 
 <script>
-import axios from 'axios'
 import InformationSnackbar from '@/components/InformationSnackbar.vue'
+import User from '@/models/user'
 
 export default {
   props: ['source'],
@@ -123,10 +127,7 @@ export default {
     return {
       accountRegisteredDialog: false,
       step: 1,
-      loginForm: {
-        email: '',
-        password: ''
-      },
+      user: new User('', ''),
       registrationForm: {
         fullname: '',
         email: '',
@@ -150,8 +151,19 @@ export default {
       ],
       loading: false,
       weakPassword: false,
+      showPassLogin: false,
       showPass1: false,
       showPass2: false
+    }
+  },
+  computed: {
+    loggedIn() {
+      return this.$store.state.auth.status.loggedIn;
+    }
+  },
+  created() {
+    if (this.loggedIn) {
+      this.$router.push('/user-profile');
     }
   },
   methods: {
@@ -184,39 +196,30 @@ export default {
       return passwordValid && emailValid;
     },
     async submitLogin() {
-      if(this.validateEmailAndPassword(this.loginForm.email, this.loginForm.password)) {
+      if(this.validateEmailAndPassword(this.user.email, this.user.password)) {
         this.loading = true;
 
-        const formData = new FormData();
-        formData.append('username', this.loginForm.email);
-        formData.append('password', this.loginForm.password);
-
-        formData.forEach(x=> console.log(x));
-        
-        axios.post('http://localhost/login', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
-        .then(response => {
-          console.log('Login successful:', response.data);
-          this.loading = false;
-        })
-        .catch(error => {
-          this.loading = false;  
-          var snackbarText = '';
-          if (error.response) {
-            if (error.response.status === 403) {
-              snackbarText = 'El Email o la Contraseña son incorrectos';
-            } else {
-              snackbarText = 'Hubo un problema con la solicitud';
+        this.$store.dispatch('auth/login', this.user).then(
+          data => {
+            console.log('Login successful:', data);
+            this.loading = false;
+            this.$router.push({ path: '/user-profile' });
+          },
+          error => {
+            this.loading = false;  
+            var snackbarText = '';
+            if (error.response) {
+              if (error.response.status === 403) {
+                snackbarText = 'El Email o la Contraseña son incorrectos';
+              } else {
+                snackbarText = 'Hubo un problema con la solicitud';
+              }
+            } else if (error.request) {
+              snackbarText = 'No se pudo conectar con el servidor';
             }
-          } else if (error.request) {
-            snackbarText = 'No se pudo conectar con el servidor';
+            this.showSnackbarError(snackbarText);
           }
-          this.showSnackbarError(snackbarText);
-          
-        });
+        );
       }
     },
     isStrongPassword(password) {
@@ -237,35 +240,29 @@ export default {
     async submitRegistration() {
       if(this.validateRegistration()) {
         this.loading = true;
-        const payload = {
-          fullname: this.registrationForm.fullname,
-          email: this.registrationForm.email,
-          password: this.registrationForm.password,
-          password_confirmation: this.registrationForm.passwordConfirmation
-        };
-        axios.post('http://localhost/users', payload)
-        .then(response => {
-          console.log('Registration successful:', response.data);
-          this.loading = false;
-          this.accountRegisteredDialog = true;
-          this.auxEmail = this.registrationForm.email;
-          this.resetRegistrationForm();
-
-        })
-        .catch(error => {
-          if (error.response) {
+        this.$store.dispatch('auth/register', this.registrationForm).then(
+          data => {
+            console.log('Registration successful:', data);
             this.loading = false;
-            var snackbarText = '';
-            if (error.response.status === 409) {
-              snackbarText = 'El Email ya se encuentra registrado';
-            } else {
-              snackbarText = 'Hubo un problema con la solicitud';
+            this.accountRegisteredDialog = true;
+            this.auxEmail = this.registrationForm.email;
+            this.resetRegistrationForm();
+          },
+          error => {
+            if (error.response) {
+              this.loading = false;
+              var snackbarText = '';
+              if (error.response.status === 409) {
+                snackbarText = 'El Email ya se encuentra registrado';
+              } else {
+                snackbarText = 'Hubo un problema con la solicitud';
+              }
+            } else if (error.request) {
+              snackbarText = 'No se pudo conectar con el servidor';
             }
-          } else if (error.request) {
-            snackbarText = 'No se pudo conectar con el servidor';
+            this.showSnackbarError(snackbarText);
           }
-          this.showSnackbarError(snackbarText);
-        });
+        );
       }
     }
   }

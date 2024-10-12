@@ -55,8 +55,8 @@
 </template>
 
 <script>
-  import axios from 'axios'
   import InformationSnackbar from '@/components/InformationSnackbar.vue'
+  import UserService from '../services/user.service';
 
   export default {
     name: 'ForgotPasswordView',
@@ -83,8 +83,8 @@
         const payload = {
           email: this.email
         };
-
-        axios.post('http://localhost/users/password-recovering', payload)
+        
+        UserService.startPasswordRecoveringWithEmail(payload)
         .then(response => {
           console.log('Password recovering request successful:', response.data);
           this.loading = false;

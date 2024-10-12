@@ -11,7 +11,7 @@
     <v-card v-else-if="verificationRejected" class="pa-5" max-width="600" outlined border="info md">
       <v-card-title class="headline">Link Caducado <v-icon color="red">mdi-close-octagon</v-icon></v-card-title>
       <v-card-text>
-        <p>El link ha dejado de funcionar.</p> <br>
+        <p>El link ha dejado de funcionar o el servidor está caido.</p> <br>
         <p>Para ir a la aplicación y volver a registrarte clickeá en el siguiente link: </p>
         <p><a href="http://localhost:8080/">ConvocArte</a></p>
       </v-card-text>
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import UserService from '../services/user.service';
 
 export default {
   name: 'VerifiedAccountView',
@@ -37,11 +37,7 @@ export default {
     }
   },
   async beforeMount() {
-    axios.get('http://localhost/users/' + this.$route.params.user_id, {
-        headers: {
-          'Authorization': `Bearer ${this.$route.params.token}`
-        }
-      })
+    UserService.getUserByIdWithToken(this.$route.params.user_id, this.$route.params.token)
     .then(response => {
       console.log('Request succesfully compelted:', response.data);
       this.userFullName = response.data.fullname;
