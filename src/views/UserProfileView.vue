@@ -298,11 +298,11 @@ export default {
     deleteCV() {
       UserService.deleteUserFile({field_name: 'cv', file_name: this.cv.split('/').pop()})
       .then(response => {
-        console.log('Se actualizo el cv a vacio:', response.data);
+        console.log('Se elimino el cv:', response.data);
         this.cv = '';
       })
       .catch(error => {
-        console.error('Error al actualizar el cv a vacio', error);
+        console.error('Error al eliminar el cv', error);
       });   
     },
     deleteReel() {

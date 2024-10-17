@@ -274,7 +274,13 @@ export default {
       //seleccionado (le agregamos la extension para que se entienda que es el archivo)
       //Si viene con archivo se hace el split y se cambia el icono de color
       if (this.userShotsInputs[index].img_url) {
-        this.userShotsInputs[index].selectedFile = {name: previewName + shotUrl.split('.').pop()};
+        let extension = ""
+        //Si al hacer el split el string tiene menos de 5 caracteres es que es una extension
+        //y se debe agregar al string completo del nombre que se muestra en pantalla para la imagen
+        if (shotUrl.split('.').pop().length <= 4) {
+          extension = shotUrl.split('.').pop()
+        }
+        this.userShotsInputs[index].selectedFile = {name: previewName + extension};
         this.userShotsInputs[index].iconColor = "cyan";
       } 
     }
