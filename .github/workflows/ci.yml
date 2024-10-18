@@ -16,7 +16,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
     - name: Build
-      run: docker build . -t ramoro/convocarte-frontend-docker-hub:latest --build-arg VUE_APP_BACKEND_API_URL=https://deploy-convocarte-backend-prod.onrender.com/
+      run: docker build . -t ramoro/convocarte-frontend-docker-hub:latest \
+        --build-arg VUE_APP_BACKEND_API_URL=https://deploy-convocarte-backend-prod.onrender.com/ \
+        --build-arg VUE_APP_FRONTEND_API_URL=https://convocarte-frontend.onrender.com/
     - name: Publish
       run: |
        docker login -u ramoro -p ${{ secrets.DOCKERHUB_TOKEN }}

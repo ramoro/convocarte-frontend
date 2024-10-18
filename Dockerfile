@@ -9,8 +9,12 @@ RUN npm install
 # Copy the rest of the project files to the container
 COPY . .
 
+# Agrega variables de entorno
 ARG VUE_APP_BACKEND_API_URL
+ARG VUE_APP_FRONTEND_API_URL
+
 ENV VUE_APP_BACKEND_API_URL=$VUE_APP_BACKEND_API_URL
+ENV VUE_APP_FRONTEND_API_URL=$VUE_APP_FRONTEND_API_URL
 # Build the Vue.js application to the production mode to dist folder
 RUN npm run build
 # Use the lightweight Nginx image from the previous stage for the nginx container
