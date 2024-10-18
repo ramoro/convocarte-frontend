@@ -1,8 +1,7 @@
 import axios from 'axios';
 import {authHeader, authHeaderMultipartFormData} from './auth-header';
 
-const API_URL = 'https://deploy-convocarte-backend-prod.onrender.com/';
-
+const API_URL = process.env.VUE_APP_BACKEND_API_URL;
 class UserService {
     //Este metodo sirve para la verificacion de la cuenta, donde el token se recibe por param.
     getUserByIdWithToken(user_id, token) {

@@ -84,7 +84,7 @@
                       class="button-image mr-2"
                       height="20"
                   />
-                  <a @click="downloadCV" href="https://drive.google.com/uc?export=download&id=1E4r6DNAyXZQu1kLglmNLGZiOW7lgxdwV ">Curriculum</a>
+                  <a @click="downloadCV" href="#">Curriculum</a>
                 </v-chip>
             </p>
             <p v-if="currentUser && reelLink" class="caption mt-2">            
@@ -256,7 +256,13 @@ export default {
       //para que el back lo elimine
       let oldCVName = null;
       if (this.cv) {
-        oldCVName = this.cv.split('/').pop()
+        //Si no corre local se usa endpoint de descarga de google drive que es distinto, entonces
+        //el ultimo caracter que esta antes de el id del cv es '='
+        let splitCharacter = '=';
+        if (process.env.VUE_APP_BACKEND_API_URL.includes("localhost")) {
+          splitCharacter = '/';
+        }
+        oldCVName = this.cv.split(splitCharacter).pop();
       }
       formData.append('old_file_name', oldCVName);
 
@@ -276,27 +282,39 @@ export default {
     },
     async downloadCV() {
       try {
-
-        const response = await axios({
-          url: this.cv, // URL del archivo PDF en tu backend
-          method: 'GET',
-          responseType: 'blob'
-        });
-
-        // Crear un enlace invisible para descargar el archivo
-        const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
-        link.href = url;
+        //Si corre local puedo descargarlo con axios y elegir el nombre con el que descargo el pdf
+        //Si no es local, debo descargarlo seteando en href el link porque sino google drive tira error de CORS
+        if (process.env.VUE_APP_BACKEND_API_URL.includes("localhost")) {
+          const response = await axios({
+            url: this.cv, // URL del archivo PDF en mi backend
+            method: 'GET',
+            responseType: 'blob'
+          });
+
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          link.href = url;
+        } else {
+          link.href = this.cv; // URL del archivo para descargarlo
+        }
+
         link.setAttribute('download', 'Curriculum-' + this.currentUser.fullname.replace(/\s+/g, '') + '.pdf'); // Nombre del archivo a descargar
         document.body.appendChild(link);
         link.click(); // Simula el clic para descargar el archivo
         document.body.removeChild(link); // Elimina el enlace después de hacer clic
+        
       } catch (error) {
         console.error("Error al descargar el CV:", error);
       }
     },
     deleteCV() {
-      UserService.deleteUserFile({field_name: 'cv', file_name: this.cv.split('/').pop()})
+      //Si no corre local se usa endpoint de descarga de google drive que es distinto, entonces
+      //el ultimo caracter que esta antes de el id del cv es '='
+      let splitCharacter = '=';
+      if (process.env.VUE_APP_BACKEND_API_URL.includes("localhost")) {
+        splitCharacter = '/';
+      }
+      UserService.deleteUserFile({field_name: 'cv', file_name: this.cv.split(splitCharacter).pop()})
       .then(response => {
         console.log('Se elimino el cv:', response.data);
         this.cv = '';

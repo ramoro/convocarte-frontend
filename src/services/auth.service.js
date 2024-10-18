@@ -1,13 +1,12 @@
 import axios from 'axios';
 
-const API_URL = 'https://deploy-convocarte-backend-prod.onrender.com/';
+const API_URL = process.env.VUE_APP_BACKEND_API_URL;
 
 class AuthService {
   login(user) {
     const formData = new FormData();
     formData.append('username', user.email);
     formData.append('password', user.password);
-
     formData.forEach(x=> console.log(x));
     return axios
       .post(API_URL + 'login', formData, {
