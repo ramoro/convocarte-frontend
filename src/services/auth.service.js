@@ -8,8 +8,7 @@ class AuthService {
     formData.append('username', user.email);
     formData.append('password', user.password);
     formData.forEach(x=> console.log(x));
-    console.log('ENDPOINT AL QUE LE PEGA');
-    console.log(API_URL + 'login');
+
     return axios
       .post(API_URL + 'login', formData, {
         headers: {
