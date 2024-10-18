@@ -84,7 +84,7 @@
                       class="button-image mr-2"
                       height="20"
                   />
-                  <a @click="downloadCV" href="#">Curriculum</a>
+                  <a @click="downloadCV" href="https://drive.google.com/uc?export=download&id=1E4r6DNAyXZQu1kLglmNLGZiOW7lgxdwV ">Curriculum</a>
                 </v-chip>
             </p>
             <p v-if="currentUser && reelLink" class="caption mt-2">            
