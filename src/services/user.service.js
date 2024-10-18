@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {authHeader, authHeaderMultipartFormData} from './auth-header';
 
-const API_URL = 'http://localhost/';
+const API_URL = 'https://deploy-convocarte-backend-prod.onrender.com/';
 
 class UserService {
     //Este metodo sirve para la verificacion de la cuenta, donde el token se recibe por param.
