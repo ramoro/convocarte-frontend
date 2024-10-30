@@ -193,7 +193,7 @@ import { languages } from '@/config/languages';
 import { sports } from '@/config/sports';
 import { instruments } from '@/config/instruments';
 import { otherSkills } from '@/config/other-skills';
-import UserService from '../services/user.service';
+import UserService from '@/services/user.service';
 
 export default {
   name: "SkillsProfileArea",

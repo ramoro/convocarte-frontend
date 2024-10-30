@@ -174,7 +174,7 @@
 
 <script>
 import Education from '@/models/education'
-import UserService from '../services/user.service';
+import AcademicExperienceService from '@/services/academic-experience.service';
 import { formatDate } from '@/utils';
 
 export default {
@@ -240,7 +240,7 @@ methods: {
     this.$refs.form.validate().then(result => {
       if (result.valid) {
         if (this.isEditMode) {
-          UserService.updateAcademicExperience(this.currentEducation.id, this.currentEducation)
+          AcademicExperienceService.updateAcademicExperience(this.currentEducation.id, this.currentEducation)
             .then(response => {
               console.log('Se actualizó la experiencia académica:', response.data);
               this.$emit('update-education', this.currentEducation, this.indexToUpdate);
@@ -250,7 +250,7 @@ methods: {
               console.error('Error al actualizar la experiencia académica', error);
             });
         } else {
-          UserService.addAcademicExperience(this.currentEducation)
+          AcademicExperienceService.addAcademicExperience(this.currentEducation)
             .then(response => {
               console.log('Se agregó una nueva experiencia académica:', response.data);
               this.educationDialog = false;
@@ -287,7 +287,7 @@ methods: {
   },
   async confirmDelete() {
     console.log(this.itemToDelete.id);
-    UserService.deleteAcademicExperience(this.itemToDelete.id)
+    AcademicExperienceService.deleteAcademicExperience(this.itemToDelete.id)
       .then( () => {
         this.$emit('delete-education', this.deleteIndex);
         this.deleteDialog = false;

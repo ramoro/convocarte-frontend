@@ -370,8 +370,8 @@ export default {
 }
 
 .custom-carousel {
-  max-width: 600px; /* Ancho máximo */
-  max-height: 650px; /* Alto máximo */
+  max-width: 600px;
+  max-height: 650px; 
   margin: 0 auto; /* Centrar el carrusel */
 }
 

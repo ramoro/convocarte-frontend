@@ -210,7 +210,7 @@
 
 <script>
 import WorkExperience from '@/models/work-experience'
-import UserService from '../services/user.service';
+import WorkExperienceService from '@/services/work-experience.service';
 import { formatDate, formatUrl } from '@/utils';
 
 export default {
@@ -280,7 +280,7 @@ methods: {
     this.$refs.form.validate().then(result => {
       if (result.valid) {
         if (this.isEditMode) {
-          UserService.updateWorkExperience(this.currentWorkExperience.id, this.currentWorkExperience)
+          WorkExperienceService.updateWorkExperience(this.currentWorkExperience.id, this.currentWorkExperience)
             .then(response => {
               console.log('Se actualizó la experiencia laboral:', response.data);
               this.$emit('update-work-experience', this.currentWorkExperience, this.indexToUpdate);
@@ -290,7 +290,7 @@ methods: {
               console.error('Error al actualizar la experiencia laboral', error);
             });
         } else {
-          UserService.addWorkExperience(this.currentWorkExperience)
+          WorkExperienceService.addWorkExperience(this.currentWorkExperience)
             .then(response => {
               console.log('Se agregó una nueva experiencia laboral:', response.data);
               this.workExperienceDialog = false;
@@ -330,7 +330,7 @@ methods: {
   },
   async confirmDelete() {
     console.log(this.itemToDelete.id);
-    UserService.deleteWorkExperience(this.itemToDelete.id)
+    WorkExperienceService.deleteWorkExperience(this.itemToDelete.id)
       .then( () => {
         this.$emit('delete-work-experience', this.deleteIndex);
         this.deleteDialog = false;
