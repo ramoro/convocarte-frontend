@@ -7,6 +7,10 @@ class FormTemplateService {
     createFormTemplate(payload) {
         return axios.post(API_URL + 'form-templates', payload, { headers: authHeader() });
     }
+
+    getUserFormTemplates(){
+        return axios.get(API_URL + 'form-templates', { headers: authHeader() });
+    }
     
 }
 

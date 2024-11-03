@@ -335,7 +335,8 @@ export default {
     if (!this.currentUser) {
       this.$router.push('/');
     }
-
+  },
+  created() {
     UserService.getUserById(this.$store.state.auth.user.id)
       .then(response => {
         this.setShot(0, response.data['chest_up_shot'], "Seleccion Plano Pecho.")

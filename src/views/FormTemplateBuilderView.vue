@@ -296,16 +296,6 @@ export default {
   background: transparent;
 }
 
-.remove-icon {
-  cursor: pointer;
-  margin-left: 8px;
-  transition: color 0.3s;
-}
-
-.remove-icon:hover {
-  color: red;
-}
-
 .move-icon {
   cursor: pointer;
   margin-left: 8px;
