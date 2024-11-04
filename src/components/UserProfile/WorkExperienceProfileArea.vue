@@ -1,18 +1,11 @@
 <template>
   <!-- Diálogo para confirmar la eliminación -->
-<v-dialog v-model="deleteDialog" max-width="400px">
-  <v-card>
-    <v-card-title class="text-h6">Confirmación de Eliminación</v-card-title>
-    <v-card-text>
-      ¿Estás seguro de que deseás eliminar este item de experiencia laboral?
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn color="red" @click="confirmDelete">Eliminar</v-btn>
-      <v-btn color="grey" @click="deleteDialog = false">Cancelar</v-btn>
-    </v-card-actions>
-  </v-card>
-</v-dialog>
+  <DeleteConfirmationDialog
+      :isOpen="deleteDialog"
+      itemName="experiencia laboral"
+      @delete-confirmed="confirmDelete"
+      @delete-cancelled="deleteDialog = false"
+  />
 
 <!-- Dialogo para agregar estudios -->
 <v-dialog v-model="workExperienceDialog" max-width="600px">
@@ -211,10 +204,14 @@
 <script>
 import WorkExperience from '@/models/work-experience'
 import WorkExperienceService from '@/services/work-experience.service';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog.vue';
 import { formatDate, formatUrl } from '@/utils';
 
 export default {
 name: "WorkExperienceProfileArea",
+components: {
+  DeleteConfirmationDialog
+},
 props: {
   workExperienceItems: {
     type: Array,

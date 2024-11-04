@@ -1,5 +1,11 @@
 <template>
   <v-container>
+    <DeleteConfirmationDialog
+      :isOpen="deleteDialog"
+      itemName="plantilla de formulario"
+      @delete-confirmed="confirmDelete"
+      @delete-cancelled="deleteDialog = false"
+    />
     <v-row>
       <v-col cols="12" class="d-flex justify-space-between align-center">
         <h1 class="forms-title">Mis Formularios</h1>
@@ -43,7 +49,7 @@
             </v-tooltip>
           </v-row>
 
-          <v-card flat class="pa-3" v-for="form in formTemplates" :key="form.title">
+          <v-card flat class="pa-3" v-for="(form, index) in formTemplates" :key="index">
             <v-row :class="`pa-3 form unused`"> 
               <v-col cols="4">
                 <div class="caption text-grey">Título de Formulario</div>
@@ -65,7 +71,7 @@
                   </v-tooltip>
                   <v-tooltip text="Eliminar" location="top">
                     <template v-slot:activator="{ props }">
-                      <v-icon v-bind="props" class="remove-icon">mdi-delete</v-icon>
+                      <v-icon v-bind="props" class="remove-icon" @click="prepareDelete(form, index)">mdi-delete</v-icon>
                     </template>
                   </v-tooltip>
                 </div>
@@ -90,14 +96,19 @@
 <script>
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import FormTemplateService from '@/services/form-template.service';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog.vue';
 
 export default {
   components: {
-      InformationSnackbar,
+    InformationSnackbar,
+    DeleteConfirmationDialog
   },
   data() {
     return {
       formTemplates: [],
+      itemToDelete: null,
+      deleteDialog: false,
+      deleteIndex: null,
       isLoading: true, // Estado de carga (para mostrar simbolo de carga hasta que esten cargados los formularios del usuario)
     }
   },
@@ -136,7 +147,22 @@ export default {
     },
     sortBy(attribute) {
       this.formTemplates.sort((a,b) => a[attribute] > b[attribute] ? -1 : 1);
-    }
+    },
+    prepareDelete(form, index) {
+      this.itemToDelete = form;
+      this.deleteIndex = index;
+      this.deleteDialog = true;
+    },
+    async confirmDelete() {
+      FormTemplateService.deleteFormTemplate(this.itemToDelete.id)
+        .then( () => {
+          this.formTemplates.splice(this.deleteIndex, 1);
+          this.deleteDialog = false;
+        })
+        .catch(error => {
+          console.error('Error al eliminar template de formulario', error);
+        });
+    },
   },
 };
 </script>
