@@ -5,7 +5,7 @@ export const basicInfoFormFields = [
   { label: 'Reel', type: 'text', additionalText: ''},
   { label: 'Género', type: 'select', additionalText: 'Opciones: Masculino, Femenino, Otro'},
   { label: 'Fecha Nacimiento', type: 'date', icon: 'mdi-calendar' },
-  { label: 'País Residencia', type: 'text' },
+  { label: 'País de Residencia', type: 'text' },
   { label: 'Localidad', type: 'text' },
   { label: 'Nacionalidad', type: 'text' },
   { label: 'Teléfono', type: 'text', icon: 'mdi-phone' },

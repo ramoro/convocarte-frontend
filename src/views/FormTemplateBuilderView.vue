@@ -1,6 +1,12 @@
 <template>
   <v-container>
-    <v-row>
+    <v-row v-if="viewIsLoading" justify="center" align="center" style="height: 60vh;">
+      <v-container class="text-center">
+        <v-progress-circular indeterminate color="cyan"></v-progress-circular>
+        <div>Cargando campos del formulario...</div>
+      </v-container>
+    </v-row>
+    <v-row v-else>
       <v-col cols="4">
         <v-card class="sticky-card purple-border">
           <v-card-title>
@@ -99,7 +105,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn v-if="formFields.length > 0" color="purple" @click="submitForm()">Guardar</v-btn>
+            <v-btn v-if="formFields.length > 0 && !formId" color="purple" @click="submitForm()">Guardar</v-btn>
+            <v-btn v-if="formFields.length > 0 && formId" color="purple" @click="updateForm()">Actualizar</v-btn>
             <v-btn v-if="formFields.length > 0" color="cyan" @click="formFields=[]">Limpiar</v-btn>
             <v-btn color="grey" @click="cancelFormCreation()">Cancelar</v-btn>
           </v-card-actions>
@@ -145,12 +152,22 @@ export default {
     return { router };
   },
   mounted() {
-      this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
+    this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
+    console.log("Params");
+    console.log(this.$route.params);
+    //route es diferente de router  
+    if (this.$route.params.id) {
+      this.formId = this.$route.params.id;
+      this.loadFormData(this.formId);
+    }
   },
   data() {
     return {
       formFields: [],
       formTitle: '',
+      formId: null, //Para cuando la ruta es para la edicion del formulario
+      formCreatedDate: null,
+      originalTitle: '', //Esto es para cuando la vista se usa como edicion
       tab: 'Info Básica',
       items: ['Info Básica', 'Fotos', 'Datos Físicos', 'Habilidades', 'Trabajos y Estudios'],
       buttons: {
@@ -160,6 +177,16 @@ export default {
         3: skillsFormFields,
         4: studiesAndJobsFormFields
       },
+      placeholderMap: {
+        'text': 'Texto de respuesta breve',
+        'text area': 'Texto de respuesta larga',
+        'number': 'Respuesta numérica',
+        'upload file': 'Agregar archivo',
+        'select': 'Elegir Opción',
+        'multiple select': 'Elegir Opciones',
+        'date': ''
+      },
+      viewIsLoading: false,
     };
   },
   computed: {
@@ -174,27 +201,17 @@ export default {
   },
   methods: {
     cancelFormCreation() {
-      this.$router.push({ path: 'user-forms'});
+      this.$router.push({ path: '/user-forms'});
     },
     buttonDisabled(button) {
       return this.formFields.some(field => field.title === button.label);
     },
     addField(type, label, additionalText) {
-      const placeholderMap = {
-        'text': 'Texto de respuesta breve',
-        'text area': 'Texto de respuesta larga',
-        'number': 'Respuesta numérica',
-        'upload file': 'Agregar archivo',
-        'select': 'Elegir Opción',
-        'multiple select': 'Elegir Opciones',
-        'date': ''
-      };
-
       const newField = { 
         type,
         value: '',
         options: [],
-        placeholder: placeholderMap[type] || '',
+        placeholder: this.placeholderMap[type] || '',
         title: label,
         additionalText,
         required: false, // Por defecto no es obligatorio
@@ -230,41 +247,89 @@ export default {
       }
     },
     async submitForm() {
-
       // Validar que el título no esté vacío
       if (!this.formTitle.trim()) {
-        this.$root.InformationSnackbar.show({message: "El Formulario debe tener un Título", color: 'dark', buttonColor:'red'})
+        this.$root.InformationSnackbar.show({ message: "El Formulario debe tener un Título", color: 'dark', buttonColor: 'red' });
         return;
       }
 
       const fieldsToSend = this.formFields.map((field, index) => ({
         title: field.title,
         type: field.type,
-        order: index, // El orden se basa en la posicion que tiene en formFields
+        order: index, // El orden se basa en la posición que tiene en formFields
         is_required: field.required,
       }));
 
       console.log("Fields to send", fieldsToSend);
 
-      const payload = {form_template_title: this.formTitle, form_template_fields: fieldsToSend}
+      const payload = { form_template_title: this.formTitle, form_template_fields: fieldsToSend };
 
-      FormTemplateService.createFormTemplate(payload)
-      .then(response => {
-          console.log('Se agregó un nuevo template form:', response.data);
-          this.$router.push({ path: 'user-forms', query: { title: this.formTitle } });
-      })
-      .catch(error => {
-          if (error.response) {
-            if (error.response.status === 409) {
-              this.$root.InformationSnackbar.show({message: "Ya existe un Formulario a tu nombre con ese Título", color: 'dark', buttonColor:'red'})
+      try {
+        const response = await FormTemplateService.createFormTemplate(payload);
+        console.log('Se agregó un nuevo template form:', response.data);
+        // Cambia aquí la redirección
+        this.$router.push({ path: '/user-forms', query: { title: this.formTitle } });
+      } catch (error) {
+        if (error.response) {
+          if (error.response.status === 409) {
+            this.$root.InformationSnackbar.show({ message: "Ya existe un Formulario a tu nombre con ese Título", color: 'dark', buttonColor: 'red' });
           } else {
-              this.$root.InformationSnackbar.show({message: "Hubo un problema con la solicitud", color: 'dark', buttonColor:'red'})
-            }
-          } else if (error.request) {
-              this.$root.InformationSnackbar.show({message: "No se pudo conectar con el servidor", color: 'dark', buttonColor:'red'})
+            this.$root.InformationSnackbar.show({ message: "Hubo un problema con la solicitud", color: 'dark', buttonColor: 'red' });
           }
-      });
+        } else if (error.request) {
+          this.$root.InformationSnackbar.show({ message: "No se pudo conectar con el servidor", color: 'dark', buttonColor: 'red' });
+        }
+      }
+    },
+    async loadFormData(id) {
+      this.viewIsLoading = true;
+      try {
+        const response = await FormTemplateService.getFormTemplate(id);
+        const formData = response.data;
+        this.formTitle = formData.form_template_title;
+        this.originalTitle = formData.form_template_title;
+        this.formCreatedDate = formData.created_at;
+        this.formFields = formData.form_template_fields.map(field => ({
+          type: field.type,
+          title: field.title,
+          value: '',
+          options: [],
+          placeholder: this.placeholderMap[field.type] || '',
+          required: field.is_required,
+          additionalText: ''
+        }));
+      } catch (error) {
+        console.log('Error al cargar el formulario:', error);
+      } finally {
+        this.viewIsLoading = false; 
+      }
+    },
+    async updateForm() {
+      const fieldsToSend = this.formFields.map((field, index) => ({
+        title: field.title,
+        type: field.type,
+        order: index, // El orden se basa en la posición que tiene en formFields
+        is_required: field.required,
+      }));
 
+      const payload = {id: this.formId, original_form_template_title: this.originalTitle, form_template_title: this.formTitle, created_at: this.formCreatedDate, form_template_fields: fieldsToSend };
+      
+      try {
+        const response = await FormTemplateService.updateFormTemplate(payload);
+        console.log('Se actualizó un template form:', response.data);
+        // Cambia aquí la redirección
+        this.$router.push({ path: '/user-forms', query: { updating: this.formTitle } });
+      } catch (error) {
+        if (error.response) {
+          if (error.response.status === 409) {
+            this.$root.InformationSnackbar.show({ message: "Ya existe un Formulario a tu nombre con ese Título", color: 'dark', buttonColor: 'red' });
+          } else {
+            this.$root.InformationSnackbar.show({ message: "Hubo un problema con la solicitud", color: 'dark', buttonColor: 'red' });
+          }
+        } else if (error.request) {
+          this.$root.InformationSnackbar.show({ message: "No se pudo conectar con el servidor", color: 'dark', buttonColor: 'red' });
+        }
+      }
     }
   },
   beforeMount() {

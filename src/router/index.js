@@ -55,10 +55,16 @@ const routes = [
   }
   ,
   {
-    path: '/form-builder',
-    name: 'formbuilder',
+    path: '/form-builder/new',
+    name: 'createForm',
     component: () => import('../views/FormTemplateBuilderView.vue')
+  },
+  {
+    path: '/form-builder/:id',
+    name: 'editForm',
+    component: () => import('../views/FormTemplateBuilderView.vue'),
   }
+
 ]
 
 const router = createRouter({

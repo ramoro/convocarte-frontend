@@ -10,7 +10,7 @@
       <v-col cols="12" class="d-flex justify-space-between align-center">
         <h1 class="forms-title">Mis Formularios</h1>
         <div class="d-flex">
-          <v-btn class="mr-3" rounded @click="reelDialog = true" to="/form-builder">            
+          <v-btn class="mr-3" rounded @click="reelDialog = true" to="/form-builder/new">            
             <img 
               :src="require('@/assets/form-icon.png')"
               alt="Create Form Icon" 
@@ -66,7 +66,7 @@
                 <div justify="space-between" class="mt-2">
                   <v-tooltip text="Editar" location="top">
                     <template v-slot:activator="{ props }">
-                      <v-icon v-bind="props" class="edition-icon mr-2">mdi-pencil</v-icon>
+                      <v-icon v-bind="props" class="edition-icon mr-2" @click="editForm(form.id)">mdi-pencil</v-icon>
                     </template>
                   </v-tooltip>
                   <v-tooltip text="Eliminar" location="top">
@@ -126,6 +126,8 @@ export default {
       this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
       if (this.$route.query.title) {
         this.$root.InformationSnackbar.show({message: 'El formulario ' + this.$route.query.title + ' se acaba de crear', color: 'green', buttonColor:'white'});
+      } else if (this.$route.query.updating) {
+        this.$root.InformationSnackbar.show({message: 'El formulario ha sido actualizado!', color: 'green', buttonColor:'white'});
       }
   },
   created() {
@@ -162,6 +164,9 @@ export default {
         .catch(error => {
           console.error('Error al eliminar template de formulario', error);
         });
+    },
+    editForm(formId) {
+      this.$router.push(`/form-builder/${formId}`);
     },
   },
 };

@@ -15,6 +15,14 @@ class FormTemplateService {
     deleteFormTemplate(id) {
         return axios.delete(API_URL + 'form-templates/' + id, { headers: authHeader() });
     }
+
+    getFormTemplate(id) {
+        return axios.get(API_URL + 'form-templates/' + id, { headers: authHeader() });
+    }
+
+    updateFormTemplate(payload) {
+        return axios.put(API_URL + 'form-templates', payload, { headers: authHeader() });
+    }
     
 }
 
