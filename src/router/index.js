@@ -47,6 +47,24 @@ const routes = [
     name: 'usergallery',
     component: () => import('../views/UserGalleryView.vue')
   }
+  ,
+  {
+    path: '/user-forms',
+    name: 'userforms',
+    component: () => import('../views/UserFormsView.vue')
+  }
+  ,
+  {
+    path: '/form-builder/new',
+    name: 'createForm',
+    component: () => import('../views/FormTemplateBuilderView.vue')
+  },
+  {
+    path: '/form-builder/:id',
+    name: 'editForm',
+    component: () => import('../views/FormTemplateBuilderView.vue'),
+  }
+
 ]
 
 const router = createRouter({

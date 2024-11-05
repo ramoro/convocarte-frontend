@@ -259,7 +259,7 @@
 </template>
 
 <script>
-import UserService from '../services/user.service';
+import UserService from '../../services/user.service';
 import { formatDate, formatUrl } from '@/utils';
 
 export default {

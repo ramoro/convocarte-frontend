@@ -171,13 +171,15 @@
 </template>
 
 <script>
-import UserService from '../services/user.service';
-import ImageCropper from '@/components/ImageCropper.vue';
-import EducationProfileArea from '@/components/EducationProfileArea.vue';
-import WorkExperienceProfileArea from '@/components/WorkExperienceProfileArea.vue';
-import PhysicalCharacteristicsProfileArea from '@/components/PhysicalCharacteristicsProfileArea.vue';
-import SkillsProfileArea from '@/components/SkillsProfileArea.vue';
-import BasicInfoAndContactProfileArea from '@/components/BasicInfoAndContactProfileArea.vue';
+import UserService from '@/services/user.service';
+import AcademicExperienceService from '@/services/academic-experience.service';
+import WorkExperienceService from '@/services/work-experience.service';
+import ImageCropper from '@/components/UserProfile/ImageCropper.vue';
+import EducationProfileArea from '@/components/UserProfile/EducationProfileArea.vue';
+import WorkExperienceProfileArea from '@/components/UserProfile/WorkExperienceProfileArea.vue';
+import PhysicalCharacteristicsProfileArea from '@/components/UserProfile/PhysicalCharacteristicsProfileArea.vue';
+import SkillsProfileArea from '@/components/UserProfile/SkillsProfileArea.vue';
+import BasicInfoAndContactProfileArea from '@/components/UserProfile/BasicInfoAndContactProfileArea.vue';
 import UploadFileButton from '@/components/UploadFileButton.vue';
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import { formatUrl } from '@/utils';
@@ -194,8 +196,40 @@ export default {
     UploadFileButton,
     InformationSnackbar
   },
-  mounted() {
-      this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
+  created() {
+    this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
+    // Cargar la lista de estudios del usuario
+    AcademicExperienceService.getUserAcademicExperiences()
+      .then(response => {
+        this.educationItems = response.data; // `response.data` es  una lista de experiencias academicas
+      })
+      .catch(error => {
+        console.log('Error al obtener experiencias académicas', error);
+      }
+    );
+
+    // Cargar la lista de experiencias laborales del usuario
+    WorkExperienceService.getUserWorkExperiences()
+      .then(response => {
+        this.workExperienceItems = response.data; // `response.data` es  una lista de experiencias laborales
+      })
+      .catch(error => {
+        console.log('Error al obtener experiencias laborales', error);
+      }
+    );
+
+    UserService.getUserById(this.$store.state.auth.user.id)      
+    .then(response => {
+        this.setPhysicalCharacteristics(response.data);
+        this.setSkills(response.data);
+        this.setBasicInfo(response.data);
+        this.cv = response.data.cv;
+        this.reelLink = response.data.reel_link;
+      })
+      .catch(error => {
+        console.log('Error al obtener datos del usuario', error);
+      }
+    );
   },
   data() {
     return {
@@ -479,40 +513,7 @@ export default {
     } else if (this.currentUser.profile_picture != "") {
       this.resizedImage = this.currentUser.profile_picture;
     }
-
-    // Cargar la lista de estudios del usuario
-    UserService.getUserAcademicExperiences()
-      .then(response => {
-        this.educationItems = response.data; // `response.data` es  una lista de experiencias academicas
-      })
-      .catch(error => {
-        console.log('Error al obtener experiencias académicas', error);
-      }
-    );
-
-    // Cargar la lista de experiencias laborales del usuario
-    UserService.getUserWorkExperiences()
-      .then(response => {
-        this.workExperienceItems = response.data; // `response.data` es  una lista de experiencias laborales
-      })
-      .catch(error => {
-        console.log('Error al obtener experiencias laborales', error);
-      }
-    );
-
-    UserService.getUserById(this.$store.state.auth.user.id)      
-    .then(response => {
-        this.setPhysicalCharacteristics(response.data);
-        this.setSkills(response.data);
-        this.setBasicInfo(response.data);
-        this.cv = response.data.cv;
-        this.reelLink = response.data.reel_link;
-      })
-      .catch(error => {
-        console.log('Error al obtener datos del usuario', error);
-      }
-    );
-  },
+  }
 };
 </script>
 
@@ -524,9 +525,9 @@ export default {
 }
 
 .profile-title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .purple-border {

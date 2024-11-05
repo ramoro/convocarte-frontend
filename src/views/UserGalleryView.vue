@@ -335,7 +335,8 @@ export default {
     if (!this.currentUser) {
       this.$router.push('/');
     }
-
+  },
+  created() {
     UserService.getUserById(this.$store.state.auth.user.id)
       .then(response => {
         this.setShot(0, response.data['chest_up_shot'], "Seleccion Plano Pecho.")
@@ -370,8 +371,8 @@ export default {
 }
 
 .custom-carousel {
-  max-width: 600px; /* Ancho máximo */
-  max-height: 650px; /* Alto máximo */
+  max-width: 600px;
+  max-height: 650px; 
   margin: 0 auto; /* Centrar el carrusel */
 }
 

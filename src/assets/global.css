@@ -1,0 +1,19 @@
+.remove-icon {
+    cursor: pointer;
+    margin-left: 8px;
+    transition: color 0.3s;
+  }
+  
+  .remove-icon:hover {
+    color: red;
+  }
+
+  .edition-icon {
+    cursor: pointer;
+    margin-left: 8px;
+    transition: color 0.3s;
+  }
+  
+  .edition-icon:hover {
+    color: blue;
+  }

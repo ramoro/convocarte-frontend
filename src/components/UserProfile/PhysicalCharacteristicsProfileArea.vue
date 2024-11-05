@@ -28,15 +28,15 @@
           <div style="color:black !important">{{phCharacteristics.skin_color || '----------'}}</div>
         </v-col>
         <v-col cols="3" md="3">
-          <div class="caption">Medida de Cintura</div>
+          <div class="caption">Medida de Cintura (cm)</div>
           <div style="color:black !important">{{phCharacteristics.waist_measurement || '----------'}}</div>
         </v-col>
         <v-col cols="3" md="3">
-          <div class="caption">Medida de Cadera</div>
+          <div class="caption">Medida de Cadera (cm)</div>
           <div style="color:black !important">{{phCharacteristics.hip_measurement || '----------'}}</div>
         </v-col>
         <v-col cols="3" md="3">
-          <div class="caption">Medida de Busto</div>
+          <div class="caption">Medida de Busto (cm)</div>
           <div style="color:black !important">{{phCharacteristics.bust_measurement || '----------'}}</div>
         </v-col>
         <v-col cols="3" md="3">
@@ -162,7 +162,7 @@
               <v-col cols="3">
                 <v-text-field
                   v-model="formData.waist_measurement"
-                  label="Medida de Cintura"
+                  label="Medida de Cintura (cm)"
                   type="number"
                   :rules="numericRule"
                   outlined
@@ -173,7 +173,7 @@
               <v-col cols="3">
                 <v-text-field
                   v-model="formData.hip_measurement"
-                  label="Medida de Cadera"
+                  label="Medida de Cadera (cm)"
                   :rules="numericRule"
                   type="number"
                 ></v-text-field>
@@ -181,7 +181,7 @@
               <v-col cols="3">
                 <v-text-field
                   v-model="formData.bust_measurement"
-                  label="Medida de Busto"
+                  label="Medida de Busto (cm)"
                   :rules="numericRule"
                   type="number"
                   outlined
@@ -353,7 +353,7 @@
 </template>
 
 <script>
-import UserService from '../services/user.service';
+import UserService from '../../services/user.service';
 
 export default {
   name: "PhysicalCharacteristicsProfileArea",
