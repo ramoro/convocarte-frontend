@@ -108,7 +108,7 @@
             <v-btn v-if="formFields.length > 0 && !formId" color="purple" @click="submitForm()">Guardar</v-btn>
             <v-btn v-if="formFields.length > 0 && formId" color="purple" @click="updateForm()">Actualizar</v-btn>
             <v-btn v-if="formFields.length > 0" color="cyan" @click="formFields=[]">Limpiar</v-btn>
-            <v-btn color="grey" @click="cancelFormCreation()">Cancelar</v-btn>
+            <v-btn variant="flat" color="grey" @click="cancelFormCreation()">Cancelar</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -127,9 +127,6 @@ import FormTemplateService from '@/services/form-template.service';
 import draggable from 'vuedraggable';
 
 
-import { useRouter } from 'vue-router';
-
-
 import { 
   basicInfoFormFields, 
   physicalCharacteristicsFormFields, 
@@ -146,10 +143,6 @@ export default {
     DateFieldInput,
     InformationSnackbar,
     draggable
-  },
-  setup() {
-    const router = useRouter();
-    return { router };
   },
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
@@ -267,7 +260,7 @@ export default {
       try {
         const response = await FormTemplateService.createFormTemplate(payload);
         console.log('Se agregó un nuevo template form:', response.data);
-        // Cambia aquí la redirección
+        
         this.$router.push({ path: '/user-forms', query: { title: this.formTitle } });
       } catch (error) {
         if (error.response) {
@@ -333,9 +326,9 @@ export default {
     }
   },
   beforeMount() {
-      if (!this.currentUser) {
-          this.$router.push('/');
-      }
+    if (!this.currentUser) {
+        this.$router.push('/');
+    }
   }
 };
 </script>

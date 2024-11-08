@@ -46,14 +46,12 @@ const routes = [
     path: '/user-gallery',
     name: 'usergallery',
     component: () => import('../views/UserGalleryView.vue')
-  }
-  ,
+  },
   {
     path: '/user-forms',
     name: 'userforms',
     component: () => import('../views/UserFormsView.vue')
-  }
-  ,
+  },
   {
     path: '/form-builder/new',
     name: 'createForm',
@@ -63,7 +61,17 @@ const routes = [
     path: '/form-builder/:id',
     name: 'editForm',
     component: () => import('../views/FormTemplateBuilderView.vue'),
-  }
+  },
+  {
+    path: '/user-projects',
+    name: 'userprojects',
+    component: () => import('../views/UserProjectsView.vue')
+  },
+  {
+    path: '/project-creation',
+    name: 'projectcreation',
+    component: () => import('../views/ProjectCreationView.vue')
+  },
 
 ]
 
