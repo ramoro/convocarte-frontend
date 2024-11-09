@@ -141,7 +141,7 @@ export default {
       return date.toLocaleDateString('es-ES', options);
     },
     sortBy(attribute) {
-      this.formTemplates.sort((a,b) => a[attribute] > b[attribute] ? -1 : 1);
+      this.projects.sort((a,b) => a[attribute] > b[attribute] ? -1 : 1);
     },
   },
 };
