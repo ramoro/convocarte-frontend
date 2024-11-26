@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginRegistrationView from '../views/LoginRegistrationView.vue'
-import VerifiedAccountView from '../views/VerifiedAccountView.vue'
-import ForgotPasswordView from '../views/ForgotPasswordView.vue'
-import ResetPasswordView from '../views/ResetPasswordView.vue'
+import LoginRegistrationView from '../views/Login-Registration/LoginRegistrationView.vue'
+import VerifiedAccountView from '../views/Login-Registration/VerifiedAccountView.vue'
+import ForgotPasswordView from '../views/Login-Registration/ForgotPasswordView.vue'
+import ResetPasswordView from '../views/Login-Registration/ResetPasswordView.vue'
 
 const routes = [
   {
@@ -50,27 +50,37 @@ const routes = [
   {
     path: '/user-forms',
     name: 'userforms',
-    component: () => import('../views/UserFormsView.vue')
+    component: () => import('../views/Forms/UserFormsView.vue')
   },
   {
     path: '/form-builder/new',
     name: 'createForm',
-    component: () => import('../views/FormTemplateBuilderView.vue')
+    component: () => import('../views/Forms/FormTemplateBuilderView.vue')
   },
   {
     path: '/form-builder/:id',
     name: 'editForm',
-    component: () => import('../views/FormTemplateBuilderView.vue'),
+    component: () => import('../views/Forms/FormTemplateBuilderView.vue'),
   },
   {
     path: '/user-projects',
     name: 'userprojects',
-    component: () => import('../views/UserProjectsView.vue')
+    component: () => import('../views/Projects/UserProjectsView.vue')
   },
   {
     path: '/project-creation',
     name: 'projectcreation',
-    component: () => import('../views/ProjectCreationView.vue')
+    component: () => import('../views/Projects/ProjectCreationView.vue')
+  },
+  {
+    path: '/user-casting-calls',
+    name: 'usercastingcalls',
+    component: () => import('../views/Casting Calls/UserCastingCallsView.vue')
+  },
+  {
+    path: '/casting-call-creation',
+    name: 'castingcallcreation',
+    component: () => import('../views/Casting Calls/CastingCallCreationView.vue')
   },
 
 ]

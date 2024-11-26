@@ -24,13 +24,19 @@ class UserService {
         return axios.patch(API_URL + 'users/password-recovering', payload);
     }
 
-    updateCV(formData) {
-        console.log(formData);
+    updateCV(cvFile, fileName, oldCVName) {
+        const formData = new FormData();
+        formData.append('file', cvFile, fileName);
+        formData.append('old_file_name', oldCVName);
         return axios.patch(API_URL + 'users/upload-cv', formData, { headers: authHeaderMultipartFormData() });
     }
 
-    updateUserImage(formData) {
-        console.log(formData);
+    updateUserImage(shotFile, fileName, shotType, oldFileName) {
+        const formData = new FormData();
+
+        formData.append('file', shotFile, fileName);
+        formData.append('field_name', shotType);
+        formData.append('old_file_name', oldFileName);
         return axios.patch(API_URL + 'users/upload-image', formData, { headers: authHeaderMultipartFormData() });
     }
 

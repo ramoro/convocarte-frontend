@@ -65,7 +65,7 @@
                 { icon: 'mdi-account', text: 'Mi Perfil', route: '/user-profile' },
                 { icon: 'mdi-folder', text: 'Mis Proyectos', route: '/user-projects' },
                 { icon: 'mdi-form-select', text: 'Mis Formularios', route: '/user-forms' },
-                { icon: 'mdi-test-tube', text: 'Test', route: '/test' },
+                { icon: 'mdi-bell-ring', text: 'Mis Castings', route: '/user-casting-calls' },
             ],
             avatarImage: ""
         }

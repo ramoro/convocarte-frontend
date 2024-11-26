@@ -56,7 +56,7 @@
 
 <script>
   import InformationSnackbar from '@/components/InformationSnackbar.vue'
-  import UserService from '../services/user.service';
+  import UserService from '../../services/user.service';
 
   export default {
     name: 'ForgotPasswordView',

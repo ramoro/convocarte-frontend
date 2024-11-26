@@ -49,7 +49,7 @@
 
       <!-- Formulario principal al costado derecho -->
       <v-col cols="12" md="8">
-        <v-form v-model="valid" ref="form" class="mt-2">
+        <v-form v-model="valid" ref="form" class="mt-2" @submit.prevent="submitForm()">
           <!-- Nombre del Proyecto -->
           <v-text-field
             v-model="project.name"
@@ -115,7 +115,6 @@
               color="purple"
               class="mr-2"
               type="submit"
-              @click.stop.prevent="submitForm()"
             >
               Guardar
             </v-btn>
@@ -192,8 +191,8 @@ export default {
       project: {
         name: '',
         description: '',
-        region: '',
-        category: '',
+        region: null,
+        category: null,
       },
       otherCategoryDescription: '',
       requiredRule: [value => !!value || 'Este campo es requerido.'],
@@ -219,42 +218,65 @@ export default {
   },
   methods: {
     async submitForm() {
-      if (this.$refs.form.validate()) {
+      const result = await this.$refs.form.validate(); 
+
+      if (result.valid) { 
         try {
-            if (this.projectRoles.length == 0) {
-              console.log("Entro al if")
-              this.$root.InformationSnackbar.show({ message: "El proyecto debe poseer al menos un Rol", color: 'dark', buttonColor: 'red' });
-              return;
-            }
-
-            //Si eligió como categoría 'Otro' le introduzco al campo category la info puesta en otherCategoryDescription
-            if (this.project.category == 'Otro') {
-              this.project.category = this.otherCategoryDescription;
-            }
-
-            const payload = { 
-              name: this.project.name,
-              description: this.project.description,
-              region: this.project.region,
-              category: this.project.category, 
-              roles: this.projectRoles 
-            };
-
-            const response = await projectService.createProject(payload)
-
-            console.log('Se creó un nuevo proyecto', response.data);
-            this.$router.push({ path: '/user-projects', query: { name: this.project.name } });
-          } catch (error) {
-            if (error.response) {
-              if (error.response.status === 409) {
-                this.$root.InformationSnackbar.show({ message: "Ya poseés un Proyecto con ese Nombre", color: 'dark', buttonColor: 'red' });
-              } else {
-                this.$root.InformationSnackbar.show({ message: "Hubo un problema con la solicitud", color: 'dark', buttonColor: 'red' });
-              }
-            } else if (error.request) {
-              this.$root.InformationSnackbar.show({ message: "No se pudo conectar con el servidor", color: 'dark', buttonColor: 'red' });
-            }
+          if (this.projectRoles.length === 0) {
+            console.log("Entro al if");
+            this.$root.InformationSnackbar.show({ 
+              message: "El proyecto debe poseer al menos un Rol", 
+              color: 'dark', 
+              buttonColor: 'red' 
+            });
+            return; // Si no hay roles, sale de la función
           }
+
+          // Si eligió como categoría 'Otro', le introduzco al campo 'category' la info puesta en 'otherCategoryDescription'
+          if (this.project.category === 'Otro') {
+            this.project.category = this.otherCategoryDescription;
+          }
+
+          const payload = { 
+            name: this.project.name,
+            description: this.project.description,
+            region: this.project.region,
+            category: this.project.category, 
+            roles: this.projectRoles 
+          };
+
+         
+          const response = await projectService.createProject(payload);
+
+          console.log('Se creó un nuevo proyecto', response.data);
+
+          
+          this.$router.push({ path: '/user-projects', query: { name: this.project.name } });
+
+        } catch (error) {
+         
+          if (error.response) {
+            if (error.response.status === 409) {
+              this.$root.InformationSnackbar.show({ 
+                message: "Ya poseés un Proyecto con ese Nombre", 
+                color: 'dark', 
+                buttonColor: 'red' 
+              });
+            } else {
+              this.$root.InformationSnackbar.show({ 
+                message: "Hubo un problema con la solicitud", 
+                color: 'dark', 
+                buttonColor: 'red' 
+              });
+            }
+          } else if (error.request) {
+            this.$root.InformationSnackbar.show({ 
+              message: "No se pudo conectar con el servidor", 
+              color: 'dark', 
+              buttonColor: 'red' 
+            });
+          }
+        }
       }
     },
     cancelProjectCreation() {
