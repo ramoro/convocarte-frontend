@@ -26,19 +26,19 @@
       <div class="projects-list">
         <v-container class="my-10 mx-16">
           <v-row class="mb-3">
-            <v-tooltip text="Ordenar por Nombre" location="top"> 
-              <template v-slot:activator="{ props }"> 
-                <v-btn small class="text-white" style="text-transform: none" text color="cyan" v-bind="props" @click="sortBy('name')">
-                  <v-icon left small>mdi-folder</v-icon>
-                  <span class="caption">Por Nombre</span>
+            <v-tooltip text="Ordenar por Fecha de Creación" location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sortBy('created_at', dateOrderDesc)">
+                  <v-icon left small>mdi-calendar-month</v-icon>
+                  <span class="caption">Por Fecha</span>
                 </v-btn>
               </template>
             </v-tooltip>
-            <v-tooltip text="Ordenar por Fecha de Creación" location="top">
+            <v-tooltip text="Ordenar por Estado" location="top">
               <template v-slot:activator="{ props }">
-                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sortBy('created_at')">
+                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sortBy('state', stateOrderDesc)">
                   <v-icon left small>mdi-list-status</v-icon>
-                  <span class="caption">Por Fecha</span>
+                  <span class="caption">Por Estado</span>
                 </v-btn>
               </template>
             </v-tooltip>
@@ -59,7 +59,7 @@
                 <div>{{formatDateToTextFormat(project.created_at)}}</div>
               </v-col>
               <v-col cols="2">
-                <div><v-chip small :class="`Unused caption mt-2`">Sin uso</v-chip></div>
+                <div><v-chip small :class="`Unused caption mt-2`">{{project.state}}</v-chip></div>
               </v-col>
               <v-col cols="2">
                 <div justify="space-between" class="mt-2">
@@ -104,6 +104,8 @@ export default {
     return {
       projects: [],
       isLoading: true, // Estado de carga (para mostrar simbolo de carga hasta que esten cargados los proyectos del usuario)
+      dateOrderDesc: false,
+      stateOrderDesc: true
     }
   },
   computed: {
@@ -126,7 +128,8 @@ export default {
   created() {
     ProjectService.getUserProjects()
       .then(response => {
-        this.projects = response.data; 
+        this.projects = response.data;
+        this.sortBy('created_at'); //Por default están ordenados por fecha 
         this.isLoading = false; 
       })
       .catch(error => {
@@ -140,8 +143,15 @@ export default {
       const date = new Date(dateString);
       return date.toLocaleDateString('es-ES', options);
     },
-    sortBy(attribute) {
-      this.projects.sort((a,b) => a[attribute] > b[attribute] ? -1 : 1);
+    sortBy(attribute, orderDesc) {
+      if (orderDesc) {
+        this.projects.sort((a,b) => a[attribute] < b[attribute] ? -1 : 1);
+      } else {
+        this.projects.sort((a,b) => a[attribute] > b[attribute] ? -1 : 1);
+      }
+
+      if (attribute == 'created_at') this.dateOrderDesc = !this.dateOrderDesc;
+      if (attribute == 'state') this.stateOrderDesc = !this.stateOrderDesc;
     },
   },
 };
