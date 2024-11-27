@@ -1,6 +1,6 @@
 <template>
   <v-container>
-
+    <!-- Título y botón para crear casting -->
     <v-row>
       <v-col cols="12" class="d-flex justify-space-between align-center">
         <h1 class="castings-title">Mis Castings</h1>
@@ -28,28 +28,30 @@
     <!-- Castings -->
     <v-row v-else-if="castingCalls.length > 0" justify="center">
       <v-col v-for="(casting, index) in castingCalls" :key="index" cols="12" sm="6" class="d-flex justify-center mb-2 custom-col-spacing">
-        <!-- Contenedor para el casting -->
-        <v-container 
-          class="casting-container"
-          fluid
-        >
-          <!-- Contenido del casting -->
+        <v-container class="casting-container" fluid>
           <div class="casting-content">
-            <!-- Fila para el título y los iconos -->
             <v-row justify="space-between" align="center" class="casting-header">
-              <!-- Título del casting a la izquierda -->
               <v-col class="text-left" cols="auto">
                 <span class="headline">{{ casting.title }}</span>
               </v-col>
             </v-row>
 
-            <!-- Estado y iconos (ambos en la misma línea) -->
+            <!-- Estado y iconos -->
             <v-row justify="space-between" align="center" class="casting-state-container">
               <v-col class="text-left" cols="auto">
                 <span>{{ casting.state }}</span>
               </v-col>
-              <!-- Iconos a la derecha, alineados con el estado -->
+              <!-- Iconos a la derecha -->
               <v-col class="text-right d-flex" cols="auto">
+                <v-btn 
+                  size="small"
+                  class="no-bg"
+                  
+                  flat
+                  @click="showPhotosPreview(casting)"
+                >
+                  Preview Fotos
+                </v-btn>
                 <v-tooltip text="Editar" location="top">
                   <template v-slot:activator="{ props }">
                     <v-icon v-bind="props" class="mr-2">mdi-pencil</v-icon>
@@ -60,6 +62,7 @@
                     <v-icon v-bind="props">mdi-delete</v-icon>
                   </template>
                 </v-tooltip>
+
               </v-col>
             </v-row>
           </div>
@@ -73,6 +76,28 @@
         Aun no hay Castings creados
       </v-container>
     </v-row>
+
+    <!-- Dialogo para mostrar las fotos del casting -->
+    <v-dialog v-model="showDialog" max-width="1000px">
+      <v-card class="rounded-lg">
+        <v-card-title>
+          <span class="text-h5">Fotos de la Búsqueda</span>
+        </v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col v-if="currentCastingPhotos.length == 0">
+              <span class="text-h6">El Casting no posee fotos...</span>
+            </v-col>
+            <v-col v-for="(photo, index) in currentCastingPhotos" :key="index" cols="6" class="mb-2">
+              <v-img :src="photo" :alt="'Foto ' + index" aspect-ratio="1" contain></v-img>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn text @click="showDialog = false">Cerrar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <InformationSnackbar ref="InformationSnackbar"/>
   </v-container>
@@ -90,6 +115,8 @@ export default {
     return {
       castingCalls: [],
       isLoading: true, 
+      showDialog: false, 
+      currentCastingPhotos: [], 
     };
   },
   computed: {
@@ -106,7 +133,7 @@ export default {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
 
     if (this.$route.query.title) {
-      this.$root.InformationSnackbar.show({message: 'Casting creado en estado Borrador!', color: 'green', buttonColor:'white'} );
+      this.$root.InformationSnackbar.show({message: 'Casting creado en estado Borrador', color: 'green', buttonColor:'white'} );
     }
   },
   created() {
@@ -122,6 +149,11 @@ export default {
       });
   },
   methods: {
+    // Función para mostrar las fotos del casting
+    showPhotosPreview(casting) {
+      this.currentCastingPhotos = casting.casting_photos; // Usamos las fotos del casting
+      this.showDialog = true;
+    },
   },
 };
 </script>
@@ -197,5 +229,10 @@ export default {
 .casting-state-container .text-left {
   font-size: 14px;
   color: gray;
+}
+
+.no-bg {
+  background-color: transparent !important;
+  color: purple;
 }
 </style>
