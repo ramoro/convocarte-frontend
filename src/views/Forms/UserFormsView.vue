@@ -31,19 +31,19 @@
       <div class="forms-list">
         <v-container class="my-10 mx-16">
           <v-row class="mb-3">
-            <v-tooltip text="Ordenar por Título" location="top"> 
-              <template v-slot:activator="{ props }"> 
-                <v-btn small class="text-white" style="text-transform: none" text color="cyan" v-bind="props" @click="sortBy('form_template_title')">
-                  <v-icon left small>mdi-form-select</v-icon>
-                  <span class="caption">Por Título</span>
+            <v-tooltip text="Ordenar por Fecha de Creación" location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sort('created_at', dateOrderDesc)">
+                  <v-icon left small>mdi-calendar-month</v-icon>
+                  <span class="caption">Por Fecha</span>
                 </v-btn>
               </template>
             </v-tooltip>
-            <v-tooltip text="Ordenar por Fecha de Creación" location="top">
+            <v-tooltip text="Ordenar por Estado" location="top">
               <template v-slot:activator="{ props }">
-                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sortBy('created_at')">
+                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sort('state', stateOrderDesc)">
                   <v-icon left small>mdi-list-status</v-icon>
-                  <span class="caption">Por Fecha</span>
+                  <span class="caption">Por Estado</span>
                 </v-btn>
               </template>
             </v-tooltip>
@@ -60,7 +60,7 @@
                 <div>{{formatDateToTextFormat(form.created_at)}}</div>
               </v-col>
               <v-col cols="2">
-                <div><v-chip small :class="`Unused caption mt-2`">Sin uso</v-chip></div>
+                <div><v-chip small :class="`Unused caption mt-2`">{{form.state}}</v-chip></div>
               </v-col>
               <v-col cols="2">
                 <div justify="space-between" class="mt-2">
@@ -97,6 +97,8 @@
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import FormTemplateService from '@/services/form-template.service';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog.vue';
+import { sortBy } from '@/utils';
+
 
 export default {
   components: {
@@ -110,6 +112,8 @@ export default {
       deleteDialog: false,
       deleteIndex: null,
       isLoading: true, // Estado de carga (para mostrar simbolo de carga hasta que esten cargados los formularios del usuario)
+      dateOrderDesc: false,
+      stateOrderDesc: false
     }
   },
   computed: {
@@ -134,6 +138,7 @@ export default {
     FormTemplateService.getUserFormTemplates()
       .then(response => {
         this.formTemplates = response.data; // `response.data` es  una lista de templates de formularios
+        this.sort('created_at'); //Por default están ordenados por fecha 
         this.isLoading = false; // Cambia el estado a no cargando
       })
       .catch(error => {
@@ -147,8 +152,11 @@ export default {
       const date = new Date(dateString);
       return date.toLocaleDateString('es-ES', options);
     },
-    sortBy(attribute) {
-      this.formTemplates.sort((a,b) => a[attribute] > b[attribute] ? -1 : 1);
+    sort(attribute, orderDesc) {
+      sortBy(this.formTemplates, attribute, orderDesc);
+
+      if (attribute == 'created_at') this.dateOrderDesc = !this.dateOrderDesc;
+      if (attribute == 'state') this.stateOrderDesc = !this.stateOrderDesc;
     },
     prepareDelete(form, index) {
       this.itemToDelete = form;

@@ -1,0 +1,440 @@
+<template>
+
+
+    <v-container style="display: flex; justify-content: center; align-items: center;">
+        
+    <v-row justify="center" align="center" style="width: 100%;">
+        <v-col cols="12" md="8">
+            <h2 class="mt-2 mb-3">Crear Casting</h2>
+        </v-col>
+        
+      <v-col cols="12" md="8">
+        <v-form v-model="valid" ref="form" class="mt-2" @submit.prevent="submitForm()">
+            <v-row>
+                <v-col cols="12">
+                    <v-text-field
+                        v-model="castingCall.title"
+                        label="Título de Búsqueda"
+                        :rules="[maxLengthRule, requiredRule].flat()" 
+                        required
+                    >
+                    <template #label>
+                    <span class="text-red"><strong>* </strong></span>Título de Búsqueda
+                    </template>
+                    </v-text-field>
+                </v-col>
+            </v-row>
+
+          <v-textarea
+            v-model="castingCall.description"
+            label="Descripción"
+            :rules="descriptionRule" 
+            required
+          ></v-textarea>
+
+          <v-row>
+            <v-col cols="6">
+                <v-select
+                    v-model="castingCall.remuneration_type"
+                    :items="castingRemunerationTypes"
+                    label="Tipo de Remuneración"
+                    :rules="requiredRule"
+                    required
+                    hide-details="auto"
+                >
+                <template #label>
+                <span class="text-red"><strong>* </strong></span>Tipo de Remuneración
+                </template>
+                </v-select>
+            </v-col>
+            <v-col cols="6">
+                <!-- Descripción para 'Otro' -->
+                <v-text-field
+                    v-if="castingCall.remuneration_type === 'Otro'"
+                    v-model="otherRemunerationType"
+                    label="Descripción de 'Otro'"
+                    :rules="[maxLengthRule, requiredRule].flat()" 
+                    required
+                    hide-details="auto"
+                >
+                    <template #label>
+                    <span class="text-red"><strong>* </strong></span>Descripción de 'Otro'
+                    </template>
+                </v-text-field>
+            </v-col>
+
+            <v-col cols="6">
+                <v-select
+                    v-if="userProjects.length > 0"
+                    v-model="castingCall.project_id"
+                    :items="userProjects"
+                    item-title="name"
+                    item-value="id"
+                    label="Proyecto a Castear"
+                    :rules="requiredRule"
+                    required
+                    hide-details="auto"
+                    @update:modelValue="displayRolesForProject"
+                >
+                <template #label>
+                <span class="text-red"><strong>* </strong></span>Proyecto a Castear
+                </template>
+                </v-select>
+            </v-col>
+          </v-row>
+
+            <v-row v-if="rolesProjectSelected.length > 0">
+                <v-col cols="12">
+                    <h4 class="mt-4">Seleccionar Roles a castear:</h4>
+        
+                    <v-row class="mt-2" v-for="role in rolesProjectSelected" :key="role.id" align="start">
+                    
+                        <v-col cols="12">
+                            <!-- Checkbox para seleccionar el rol -->
+                            <v-checkbox
+                            v-model="selectedRoles"
+                            :label="role.name"
+                            :value="role.id"
+                            hide-details="auto"
+                            :rules="rolesRule"
+                            @change="handleRoleSelection(role)"
+                            ></v-checkbox>
+                            <v-container v-if="rolesToCast.some(item => item.role_id === role.id)">
+                                <v-row>
+                                    <v-col cols="4">
+                                        <v-select
+                                            v-model="getRoleToCast(role.id).form_template_id"  
+                                            :items="userFormTemplates"
+                                            item-title="form_template_title"
+                                            item-value="id"
+                                            label="Asociar Formulario"
+                                            :key="'select-' + role.name"
+                                            :rules="requiredRule"  
+                                        >
+                                        <template #label>
+                                            <span class="text-red"><strong>* </strong></span>Asociar Formulario
+                                        </template>
+                                        </v-select>
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <v-select
+                                            v-model="getRoleToCast(role.id).has_limited_spots"  
+                                            :items="hasLimitedSpotsOptions"
+                                            item-title="name"
+                                            item-value="id"
+                                            label="Límite de Cupos"
+                                            :key="'select-' + role.name"
+                                            :rules="requiredBooleanValue"  
+                                        >
+                                        <template #label>
+                                            <span class="text-red"><strong>* </strong></span>Límite de Cupos
+                                        </template>
+                                        </v-select>
+                                    </v-col>
+                                    <v-col>
+                                        <v-text-field
+                                        v-if="getRoleToCast(role.id).has_limited_spots === true"
+                                        v-model="getRoleToCast(role.id).spots_amount"
+                                        label="Cantidad de Cupos"
+                                        :rules="requiredRule" 
+                                        required
+                                        type="number"
+                                        hide-details="auto"
+                                        >
+                                        <template #label>
+                                        <span class="text-red"><strong>* </strong></span>Cantidad de Cupos
+                                        </template>
+                                        </v-text-field>                                        
+                                    </v-col>
+                                </v-row>
+                                <p style="font-style:italic; font-weight: bold; margin-bottom: 20px; margin-top: 10px">
+                                    <v-tooltip text="Estos Requisitos ayudan a los filtros de búsqueda" location="top">
+                                        <template v-slot:activator="{ props }">
+                                            <v-icon color="cyan" class="mr-2" v-bind="props">mdi-information</v-icon>
+                                        </template>
+                                    </v-tooltip>
+                                    Requisitos
+                                </p>
+
+                                <v-row>
+                                    <v-col cols="4 text-center">
+                                        <h4>Edad</h4>
+                                    </v-col>
+                                    <v-col cols="4 text-center">
+                                        <h4>Altura</h4>
+                                    </v-col>
+                                </v-row>
+                    
+                                <v-row style="margin-top: 1px !important;">
+                                    <v-col cols="2">
+                                        <v-text-field
+                                            v-model="getRoleToCast(role.id).min_age_required"
+                                            label="Mín."
+                                            type="number"
+                                            required
+                                            hide-details="auto"
+                                        >
+                                        </v-text-field>
+                                    </v-col>
+                                    <v-col cols="2">
+                                        <v-text-field
+                                            v-model="getRoleToCast(role.id).max_age_required"
+                                            label="Máx."
+                                            type="number"
+                                            required
+                                            hide-details="auto"
+                                        >
+                                        </v-text-field>
+                                    </v-col>
+                                    <v-col cols="2">
+                                        <v-text-field
+                                            v-model="getRoleToCast(role.id).min_height_required"
+                                            label="Mín."
+                                            type="number"
+                                            required
+                                            hide-details="auto"
+                                        >
+                                        </v-text-field>
+                                    </v-col>
+                                    <v-col cols="2">
+                                        <v-text-field
+                                            v-model="getRoleToCast(role.id).max_height_required"
+                                            label="Máx."
+                                            type="number"
+                                            required
+                                            hide-details="auto"
+                                        >
+                                        </v-text-field>
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <v-select
+                                            v-model="getRoleToCast(role.id).hair_colors_required"
+                                            :items="hairColorsMultipleOptions"
+                                            label="Color/es de pelo"
+                                            multiple
+                                            chips
+                                            deletable-chips
+                                            persistent-hint
+                                        ></v-select>
+                                    </v-col>
+                                    <v-col cols="12">
+                                        <v-text-field
+                                            v-model="getRoleToCast(role.id).additional_requirements"
+                                            label="Requisitos Adicionales"
+                                            :rules="descriptionRule" 
+                                        >
+                                        </v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </v-container>
+                        </v-col>
+                    </v-row>
+                </v-col>
+            </v-row>
+
+            <v-row>
+                <v-col cols="12"> 
+                    <h4 class="mt-4">                                 
+                        <v-tooltip text="Las fotos ser verán en el orden en que fueron subidas" location="top">
+                            <template v-slot:activator="{ props }">
+                                <v-icon color="cyan" class="mr-2" v-bind="props">mdi-information</v-icon>
+                            </template>
+                        </v-tooltip>
+                        Agregar fotos para la convocatoria (máximo {{maxPhotos}}):
+                    </h4>
+                </v-col>
+                
+                <v-col cols="12" class="ml-7">
+                    <AddPhotoButton @add-photo="handleAddPhoto" :buttonDisabled="photoButtonDisabled" />
+                </v-col>
+            </v-row>
+
+            <!-- Mostrar lista de fotos agregadas -->
+            <v-list dense style="background-color: transparent !important;" v-if="castingPhotos.length > 0" class="mt-3 ml-7">
+                <v-list-item v-for="(photo, index) in castingPhotos" :key="index">
+                    <v-list-item-title>{{ photo.name }} <v-icon class="remove-icon" @click="removePhoto(index)">mdi-delete</v-icon></v-list-item-title>
+                    <v-list-item-action>
+                        
+                    </v-list-item-action>
+                </v-list-item>
+            </v-list>
+
+
+
+            <!-- Botones de Acción -->
+            <v-row justify="end" class="mt-20 mb-10 mr-2">
+            <v-btn
+                color="purple"
+                class="mr-2"
+                type="submit"
+            >
+                Guardar
+            </v-btn>
+            <v-btn
+                text
+                color="grey"
+                @click="cancelCastingCallCreation()"
+            >
+                Cancelar
+            </v-btn>
+            </v-row>
+        </v-form>
+    </v-col>
+    </v-row>
+    <InformationSnackbar ref="InformationSnackbar"/>
+  </v-container>
+  </template>
+  
+  <script>
+  import InformationSnackbar from '@/components/InformationSnackbar.vue';
+  import { remunerationTypes } from '@/config/remuneration-types';
+  import ProjectService from '@/services/project.service';
+  import FormTemplateService from '@/services/form-template.service';
+  import { hairColors } from '@/config/hair-colors';
+  import AddPhotoButton from '@/components/AddPhotoButton.vue';
+  import castingCallService from '@/services/casting-call.service';
+  
+  export default {
+    components: {
+      InformationSnackbar,
+      AddPhotoButton
+    },
+    mounted() {
+      this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
+    },
+    data() {
+      return {
+        dialog: false,
+        valid: false, // Valida si el formulario es correcto
+        castingCall: {
+          title: '',
+          description: '',
+          remuneration_type: null,
+          project_id: null,
+        },
+        castingPhotos: [],
+        otherRemunerationType: '',
+        requiredRule: [value => !!value || 'Este campo es requerido.'],
+        requiredBooleanValue : [value => !!value || value === false || 'Este campo es requerido.'],
+        rolesRule: [value => value.length > 0 || 'Se debe seleccionar al menos un rol.'],
+        maxLengthRule: [
+          value => (value.length <= 100) || 'Máximo 100 caracteres',
+        ], 
+        descriptionRule: [
+          value => (value.length <= 600) || 'Máximo 600 caracteres',
+        ],
+        castingRemunerationTypes: remunerationTypes,
+        userProjects: [],
+        rolesProjectSelected: [],
+        userFormTemplates: [],
+        selectedRoles: [], 
+        rolesToCast: [],
+        hairColorsMultipleOptions: hairColors,
+        selectedPhoto: null,
+        photoButtonDisabled: false,
+        maxPhotos: 6,
+        hasLimitedSpotsOptions: [
+            { id: true, name: 'Sí' },
+            { id: false, name: 'No' }
+        ] 
+
+      };
+    },
+    created() {
+        this.isLoading = false;
+        ProjectService.getUserProjectsWithRoles()
+        .then(response => {
+            this.userProjects = response.data;
+        })
+        .catch(error => {
+            console.log('Error al obtener proyectos del usuario', error);
+        });
+
+        FormTemplateService.getUserFormTemplates()
+        .then(response => {
+            this.userFormTemplates = response.data;
+        })
+        .catch(error => {
+            console.log('Error al obtener templates de formularios del usuario', error);
+        });
+    },
+    methods: {
+        getRoleToCast(roleId) {
+            return this.rolesToCast.find(item => item.role_id === roleId) || {};
+        },
+        addRoleToCast(roleId) {
+            // Busca el objeto correspondiente al role_id, si no lo encuentra, lo crea.
+            let roleToCast = this.rolesToCast.find(item => item.role_id === roleId);
+
+            if (!roleToCast) {
+                // Si no se encuentra, creamos un nuevo objeto con valores por defecto
+                roleToCast = {
+                    role_id: roleId,
+                    form_template_id: null,
+                    has_limited_spots: null,
+                    spots_amount: null,
+                    min_age_required: null,
+                    max_age_required: null,
+                    hair_colors_required: [],
+                    additional_requirements: ""
+                };
+                // Lo agregamos al array
+                this.rolesToCast.push(roleToCast);
+            }
+        },
+        handleRoleSelection(role) {
+            // Si el rol es seleccionado, inicializamos sus datos en rolesToCast
+            if (this.selectedRoles.includes(role.id)) {
+                this.addRoleToCast(role.id); // Nos aseguramos de que el rol esté en rolesToCast
+            } else {
+                // Si el rol es deseleccionado, eliminamos sus datos
+                this.rolesToCast = this.rolesToCast.filter(item => item.role_id !== role.id);
+            }
+        },
+        async submitForm() {
+            const validation = await this.$refs.form.validate();
+            if (validation.valid) {
+                await castingCallService.createCastingCall(this.castingCall, this.castingPhotos, this.rolesToCast);
+                this.$router.push({ path: '/user-casting-calls', query: { title: this.castingCall.title } });
+            }
+        },
+        cancelCastingCallCreation() {
+            this.$router.push({ path: '/user-casting-calls'});
+        },
+        async displayRolesForProject(projectId) {
+            
+            if (projectId) {
+                const project = this.userProjects.find(p => p.id === projectId);
+                this.rolesProjectSelected = project.roles;
+
+            }
+        },
+        openDialog() {
+            this.dialog = true;
+        },
+          // Cierra el diálogo sin hacer nada
+        closeDialog() {
+            this.dialog = false;
+            this.selectedFile = null; // Resetea el archivo seleccionado
+        },
+        // Agrega la foto seleccionada a la lista
+        handleAddPhoto(photo) {
+            this.castingPhotos.push(photo);
+            if (this.castingPhotos.length >= this.maxPhotos) this.photoButtonDisabled = true;
+        },
+
+        // Elimina una foto de la lista
+        removePhoto(index) {
+            this.castingPhotos.splice(index, 1); // Elimina la foto en el índice indicado
+            this.photoButtonDisabled = false;
+        },
+    }
+  };
+  </script>
+  
+  <style scoped>
+  
+  .cyan-border {
+    border-top: 3px solid rgb(2, 151, 156);
+  }
+  </style>

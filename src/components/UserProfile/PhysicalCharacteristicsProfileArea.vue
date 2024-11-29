@@ -354,6 +354,7 @@
 
 <script>
 import UserService from '../../services/user.service';
+import { hairColors } from '@/config/hair-colors';
 
 export default {
   name: "PhysicalCharacteristicsProfileArea",
@@ -369,7 +370,7 @@ export default {
       eyesColorOptions: ['-----------','Verdes', 'Azules', 'Celestes', 'Negros', 'Marrones'],
       skinColorOptions: ['-----------', 'Blanca', 'Moreno', 'Negra', 'Amarilla', 'Albino'],
       yesNoOptions: ['-----------','Sí', 'No'],
-      hairColorOptions: ['-----------', 'Morocho', 'Castaño', 'Rubio', 'Colorado', 'Teñido - Color Atípico'],
+      hairColorOptions: ['-----------'].concat(hairColors),
       handsOptions: ['-----------', 'Muy Malas', 'Malas', 'Regular', 'Buenas', 'Muy Buenas'],
       feetOptions: ['-----------', 'Muy Malos', 'Malos', 'Regular', 'Buenos', 'Muy Buenos'],
       teethOptions: ['-----------', 'Muy Malos', 'Malos', 'Regular', 'Buenos', 'Muy Buenos'],

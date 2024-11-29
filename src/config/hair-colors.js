@@ -1,0 +1,1 @@
+export const hairColors = ['Morocho', 'Castaño', 'Rubio', 'Colorado', 'Teñido - Color Atípico'];
