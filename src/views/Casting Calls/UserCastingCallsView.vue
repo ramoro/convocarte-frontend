@@ -199,27 +199,27 @@ export default {
 }
 
 .casting-container {
-  background: transparent; /* Fondo transparente */
-  border: 2px solid #B0BEC5; /* Borde gris */
-  border-radius: 8px; /* Bordes redondeados */
-  width: 90%; /* Ajustar el ancho de los contenedores */
-  height: auto; /* Ajustar la altura automáticamente */
-  transition: all 0.3s ease; /* Transición suave */
+  background: transparent; 
+  border: 2px solid #B0BEC5; 
+  border-radius: 8px; 
+  width: 90%; 
+  height: auto; 
+  transition: all 0.3s ease;
   padding: 15px;
   cursor: pointer;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Sombra suave por defecto */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 .casting-container:hover {
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2); /* Efecto de sombra al pasar el mouse */
-  transform: translateY(-5px); /* Efecto de levantar el contenedor */
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2); 
+  transform: translateY(-5px); 
 }
 
 
 .casting-content {
   display: flex;
   flex-direction: column;
-  height: 100%; /* Ocupa todo el alto del contenedor */
+  height: 100%; 
 }
 
 .casting-header {
@@ -230,13 +230,13 @@ export default {
 }
 
 .custom-col-spacing {
-  padding-left: 2px; /* Ajusta el espaciado izquierdo entre las columnas */
-  padding-right: 2px; /* Ajusta el espaciado derecho entre las columnas */
+  padding-left: 2px; 
+  padding-right: 2px; 
 }
 
 
 .headline {
-  font-size: 16px; /* Fuente más pequeña */
+  font-size: 16px; 
   font-weight: bold;
 }
 
