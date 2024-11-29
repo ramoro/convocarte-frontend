@@ -28,7 +28,7 @@
           <v-row class="mb-3">
             <v-tooltip text="Ordenar por Fecha de Creación" location="top">
               <template v-slot:activator="{ props }">
-                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sortBy('created_at', dateOrderDesc)">
+                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sort('created_at', dateOrderDesc)">
                   <v-icon left small>mdi-calendar-month</v-icon>
                   <span class="caption">Por Fecha</span>
                 </v-btn>
@@ -36,7 +36,7 @@
             </v-tooltip>
             <v-tooltip text="Ordenar por Estado" location="top">
               <template v-slot:activator="{ props }">
-                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sortBy('state', stateOrderDesc)">
+                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sort('state', stateOrderDesc)">
                   <v-icon left small>mdi-list-status</v-icon>
                   <span class="caption">Por Estado</span>
                 </v-btn>
@@ -95,6 +95,7 @@
 <script>
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import ProjectService from '@/services/project.service';
+import { sortBy } from '@/utils';
 
 export default {
   components: {
@@ -129,7 +130,7 @@ export default {
     ProjectService.getUserProjects()
       .then(response => {
         this.projects = response.data;
-        this.sortBy('created_at'); //Por default están ordenados por fecha 
+        this.sort('created_at', this.dateOrderDesc); //Por default están ordenados por fecha 
         this.isLoading = false; 
       })
       .catch(error => {
@@ -143,13 +144,8 @@ export default {
       const date = new Date(dateString);
       return date.toLocaleDateString('es-ES', options);
     },
-    sortBy(attribute, orderDesc) {
-      if (orderDesc) {
-        this.projects.sort((a,b) => a[attribute] < b[attribute] ? -1 : 1);
-      } else {
-        this.projects.sort((a,b) => a[attribute] > b[attribute] ? -1 : 1);
-      }
-
+    sort(attribute, orderDesc) {
+      sortBy(this.projects, attribute, orderDesc);
       if (attribute == 'created_at') this.dateOrderDesc = !this.dateOrderDesc;
       if (attribute == 'state') this.stateOrderDesc = !this.stateOrderDesc;
     },

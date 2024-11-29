@@ -24,3 +24,11 @@ export function formatUrl(url) {
         }
     return url;
 }
+
+export function sortBy(listToOrder, attribute, orderDesc) {
+    if (orderDesc) {
+        listToOrder.sort((a,b) => a[attribute] < b[attribute] ? -1 : 1);
+    } else {
+        listToOrder.sort((a,b) => a[attribute] > b[attribute] ? -1 : 1);
+    }
+}

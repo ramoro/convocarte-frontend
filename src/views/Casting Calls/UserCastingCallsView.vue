@@ -27,6 +27,24 @@
 
     <!-- Castings -->
     <v-row v-else-if="castingCalls.length > 0" justify="center">
+      <v-col class="mb-3" cols="12">
+        <v-tooltip text="Ordenar por Fecha de Creación" location="top">
+          <template v-slot:activator="{ props }">
+            <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sort('created_at', dateOrderDesc)">
+              <v-icon left small>mdi-calendar-month</v-icon>
+              <span class="caption">Por Fecha</span>
+            </v-btn>
+          </template>
+        </v-tooltip>
+        <v-tooltip text="Ordenar por Estado" location="top">
+          <template v-slot:activator="{ props }">
+            <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sort('state', stateOrderDesc)">
+              <v-icon left small>mdi-list-status</v-icon>
+              <span class="caption">Por Estado</span>
+            </v-btn>
+          </template>
+        </v-tooltip>
+      </v-col>
       <v-col v-for="(casting, index) in castingCalls" :key="index" cols="12" sm="6" class="d-flex justify-center mb-2 custom-col-spacing">
         <v-container class="casting-container" fluid>
           <div class="casting-content">
@@ -106,6 +124,8 @@
 <script>
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import CastingCallService from '@/services/casting-call.service';
+import { sortBy } from '@/utils';
+
 
 export default {
   components: {
@@ -116,7 +136,9 @@ export default {
       castingCalls: [],
       isLoading: true, 
       showDialog: false, 
-      currentCastingPhotos: [], 
+      currentCastingPhotos: [],
+      dateOrderDesc: false,
+      stateOrderDesc: false 
     };
   },
   computed: {
@@ -141,6 +163,7 @@ export default {
       .then(response => {
         console.log(response.data); 
         this.castingCalls = response.data;
+        this.sort('created_at', this.dateOrderDesc);
         this.isLoading = false; 
       })
       .catch(error => {
@@ -153,6 +176,12 @@ export default {
     showPhotosPreview(casting) {
       this.currentCastingPhotos = casting.casting_photos; // Usamos las fotos del casting
       this.showDialog = true;
+    },
+    sort(attribute, orderDesc) {
+      sortBy(this.castingCalls, attribute, orderDesc);
+
+      if (attribute == 'created_at') this.dateOrderDesc = !this.dateOrderDesc;
+      if (attribute == 'state') this.stateOrderDesc = !this.stateOrderDesc;
     },
   },
 };
