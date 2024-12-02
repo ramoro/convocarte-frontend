@@ -46,8 +46,8 @@
         </v-tooltip>
       </v-col>
       <v-col v-for="(casting, index) in castingCalls" :key="index" cols="12" sm="6" class="d-flex justify-center mb-2 custom-col-spacing">
-        <v-container class="casting-container" fluid>
-          <div class="casting-content">
+        <v-container :class="`casting-container ${casting.state}`" fluid>
+          <div>
             <v-row justify="space-between" align="center" class="casting-header">
               <v-col class="text-left" cols="auto">
                 <span class="headline">{{ casting.title }}</span>
@@ -57,14 +57,23 @@
             <!-- Estado y iconos -->
             <v-row justify="space-between" align="center" class="casting-state-container">
               <v-col class="text-left" cols="auto">
-                <span>{{ casting.state }}</span>
+                <v-chip small :class="` ${casting.state} v-chip--active caption my-2`">{{ casting.state }}</v-chip>
               </v-col>
               <!-- Iconos a la derecha -->
               <v-col class="text-right d-flex" cols="auto">
+                <v-btn
+                  v-if="casting.state == 'Borrador'" 
+                  size="small"
+                  color="green"
+                  class="no-bg"
+                  variant="outlined"
+                  @click="openPublishDialog(casting)"
+                >
+                  Publicar
+                </v-btn>
                 <v-btn 
                   size="small"
                   class="no-bg"
-                  
                   flat
                   @click="showPhotosPreview(casting)"
                 >
@@ -116,7 +125,37 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
+    <!-- Dialog para publicar casting -->
+    <v-dialog v-model="publishDialog" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">Publicar Casting</span>
+        </v-card-title>
+        <v-form ref="form" @submit.prevent="handlePublication">
+          <v-card-text>
+            <v-row>
+              <v-col cols="12" class="d-flex justify-center">
+                <v-text-field
+                  label="Fecha de Expiración"
+                  v-model="publishExpirationDate"
+                  type="date"
+                  :rules="expirationDateRules"
+                  outlined
+                ></v-text-field>
+              </v-col>
+            </v-row>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="grey" class="no-bg" flat @click="publishDialog = false">
+              Cancelar
+            </v-btn>
+            <v-btn color="purple" class="no-bg" flat type="submit">
+              Publicar
+            </v-btn>
+          </v-card-actions>
+        </v-form>
+      </v-card>
+    </v-dialog>
     <InformationSnackbar ref="InformationSnackbar"/>
   </v-container>
 </template>
@@ -138,7 +177,21 @@ export default {
       showDialog: false, 
       currentCastingPhotos: [],
       dateOrderDesc: false,
-      stateOrderDesc: false 
+      stateOrderDesc: false,
+      publishDialog: false,
+      currentCasting: null,
+      publishExpirationDate: '',
+      expirationDateRules: [
+        value => !!value || 'Campo requerido',
+        value => value.split('-')[0] >= 1900 && value.split('-')[0] <= 3000 || 'La fecha no es válida', 
+        value =>  {
+          const today = new Date();
+          const argentineTime = new Date(today.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
+          const selectedDate = new Date(value);
+
+          return selectedDate > argentineTime || 'La fecha de expiración debe ser mayor a la fecha actual';
+        }
+      ],
     };
   },
   computed: {
@@ -183,6 +236,43 @@ export default {
       if (attribute == 'created_at') this.dateOrderDesc = !this.dateOrderDesc;
       if (attribute == 'state') this.stateOrderDesc = !this.stateOrderDesc;
     },
+    openPublishDialog(casting) {
+      this.currentCasting = casting;
+      this.publishExpirationDate = "";
+      this.publishDialog = true;
+      //rgb(45, 185, 27);
+    },
+    async handlePublication() {
+      this.$refs.form.validate().then(result => {
+        if (result.valid) {
+          const payload = {
+            "title": this.currentCasting.title,
+            "state": this.currentCasting.state,
+            "expiration_date": this.publishExpirationDate
+          };
+
+          CastingCallService.publishCasting(this.currentCasting.id, payload)
+          .then(() => {
+            this.$root.InformationSnackbar.show({
+              message: 'Casting publicado exitosamente.',
+              color: 'green',
+            });
+            this.publishDialog = false;
+            this.currentCasting.state = 'Publicado';
+          })
+          .catch((error) => {
+            console.error('Error al publicar el casting:', error);
+            this.$root.InformationSnackbar.show({
+              message: 'Error al publicar el casting.',
+              color: 'dark', 
+              buttonColor: 'red'
+            });
+          });
+        }
+      }).catch(error => {
+        console.error("Error al validar el formulario", error);
+      });
+    },
   },
 };
 </script>
@@ -200,7 +290,6 @@ export default {
 
 .casting-container {
   background: transparent; 
-  border: 2px solid #B0BEC5; 
   border-radius: 8px; 
   width: 90%; 
   height: auto; 
@@ -210,10 +299,40 @@ export default {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
+.casting-container.Borrador {
+  border: 1px solid #B0BEC5; 
+}
+
+.casting-container.Publicado {
+  border: 1px solid rgb(45, 185, 27);
+}
+
+.casting-container.Pausado {
+  border: 1px solid rgb(81, 159, 211); 
+}
+
+.casting-container.Finalizado {
+  border: 1px solid rgb(218, 154, 59); 
+}
+
 .casting-container:hover {
   box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2); 
   transform: translateY(-5px); 
 }
+
+.v-chip.Publicado{
+  color: rgb(45, 185, 27);
+}
+
+.v-chip.Pausado{
+  color: rgb(81, 159, 211); 
+}
+
+.v-chip.Finalizado{
+  color: rgb(218, 154, 59); 
+}
+
+
 
 
 .casting-content {

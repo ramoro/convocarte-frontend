@@ -37,6 +37,11 @@ class CastingCallService {
         return axios.get(API_URL + 'casting-calls', { headers: authHeader() });
     }
 
+    async publishCasting(castingId, payload) {
+        console.log(payload);
+        return axios.patch(API_URL + 'casting-calls/publish/' + castingId, payload,  { headers: authHeader() });
+    }
+
     
 }
 
