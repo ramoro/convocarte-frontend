@@ -45,6 +45,10 @@ class CastingCallService {
         return axios.patch(API_URL + 'casting-calls/stop/' + castingId, payload,  { headers: authHeader() });
     }
 
+    async finishCasting(castingId, payload) {
+        return axios.patch(API_URL + 'casting-calls/finish/' + castingId, payload,  { headers: authHeader() });
+    }
+
     
 }
 

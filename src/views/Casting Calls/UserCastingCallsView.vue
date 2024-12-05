@@ -61,6 +61,7 @@
               </v-col>
               <!-- Iconos a la derecha -->
               <v-col class="text-right d-flex" cols="auto">
+
                 <v-btn
                   v-if="casting.state == 'Borrador' || casting.state == 'Pausado'" 
                   size="small"
@@ -81,6 +82,18 @@
                 >
                   Pausar
                 </v-btn>
+                <div class="ml-2" v-if="casting.state == 'Publicado' || casting.state == 'Pausado'">
+                  
+                  <v-btn
+                      size="small"
+                      style="color: rgb(218, 154, 59)"
+                      class="no-bg"
+                      variant="outlined"
+                      @click="openCompletionDialog(casting)"
+                  >
+                    Finalizar
+                  </v-btn>
+                </div>
                 <v-btn 
                   size="small"
                   class="no-bg"
@@ -166,28 +179,32 @@
         </v-form>
       </v-card>
     </v-dialog>
-        <!-- Dialog para pausar casting -->
-    <v-dialog v-model="pauseDialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="text-h5">Pausar Casting</span>
-        </v-card-title>
-        <v-form ref="form" @submit.prevent="handlePause">
-          <v-card-text>
-            <div style="text-align:center; font-size:16px;">La publicación del Casting se está por pausar.</div>
-            <div style="text-align:center; font-size:16px;">¿Confirma la acción?</div>
-          </v-card-text>
-          <v-card-actions class="justify-end">
-            <v-btn color="purple" class="no-bg" flat type="submit">
-              Pausar
-            </v-btn>
-            <v-btn color="grey" class="no-bg" flat @click="pauseDialog = false">
-              Cancelar
-            </v-btn>
-          </v-card-actions>
-        </v-form>
-      </v-card>
-    </v-dialog>
+    <!-- Dialog para pausar casting -->
+    <ConfirmActionDialog
+      :isOpen="pauseDialog"
+      dialogTitle="Pausar Casting"
+      action="Pausar"
+      @confirm-action="handlePause"
+      @cancel-action="pauseDialog = false"
+    >
+      <template #dialog-text>
+        <div style="text-align:center; font-size:16px;">La publicación del Casting se está por pausar.</div>
+        <div style="text-align:center; font-size:16px;">¿Confirma la acción?</div>
+      </template>
+    </ConfirmActionDialog>
+    <!-- Dialog para finalizar casting -->
+    <ConfirmActionDialog
+      :isOpen="completionDialog"
+      dialogTitle="Finalizar Casting"
+      action="Finalizar"
+      @confirm-action="handleCompletion"
+      @cancel-action="completionDialog = false"
+    >
+      <template #dialog-text>
+        <div style="text-align:center; font-size:16px;">Se está por finalizar el casting, esta decisión no tiene retorno.</div>
+        <div style="text-align:center; font-size:16px;">¿Confirma la acción?</div>
+      </template>
+    </ConfirmActionDialog>
     <InformationSnackbar ref="InformationSnackbar"/>
   </v-container>
 </template>
@@ -195,12 +212,14 @@
 <script>
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import CastingCallService from '@/services/casting-call.service';
+import ConfirmActionDialog from '@/components/ConfirmActionDialog.vue';
 import { sortBy } from '@/utils';
 
 
 export default {
   components: {
     InformationSnackbar,
+    ConfirmActionDialog
   },
   data() {
     return {
@@ -212,6 +231,7 @@ export default {
       stateOrderDesc: false,
       publishDialog: false,
       pauseDialog: false,
+      completionDialog: false,
       currentCasting: null,
       publishExpirationDate: '',
       expirationDateRules: [
@@ -278,6 +298,10 @@ export default {
       this.currentCasting = casting;
       this.pauseDialog = true;
     },
+    openCompletionDialog(casting) {
+      this.currentCasting = casting;
+      this.completionDialog = true;
+    },
     async handlePublication() {
       this.$refs.form.validate().then(result => {
         if (result.valid) {
@@ -327,12 +351,36 @@ export default {
       .catch((error) => {
         console.error('Error al pausar el casting:', error);
         this.$root.InformationSnackbar.show({
-          message: 'Error al publicar el casting.',
+          message: 'Error al pausar el casting.',
           color: 'dark', 
           buttonColor: 'red'
         });
       });
     },
+    handleCompletion() {
+      const payload = {
+        "title": this.currentCasting.title,
+        "state": this.currentCasting.state,
+      };
+
+      CastingCallService.finishCasting(this.currentCasting.id, payload)
+      .then(() => {
+        this.$root.InformationSnackbar.show({
+          message: 'Casting finalizado exitosamente.',
+          color: 'rgb(218, 154, 59)',
+        });
+        this.completionDialog = false;
+        this.currentCasting.state = 'Finalizado';
+      })
+      .catch((error) => {
+        console.error('Error al finalizar el casting:', error);
+        this.$root.InformationSnackbar.show({
+          message: 'Error al finalizar el casting.',
+          color: 'dark', 
+          buttonColor: 'red'
+        });
+      });
+    }
   },
 };
 </script>
