@@ -62,14 +62,24 @@
               <!-- Iconos a la derecha -->
               <v-col class="text-right d-flex" cols="auto">
                 <v-btn
-                  v-if="casting.state == 'Borrador'" 
+                  v-if="casting.state == 'Borrador' || casting.state == 'Pausado'" 
                   size="small"
                   color="green"
                   class="no-bg"
                   variant="outlined"
                   @click="openPublishDialog(casting)"
                 >
-                  Publicar
+                  {{casting.state == 'Borrador' ? 'Publicar ': 'Reanudar'}}
+                </v-btn>
+                <v-btn
+                  v-if="casting.state == 'Publicado'" 
+                  size="small"
+                  style="color: rgb(81, 159, 211)"
+                  class="no-bg"
+                  variant="outlined"
+                  @click="openPauseDialog(casting)"
+                >
+                  Pausar
                 </v-btn>
                 <v-btn 
                   size="small"
@@ -129,7 +139,7 @@
     <v-dialog v-model="publishDialog" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="text-h5">Publicar Casting</span>
+          <span class="text-h5">{{currentCasting.state == "Pausado" ? 'Reanudar Casting' : 'Publicar Casting'}}</span>
         </v-card-title>
         <v-form ref="form" @submit.prevent="handlePublication">
           <v-card-text>
@@ -145,12 +155,34 @@
               </v-col>
             </v-row>
           </v-card-text>
-          <v-card-actions>
+          <v-card-actions class="justify-end">
+            <v-btn color="purple" class="no-bg" flat type="submit">
+              Publicar
+            </v-btn>
             <v-btn color="grey" class="no-bg" flat @click="publishDialog = false">
               Cancelar
             </v-btn>
+          </v-card-actions>
+        </v-form>
+      </v-card>
+    </v-dialog>
+        <!-- Dialog para pausar casting -->
+    <v-dialog v-model="pauseDialog" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">Pausar Casting</span>
+        </v-card-title>
+        <v-form ref="form" @submit.prevent="handlePause">
+          <v-card-text>
+            <div style="text-align:center; font-size:16px;">La publicación del Casting se está por pausar.</div>
+            <div style="text-align:center; font-size:16px;">¿Confirma la acción?</div>
+          </v-card-text>
+          <v-card-actions class="justify-end">
             <v-btn color="purple" class="no-bg" flat type="submit">
-              Publicar
+              Pausar
+            </v-btn>
+            <v-btn color="grey" class="no-bg" flat @click="pauseDialog = false">
+              Cancelar
             </v-btn>
           </v-card-actions>
         </v-form>
@@ -179,6 +211,7 @@ export default {
       dateOrderDesc: false,
       stateOrderDesc: false,
       publishDialog: false,
+      pauseDialog: false,
       currentCasting: null,
       publishExpirationDate: '',
       expirationDateRules: [
@@ -240,7 +273,10 @@ export default {
       this.currentCasting = casting;
       this.publishExpirationDate = "";
       this.publishDialog = true;
-      //rgb(45, 185, 27);
+    },
+    openPauseDialog(casting) {
+      this.currentCasting = casting;
+      this.pauseDialog = true;
     },
     async handlePublication() {
       this.$refs.form.validate().then(result => {
@@ -273,6 +309,30 @@ export default {
         console.error("Error al validar el formulario", error);
       });
     },
+    async handlePause() {
+      const payload = {
+        "title": this.currentCasting.title,
+        "state": this.currentCasting.state,
+      };
+
+      CastingCallService.pauseCasting(this.currentCasting.id, payload)
+      .then(() => {
+        this.$root.InformationSnackbar.show({
+          message: 'Casting pausado exitosamente.',
+          color: 'rgb(81, 159, 211)',
+        });
+        this.pauseDialog = false;
+        this.currentCasting.state = 'Pausado';
+      })
+      .catch((error) => {
+        console.error('Error al pausar el casting:', error);
+        this.$root.InformationSnackbar.show({
+          message: 'Error al publicar el casting.',
+          color: 'dark', 
+          buttonColor: 'red'
+        });
+      });
+    },
   },
 };
 </script>
@@ -297,23 +357,9 @@ export default {
   padding: 15px;
   cursor: pointer;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
-
-.casting-container.Borrador {
   border: 1px solid #B0BEC5; 
 }
 
-.casting-container.Publicado {
-  border: 1px solid rgb(45, 185, 27);
-}
-
-.casting-container.Pausado {
-  border: 1px solid rgb(81, 159, 211); 
-}
-
-.casting-container.Finalizado {
-  border: 1px solid rgb(218, 154, 59); 
-}
 
 .casting-container:hover {
   box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2); 

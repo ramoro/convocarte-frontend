@@ -38,8 +38,11 @@ class CastingCallService {
     }
 
     async publishCasting(castingId, payload) {
-        console.log(payload);
         return axios.patch(API_URL + 'casting-calls/publish/' + castingId, payload,  { headers: authHeader() });
+    }
+
+    async pauseCasting(castingId, payload) {
+        return axios.patch(API_URL + 'casting-calls/stop/' + castingId, payload,  { headers: authHeader() });
     }
 
     
