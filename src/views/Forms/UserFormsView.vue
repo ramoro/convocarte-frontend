@@ -50,7 +50,7 @@
           </v-row>
 
           <v-card flat class="pa-3" v-for="(form, index) in formTemplates" :key="index">
-            <v-row :class="`pa-3 form unused`"> 
+            <v-row :class="`pa-3 form ${translateStateName(form.state)}`"> 
               <v-col cols="4">
                 <div class="caption text-grey">Título de Formulario</div>
                 <div>{{form.form_template_title}}</div>
@@ -60,7 +60,7 @@
                 <div>{{formatDateToTextFormat(form.created_at)}}</div>
               </v-col>
               <v-col cols="2">
-                <div><v-chip small :class="`Unused caption mt-2`">{{form.state}}</v-chip></div>
+                <div><v-chip small :class="`${translateStateName(form.state)} caption mt-2`">{{form.state}}</v-chip></div>
               </v-col>
               <v-col cols="2">
                 <div justify="space-between" class="mt-2">
@@ -176,6 +176,10 @@ export default {
     editForm(formId) {
       this.$router.push(`/form-builder/${formId}`);
     },
+    translateStateName(stateName) {
+      if (stateName == "Sin Uso") return "unused";
+      else if(stateName == "En Uso") return "used";
+    }
   },
 };
 </script>

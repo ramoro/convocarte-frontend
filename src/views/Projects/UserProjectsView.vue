@@ -45,7 +45,7 @@
           </v-row>
 
           <v-card flat class="pa-3" v-for="(project, index) in projects" :key="index">
-            <v-row :class="`pa-3 form unused`"> 
+            <v-row :class="`pa-3 project ${translateStateName(project.state)}`"> 
               <v-col cols="3">
                 <div class="caption text-grey">Nombre del Proyecto</div>
                 <div>{{project.name}}</div>
@@ -59,7 +59,7 @@
                 <div>{{formatDateToTextFormat(project.created_at)}}</div>
               </v-col>
               <v-col cols="2">
-                <div><v-chip small :class="`Unused caption mt-2`">{{project.state}}</v-chip></div>
+                <div><v-chip small :class="`${translateStateName(project.state)} caption mt-2`">{{project.state}}</v-chip></div>
               </v-col>
               <v-col cols="2">
                 <div justify="space-between" class="mt-2">
@@ -149,6 +149,10 @@ export default {
       if (attribute == 'created_at') this.dateOrderDesc = !this.dateOrderDesc;
       if (attribute == 'state') this.stateOrderDesc = !this.stateOrderDesc;
     },
+    translateStateName(stateName) {
+      if (stateName == "Sin Uso") return "unused";
+      else if(stateName == "En Uso") return "used";
+    }
   },
 };
 </script>
@@ -165,10 +169,10 @@ export default {
   justify-content: center; 
   width: 80%;
 }
-.form.unused {
+.project.unused {
   border-left: 4px solid rgb(194, 192, 192);
 }
-.form.used {
+.project.used {
   border-left: 4px solid rgb(103, 235, 103);
 }
 .v-chip.unused {
