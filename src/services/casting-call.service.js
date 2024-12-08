@@ -42,7 +42,7 @@ class CastingCallService {
     }
 
     async pauseCasting(castingId, payload) {
-        return axios.patch(API_URL + 'casting-calls/stop/' + castingId, payload,  { headers: authHeader() });
+        return axios.patch(API_URL + 'casting-calls/pause/' + castingId, payload,  { headers: authHeader() });
     }
 
     async finishCasting(castingId, payload) {
