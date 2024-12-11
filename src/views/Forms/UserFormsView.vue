@@ -39,18 +39,10 @@
                 </v-btn>
               </template>
             </v-tooltip>
-            <v-tooltip text="Ordenar por Estado" location="top">
-              <template v-slot:activator="{ props }">
-                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sort('state', stateOrderDesc)">
-                  <v-icon left small>mdi-list-status</v-icon>
-                  <span class="caption">Por Estado</span>
-                </v-btn>
-              </template>
-            </v-tooltip>
           </v-row>
-
-          <v-card flat class="pa-3" v-for="(form, index) in formTemplates" :key="index">
-            <v-row :class="`pa-3 form ${translateStateName(form.state)}`"> 
+          <v-col cols="10">
+            <v-card flat class="pa-3" v-for="(form, index) in formTemplates" :key="index">
+            <v-row :class="`pa-3 form`"> 
               <v-col cols="4">
                 <div class="caption text-grey">Título de Formulario</div>
                 <div>{{form.form_template_title}}</div>
@@ -59,9 +51,9 @@
                 <div class="caption text-grey">Fecha Creación</div>
                 <div>{{formatDateToTextFormat(form.created_at)}}</div>
               </v-col>
+
               <v-col cols="2">
-                <div><v-chip small :class="`${translateStateName(form.state)} caption mt-2`">{{form.state}}</v-chip></div>
-              </v-col>
+              </v-col> 
               <v-col cols="2">
                 <div justify="space-between" class="mt-2">
                   <v-tooltip text="Editar" location="top">
@@ -81,6 +73,8 @@
               <v-divider></v-divider>
             </v-row>
           </v-card>
+          </v-col>
+          
         </v-container>    
       </div>
     </v-row>
@@ -112,9 +106,7 @@ export default {
       deleteDialog: false,
       deleteIndex: null,
       isLoading: true, // Estado de carga (para mostrar simbolo de carga hasta que esten cargados los formularios del usuario)
-      dateOrderDesc: false,
-      stateOrderDesc: false
-    }
+      dateOrderDesc: false    }
   },
   computed: {
     currentUser() {
@@ -156,7 +148,6 @@ export default {
       sortBy(this.formTemplates, attribute, orderDesc);
 
       if (attribute == 'created_at') this.dateOrderDesc = !this.dateOrderDesc;
-      if (attribute == 'state') this.stateOrderDesc = !this.stateOrderDesc;
     },
     prepareDelete(form, index) {
       this.itemToDelete = form;
@@ -175,10 +166,6 @@ export default {
     },
     editForm(formId) {
       this.$router.push(`/form-builder/${formId}`);
-    },
-    translateStateName(stateName) {
-      if (stateName == "Sin Uso") return "unused";
-      else if(stateName == "En Uso") return "used";
     }
   },
 };
@@ -196,16 +183,7 @@ export default {
   justify-content: center; 
   width: 80%;
 }
-.form.unused {
-  border-left: 4px solid rgb(194, 192, 192);
-}
-.form.used {
-  border-left: 4px solid rgb(103, 235, 103);
-}
-.v-chip.unused {
-  background: rgb(194, 192, 192);
-}
-.v-chip.used {
-  background: rgb(103, 235, 103);
+.form {
+  border-left: 4px solid purple;
 }
 </style>
