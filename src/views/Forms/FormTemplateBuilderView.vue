@@ -48,8 +48,11 @@
                 class="custom-title-input"
               />
             </div>
+            <v-btn :disabled="formFields.length == 0" justify="flex-end" class="mt-3 ml-auto"  size="small" @click="editOrderMode = !editOrderMode">
+              {{ !editOrderMode ? 'Editar Orden' : 'Guardar Orden' }}
+          </v-btn>
           </v-card-title>
-          <v-card-text>
+          <v-card-text v-if="!editOrderMode">
             <v-list>
               <v-list-item v-for="(field, index) in formFields" :key="index">
                 <div class="field-container">
@@ -68,41 +71,48 @@
                     v-model="field.required"
                     color="purple"
                     style="max-width: 150px"
-                    class="mr-25"
+                    class="ml-10"
                   ></v-switch>
-                </div>
-
-                <div class="actions-container">
-                  <v-icon 
-                    @click="moveField(index, -1)" 
-                    :disabled="index === 0" 
-                    class="move-icon"
-                  >
-                    mdi-arrow-up
-                  </v-icon>
-                  <v-icon 
-                    @click="moveField(index, 1)" 
-                    :disabled="index === formFields.length - 1" 
-                    class="move-icon"
-                  >
-                    mdi-arrow-down
-                  </v-icon>
-                  
                   <v-tooltip text="Eliminar" location="top">
                     <template v-slot:activator="{ props }">
-                      <v-icon 
-                        @click="removeField(index)" 
-                        class="remove-icon" 
+                      <v-btn
+                        icon
                         v-bind="props"
+                        @click="removeField(index)"
+                        style="margin-top: -25px; margin-left: 25px;"
+                        size="small"
+                        @mouseover="setHover(index, true)"
+                        @mouseleave="setHover(index, false)"
+                        :class="{'v-btn--active': isHovered(index)}"
                       >
-                        mdi-delete
-                      </v-icon>
+                        <v-icon>mdi-delete</v-icon>
+                      </v-btn>
                     </template>
                   </v-tooltip>
                 </div>
               </v-list-item>
             </v-list>
           </v-card-text>
+          <v-card-text v-else>
+            <div class="draggable-scroll-container">
+              <draggable
+                v-model="formFields"
+                :handle="'.drag-handle'"
+                @end="updateOrder"
+                @move="onDragMove"
+                class="draggable-container"
+              >
+                <template #item="{ element }">
+                  <div class="draggable-item">
+                    <span class="drag-handle">
+                      <span style="color:purple">☰</span> {{ element.title }}
+                    </span>
+                  </div>
+                </template>
+              </draggable>
+            </div>
+          </v-card-text>
+
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn v-if="formFields.length > 0 && !formId" color="purple" @click="submitForm()">Guardar</v-btn>
@@ -146,8 +156,7 @@ export default {
   },
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
-    console.log("Params");
-    console.log(this.$route.params);
+
     //route es diferente de router  
     if (this.$route.params.id) {
       this.formId = this.$route.params.id;
@@ -180,6 +189,8 @@ export default {
         'date': ''
       },
       viewIsLoading: false,
+      editOrderMode: false,
+      hoverStates: []
     };
   },
   computed: {
@@ -187,8 +198,6 @@ export default {
       return this.buttons[this.tab] || [];
     },
     currentUser() {
-      console.log("STOREUSER");
-      console.log(this.$store.state.auth.user);
       return this.$store.state.auth.user;
     }
   },
@@ -213,14 +222,8 @@ export default {
       this.formFields.push(newField);
     },
     removeField(index) {
+      this.hoverStates.splice(index, 1);
       this.formFields.splice(index, 1);
-    },
-    moveField(index, direction) {
-      const newIndex = index + direction;
-      if (newIndex >= 0 && newIndex < this.formFields.length) {
-        const [movedField] = this.formFields.splice(index, 1);
-        this.formFields.splice(newIndex, 0, movedField);
-      }
     },
     getComponent(type) {
       switch (type) {
@@ -323,7 +326,14 @@ export default {
           this.$root.InformationSnackbar.show({ message: "No se pudo conectar con el servidor", color: 'dark', buttonColor: 'red' });
         }
       }
+    },
+    setHover(index, value) {
+      this.hoverStates[index] = value;
+    },
+    isHovered(index) {
+      return !!this.hoverStates[index];
     }
+
   },
   beforeMount() {
     if (!this.currentUser) {
@@ -378,7 +388,6 @@ export default {
   display: flex;
   align-items: center;
   flex-grow: 1; 
-  justify-content: space-between; 
 }
 
 .actions-container {
@@ -386,5 +395,48 @@ export default {
   align-items: center;
   justify-content: space-between;
   max-width: 150px; 
+}
+
+.draggable-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.draggable-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  min-width: 350px;
+  max-width: 4990px; /* Ancho fijo */
+  border: 1px solid #ccc; /* Borde sutil */
+  border-radius: 8px; /* Bordes redondeados */
+  background-color: #f9f9f9; /* Fondo ligero */
+  cursor: grab;
+  margin: 2px 2px 2px 2px;
+}
+
+.draggable-item:hover {
+  transform: scale(1.05); /* Efecto de aumento */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
+}
+
+.drag-handle {
+  cursor: grab; 
+}
+
+.drag-handle:active {
+  cursor: grabbing; 
+}
+
+.v-btn--active {
+  background-color: red !important;
+  color: white !important;
+}
+
+.draggable-scroll-container {
+  max-height: 300px; 
+  overflow-y: auto;
+  padding-right: 10px; 
 }
 </style>

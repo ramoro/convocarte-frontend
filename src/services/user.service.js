@@ -31,12 +31,7 @@ class UserService {
         return axios.patch(API_URL + 'users/upload-cv', formData, { headers: authHeaderMultipartFormData() });
     }
 
-    updateUserImage(shotFile, fileName, shotType, oldFileName) {
-        const formData = new FormData();
-
-        formData.append('file', shotFile, fileName);
-        formData.append('field_name', shotType);
-        formData.append('old_file_name', oldFileName);
+    updateUserImage(formData) {
         return axios.patch(API_URL + 'users/upload-image', formData, { headers: authHeaderMultipartFormData() });
     }
 

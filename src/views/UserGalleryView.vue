@@ -193,8 +193,12 @@ export default {
   },
   methods: {
     async handleUploadedGalleryShot(shotFile, fileName, index, shotType, oldFileName) {
+      const formData = new FormData();
+      formData.append('file', shotFile, fileName);
+      formData.append('field_name', shotType);
+      formData.append('old_file_name', oldFileName);
 
-      UserService.updateUserImage(shotFile, fileName, shotType, oldFileName)
+      UserService.updateUserImage(formData)
         .then(response => {
           this.userShotsInputs[index].img_url = response.data.filename;
           this.userShotsInputs[index].iconColor = 'cyan';
