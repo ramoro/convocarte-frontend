@@ -49,7 +49,7 @@
               />
             </div>
             <v-btn :disabled="formFields.length == 0" justify="flex-end" class="mt-3 ml-auto"  size="small" @click="editOrderMode = !editOrderMode">
-              {{ !editOrderMode ? 'Editar Orden' : 'Volver' }}
+              {{ !editOrderMode ? 'Editar Orden' : 'Guardar Orden' }}
           </v-btn>
           </v-card-title>
           <v-card-text v-if="!editOrderMode">
@@ -81,9 +81,9 @@
                         @click="removeField(index)"
                         style="margin-top: -25px; margin-left: 25px;"
                         size="small"
-                        @mouseover="hover = true"
-                        @mouseleave="hover = false"
-                        :class="{'v-btn--active': hover || isPressed}"
+                        @mouseover="setHover(index, true)"
+                        @mouseleave="setHover(index, false)"
+                        :class="{'v-btn--active': isHovered(index)}"
                       >
                         <v-icon>mdi-delete</v-icon>
                       </v-btn>
@@ -156,8 +156,7 @@ export default {
   },
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
-    console.log("Params");
-    console.log(this.$route.params);
+
     //route es diferente de router  
     if (this.$route.params.id) {
       this.formId = this.$route.params.id;
@@ -190,7 +189,8 @@ export default {
         'date': ''
       },
       viewIsLoading: false,
-      editOrderMode: false
+      editOrderMode: false,
+      hoverStates: []
     };
   },
   computed: {
@@ -198,8 +198,6 @@ export default {
       return this.buttons[this.tab] || [];
     },
     currentUser() {
-      console.log("STOREUSER");
-      console.log(this.$store.state.auth.user);
       return this.$store.state.auth.user;
     }
   },
@@ -224,6 +222,7 @@ export default {
       this.formFields.push(newField);
     },
     removeField(index) {
+      this.hoverStates.splice(index, 1);
       this.formFields.splice(index, 1);
     },
     getComponent(type) {
@@ -327,7 +326,14 @@ export default {
           this.$root.InformationSnackbar.show({ message: "No se pudo conectar con el servidor", color: 'dark', buttonColor: 'red' });
         }
       }
+    },
+    setHover(index, value) {
+      this.hoverStates[index] = value;
+    },
+    isHovered(index) {
+      return !!this.hoverStates[index];
     }
+
   },
   beforeMount() {
     if (!this.currentUser) {
@@ -416,11 +422,11 @@ export default {
 }
 
 .drag-handle {
-  cursor: grab; /* Hacer que el ícono también sea "agarrable" */
+  cursor: grab; 
 }
 
 .drag-handle:active {
-  cursor: grabbing; /* Cambia el cursor mientras se arrastra */
+  cursor: grabbing; 
 }
 
 .v-btn--active {
