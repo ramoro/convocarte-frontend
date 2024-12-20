@@ -149,7 +149,7 @@
       </v-card>
     </v-dialog>
     <!-- Dialog para publicar casting -->
-    <v-dialog v-model="publishDialog" max-width="500px">
+    <v-dialog v-model="publishDialog" max-width="700px">
       <v-card>
         <v-card-title>
           <span class="text-h5">{{currentCasting.state == "Pausado" ? 'Reanudar Casting' : 'Publicar Casting'}}</span>
@@ -157,7 +157,15 @@
         <v-form ref="form" @submit.prevent="handlePublication">
           <v-card-text>
             <v-row>
-              <v-col cols="12" class="d-flex justify-center">
+              <v-col cols="8" class="d-flex justify-center">
+                <v-text-field
+                  label="Título de Búsqueda"
+                  v-model="titleToPublish"
+                  :rules="[maxLengthRule, requiredRule].flat()" 
+                  outlined
+                ></v-text-field>
+              </v-col>
+              <v-col cols="4">
                 <v-text-field
                   label="Fecha de Expiración"
                   v-model="publishExpirationDate"
@@ -234,6 +242,7 @@ export default {
       completionDialog: false,
       currentCasting: null,
       publishExpirationDate: '',
+      titleToPublish: '', //Maneja el titulo con el que se va a publicar, ya que antes de la publicacion se permite cambiar el titulo por si ya existe alguna publicacion con ese titulo
       expirationDateRules: [
         value => !!value || 'Campo requerido',
         value => value.split('-')[0] >= 1900 && value.split('-')[0] <= 3000 || 'La fecha no es válida', 
@@ -245,6 +254,10 @@ export default {
           return selectedDate > argentineTime || 'La fecha de expiración debe ser mayor a la fecha actual';
         }
       ],
+      requiredRule: [value => !!value || 'Este campo es requerido.'],
+      maxLengthRule: [
+          value => (value.length <= 100) || 'Máximo 100 caracteres',
+      ]
     };
   },
   computed: {
@@ -293,6 +306,7 @@ export default {
       this.currentCasting = casting;
       this.publishExpirationDate = "";
       this.publishDialog = true;
+      this.titleToPublish = this.currentCasting.title;
     },
     openPauseDialog(casting) {
       this.currentCasting = casting;
@@ -306,7 +320,7 @@ export default {
       this.$refs.form.validate().then(result => {
         if (result.valid) {
           const payload = {
-            "title": this.currentCasting.title,
+            "title": this.titleToPublish,
             "state": this.currentCasting.state,
             "expiration_date": this.publishExpirationDate
           };
@@ -319,14 +333,42 @@ export default {
             });
             this.publishDialog = false;
             this.currentCasting.state = 'Publicado';
+            this.currentCasting.title = this.titleToPublish;
           })
           .catch((error) => {
-            console.error('Error al publicar el casting:', error);
-            this.$root.InformationSnackbar.show({
-              message: 'Error al publicar el casting.',
-              color: 'dark', 
-              buttonColor: 'red'
-            });
+            // Si error es 400
+            console.log(error.response)
+            console.log(error.response.status)
+            if (error.response && error.response.status === 400) {
+              console.log(error.response.data.detail)
+              // Mostramos mensajes de error segun el error generado
+              if (error.response.data.detail && error.response.data.detail.includes("there is already a published casting with the title")) {
+                this.$root.InformationSnackbar.show({
+                  message: 'Error al publicar el casting: ya existe un casting publicado con ese título.',
+                  color: 'dark', 
+                  buttonColor: 'red'
+                });
+              } else if (error.response.data.detail && error.response.data.detail.includes("cannot be published because it has already ended")) {
+                this.$root.InformationSnackbar.show({
+                  message: 'Error al publicar el casting: el casting está finalizado.',
+                  color: 'dark', 
+                  buttonColor: 'red'
+                });
+              } else {
+                this.$root.InformationSnackbar.show({
+                  message: 'Error al publicar el casting.',
+                  color: 'dark',
+                  buttonColor: 'red'
+                });
+              }
+            } else {
+              console.error('Error al publicar el casting:', error);
+              this.$root.InformationSnackbar.show({
+                message: 'Error al publicar el casting.',
+                color: 'dark', 
+                buttonColor: 'red'
+              });
+            }
           });
         }
       }).catch(error => {
