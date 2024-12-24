@@ -54,12 +54,17 @@ const routes = [
   },
   {
     path: '/form-builder/new',
-    name: 'createForm',
+    name: 'createformtemplate',
     component: () => import('../views/Forms/FormTemplateBuilderView.vue')
   },
   {
     path: '/form-builder/:id',
-    name: 'editForm',
+    name: 'editformtemplate',
+    component: () => import('../views/Forms/FormTemplateBuilderView.vue'),
+  },
+  {
+    path: '/form-builder/:id/:castingid', //Aca el id seria ya de un form y no de un form template. Cuando esta ya asignado a un casting es un form
+    name: 'editcastingform',
     component: () => import('../views/Forms/FormTemplateBuilderView.vue'),
   },
   {
@@ -78,8 +83,13 @@ const routes = [
     component: () => import('../views/Casting Calls/UserCastingCallsView.vue')
   },
   {
-    path: '/casting-call-creation',
+    path: '/casting-call',
     name: 'castingcallcreation',
+    component: () => import('../views/Casting Calls/CastingCallCreationView.vue')
+  },
+  {
+    path: '/casting-call/:id',
+    name: 'castingcalledition',
     component: () => import('../views/Casting Calls/CastingCallCreationView.vue')
   },
 

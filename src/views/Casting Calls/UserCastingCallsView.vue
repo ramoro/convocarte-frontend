@@ -5,7 +5,7 @@
       <v-col cols="12" class="d-flex justify-space-between align-center">
         <h1 class="castings-title">Mis Castings</h1>
         <div class="d-flex">
-          <v-btn class="mr-3" rounded @click="reelDialog = true" to="/casting-call-creation">            
+          <v-btn class="mr-3" rounded @click="reelDialog = true" to="/casting-call">            
             <img 
               :src="require('@/assets/casting-call-icon.png')"
               alt="Create Casting Call Icon" 
@@ -104,7 +104,7 @@
                 </v-btn>
                 <v-tooltip text="Editar" location="top">
                   <template v-slot:activator="{ props }">
-                    <v-icon v-bind="props" class="mr-2">mdi-pencil</v-icon>
+                    <v-icon v-bind="props" class="mr-2" @click="editCastingCall(casting.id)">mdi-pencil</v-icon>
                   </template>
                 </v-tooltip>
                 <v-tooltip text="Eliminar" location="top">
@@ -422,6 +422,9 @@ export default {
           buttonColor: 'red'
         });
       });
+    },
+    editCastingCall(castingCallId) {
+      this.$router.push(`/casting-call/${castingCallId}`);
     }
   },
 };
@@ -467,9 +470,6 @@ export default {
 .v-chip.Finalizado{
   color: rgb(218, 154, 59); 
 }
-
-
-
 
 .casting-content {
   display: flex;

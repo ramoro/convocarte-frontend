@@ -8,7 +8,7 @@
     />
     <v-row>
       <v-col cols="12" class="d-flex justify-space-between align-center">
-        <h1 class="forms-title">Mis Formularios</h1>
+        <h1 class="forms-title">Mis Plantillas de Formularios</h1>
         <div class="d-flex">
           <v-btn class="mr-3" rounded @click="reelDialog = true" to="/form-builder/new">            
             <img 
@@ -16,7 +16,7 @@
               alt="Create Form Icon" 
               class="button-image mr-2"
               height="25"
-            />Agregar Formulario
+            />Agregar Plantilla
           </v-btn>
         </div>
       </v-col>
@@ -93,8 +93,6 @@ import FormTemplateService from '@/services/form-template.service';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog.vue';
 import { sortBy } from '@/utils';
 
-
-
 export default {
   components: {
     InformationSnackbar,
@@ -165,8 +163,8 @@ export default {
           console.error('Error al eliminar template de formulario', error);
         });
     },
-    editForm(formId) {
-      this.$router.push(`/form-builder/${formId}`);
+    editForm(formTemplateId) {
+      this.$router.push(`/form-builder/${formTemplateId}`);
     }
   },
 };

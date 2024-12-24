@@ -1,9 +1,14 @@
 <template>
+ <v-container style="display: flex; justify-content: center; align-items: center;">
+     <!-- Cargando Castings -->
+    <v-row v-if="isLoading" justify="center" align="center" style="height: 60vh;">
+      <v-container class="text-center">
+        <v-progress-circular indeterminate color="cyan"></v-progress-circular>
+        <div>Cargando casting...</div>
+      </v-container>
+    </v-row>
 
-
-    <v-container style="display: flex; justify-content: center; align-items: center;">
-        
-    <v-row justify="center" align="center" style="width: 100%;">
+    <v-row v-else justify="center" align="center" style="width: 100%;">
         <v-col cols="12" md="8">
             <h2 class="mt-2 mb-3">Crear Casting</h2>
         </v-col>
@@ -72,6 +77,7 @@
                     item-value="id"
                     label="Proyecto a Castear"
                     :rules="requiredRule"
+                    :disabled="editionMode"
                     required
                     hide-details="auto"
                     @update:modelValue="displayRolesForProject"
@@ -85,8 +91,8 @@
 
             <v-row v-if="rolesProjectSelected.length > 0">
                 <v-col cols="12">
-                    <h4 class="mt-4">Seleccionar Roles a castear:</h4>
-        
+                    <h4 class="mt-4" v-if="!editionMode">Seleccionar Roles a castear:</h4>
+                    <h4 class="mt-4" v-else>Roles a castear:</h4>
                     <v-row class="mt-2" v-for="role in rolesProjectSelected" :key="role.id" align="start">
                     
                         <v-col cols="12">
@@ -97,14 +103,15 @@
                             :value="role.id"
                             hide-details="auto"
                             :rules="rolesRule"
+                            :disabled="editionMode"
                             @change="handleRoleSelection(role)"
                             ></v-checkbox>
                             <v-container v-if="rolesToCast.some(item => item.role_id === role.id)">
                                 <v-row>
-                                    <v-col cols="4">
+                                    <v-col v-if="!editionMode" cols="4">
                                         <v-select
-                                            v-model="getRoleToCast(role.id).form_template_id"  
-                                            :items="userFormTemplates"
+                                            v-model="getRoleToCast(role.id).form_template_id" 
+                                            :items="userForms"
                                             item-title="form_template_title"
                                             item-value="id"
                                             label="Asociar Formulario"
@@ -115,6 +122,24 @@
                                             <span class="text-red"><strong>* </strong></span>Asociar Formulario
                                         </template>
                                         </v-select>
+                                    </v-col>
+                                    <v-col v-else cols="12">
+                                        <span>
+                                        <v-tooltip text="Editar este formulario no afectará al template asignado originalmente" location="top">
+                                            <template v-slot:activator="{ props }">
+                                                <v-icon color="purple" class="mr-2" v-bind="props">mdi-information</v-icon>
+                                            </template>
+                                        </v-tooltip> 
+                                        <b>Formulario para el rol:</b>
+                                         
+                                        <v-tooltip text="Editar Formulario" location="top">
+                                        <template v-slot:activator="{ props }">
+                                            <v-chip v-bind="props" class="ml-3 elevable-chip" @click="editCastingCallForm(getRoleToCast(role.id).form_id, role.name)">
+                                               {{ getRoleToCast(role.id).form_title }} 
+                                            </v-chip>
+                                        </template>
+                                        </v-tooltip>
+                                        </span>
                                     </v-col>
                                     <v-col cols="4">
                                         <v-select
@@ -131,7 +156,7 @@
                                         </template>
                                         </v-select>
                                     </v-col>
-                                    <v-col>
+                                    <v-col cols="4">
                                         <v-text-field
                                         v-if="getRoleToCast(role.id).has_limited_spots === true"
                                         v-model="getRoleToCast(role.id).spots_amount"
@@ -299,11 +324,26 @@
       InformationSnackbar,
       AddPhotoButton
     },
-    mounted() {
+    async mounted() {
       this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
+      if (this.$route.params.id) {
+        this.castingCallId = this.$route.params.id;
+        this.editionMode = true;
+        await this.loadCastingCallData(this.castingCallId);
+      } else {
+        await this.loadUserProjectsAndFormTemplates();
+      }
+      if (this.$route.query.updatedRole) {
+        this.$root.InformationSnackbar.show({
+            message: 'Se actualizó el Formulario asociado al rol ' + this.$route.query.updatedRole,
+            color: 'green', 
+            buttonColor:'white'} );  
+      }
+      this.isLoading = false;
     },
     data() {
       return {
+        isLoading: true,
         dialog: false,
         valid: false, // Valida si el formulario es correcto
         castingCall: {
@@ -324,11 +364,11 @@
           value => (value.length <= 600) || 'Máximo 600 caracteres',
         ],
         castingRemunerationTypes: remunerationTypes,
-        userProjects: [],
+        userProjects: [], //Tendra por cada proyecto un json con id, nombre y roles asociados
         rolesProjectSelected: [],
-        userFormTemplates: [],
-        selectedRoles: [], 
-        rolesToCast: [],
+        userForms: [], //Tendra ids de form templates o forms segun si se esta creando o si es pantalla para editar
+        selectedRoles: [],  //Tendra ids de roles seleccionados
+        rolesToCast: [], //Los roles que se van seleccionando para castear se almacenan aca junto a la data de requerimientos seteada
         hairColorsMultipleOptions: hairColors,
         selectedPhoto: null,
         photoButtonDisabled: false,
@@ -336,29 +376,30 @@
         hasLimitedSpotsOptions: [
             { id: true, name: 'Sí' },
             { id: false, name: 'No' }
-        ] 
+        ],
+        castingCallId: null,
+        editionMode: false
 
       };
     },
-    created() {
-        this.isLoading = false;
-        ProjectService.getUserProjectsWithRoles()
-        .then(response => {
-            this.userProjects = response.data;
-        })
-        .catch(error => {
-            console.log('Error al obtener proyectos del usuario', error);
-        });
-
-        FormTemplateService.getUserFormTemplates()
-        .then(response => {
-            this.userFormTemplates = response.data;
-        })
-        .catch(error => {
-            console.log('Error al obtener templates de formularios del usuario', error);
-        });
-    },
     methods: {
+        async loadUserProjectsAndFormTemplates() {
+            FormTemplateService.getUserFormTemplates()
+                .then(response => {
+                    this.userForms = response.data;
+                })
+                .catch(error => {
+                    console.log('Error al obtener templates de formularios del usuario', error);
+                });
+            
+            ProjectService.getUserProjectsWithRoles()
+                .then(response => {
+                    this.userProjects = response.data; 
+                })
+                .catch(error => {
+                    console.log('Error al obtener proyectos del usuario', error);
+                });
+        },
         getRoleToCast(roleId) {
             return this.rolesToCast.find(item => item.role_id === roleId) || {};
         },
@@ -428,6 +469,53 @@
             this.castingPhotos.splice(index, 1); // Elimina la foto en el índice indicado
             this.photoButtonDisabled = false;
         },
+        async loadCastingCallData(id) {
+            try {
+                const response = await castingCallService.getCastingCallById(id);
+                const castingData = response.data;
+                const projectAssociated = castingData.project;
+                const exposedRoles = castingData.exposed_roles;
+                this.castingCall.title = castingData.title;
+                this.castingCall.description = castingData.description ? castingData.description : '';
+                this.castingCall.remuneration_type = castingData.remuneration_type;
+                this.castingCall.project_id = projectAssociated.id;
+                //En roles pondremos los roles que han sido seleccionados para castear en el proyecto
+                this.userProjects.push({"id": projectAssociated.id, "name": projectAssociated.name, "roles": []});
+                for (const exposedRoleInfo of exposedRoles) {
+                    this.userProjects[0].roles.push({"id": exposedRoleInfo.role.id, "name": exposedRoleInfo.role.name});
+                    this.rolesProjectSelected.push({"id": exposedRoleInfo.role.id, "name": exposedRoleInfo.role.name});
+                    this.userForms.push({"id": exposedRoleInfo.form.id, "form_title": exposedRoleInfo.form.form_title});
+                    var roleToCast = {
+                        role_id: exposedRoleInfo.role.id,
+                        form_id: exposedRoleInfo.form.id, //Al ser un casting ya creado este sera el id de un form, no de un form template
+                        form_title: exposedRoleInfo.form.form_title,
+                        has_limited_spots: exposedRoleInfo.has_limited_spots,
+                        spots_amount: exposedRoleInfo.spots_amount,
+                        min_age_required: exposedRoleInfo.min_age_required,
+                        max_age_required: exposedRoleInfo.max_age_required,
+                        hair_colors_required: exposedRoleInfo.hair_colors_required,
+                        additional_requirements: exposedRoleInfo.additional_requirements
+                    };
+                    
+                    this.rolesToCast.push(roleToCast);
+
+                    this.selectedRoles.push(exposedRoleInfo.role.id);
+                }
+            } catch (error) {
+                console.log('Error al cargar el casting:', error);
+                this.$root.InformationSnackbar.show({
+                  message: 'Error al cargar el casting.',
+                  color: 'dark', 
+                  buttonColor: 'red'
+                });
+            }
+        },
+        editCastingCallForm(formId, roleName) {
+            this.$router.push({
+                path:`/form-builder/${formId}/${this.castingCallId}`, 
+                query: { castingTitle: this.castingCall.title, roleName: roleName}
+            });
+        }
     }
   };
   </script>
@@ -437,4 +525,15 @@
   .cyan-border {
     border-top: 3px solid rgb(2, 151, 156);
   }
+
+    .elevable-chip {
+        cursor: pointer; 
+        transition: transform 0.2s ease, box-shadow 0.2s ease; /* Transición suave */
+        background-color: #00bcd4;
+    }
+
+    .elevable-chip:hover {
+        transform: translateY(-5px); /* Eleva el chip */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Agrega sombra al elevarse */
+    }
   </style>

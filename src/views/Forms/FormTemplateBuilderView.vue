@@ -49,7 +49,7 @@
               />
             </div>
             <v-btn :disabled="formFields.length == 0" justify="flex-end" class="mt-3 ml-auto"  size="small" @click="editOrderMode = !editOrderMode">
-              {{ !editOrderMode ? 'Editar Orden' : 'Guardar Orden' }}
+              {{ !editOrderMode ? 'Editar Orden' : 'Editar Campos' }}
           </v-btn>
           </v-card-title>
           <v-card-text v-if="!editOrderMode">
@@ -115,14 +115,34 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn v-if="formFields.length > 0 && !formId" color="purple" @click="submitForm()">Guardar</v-btn>
-            <v-btn v-if="formFields.length > 0 && formId" color="purple" @click="updateForm()">Actualizar</v-btn>
+            <!--Para creacion de Form Template se visualiza boton de guardar-->
+            <v-btn v-if="formFields.length > 0 && !formId" color="purple" @click="submitFormTemplate()">Guardar</v-btn>
+            <!--Para edicion de Form Template se visualiza boton de actualizar-->
+            <v-btn v-if="!associatedCasting && formFields.length > 0 && formId" color="purple" @click="updateFormTemplate()">Actualizar</v-btn>
+            <!--Para edicion de Form de casting se visualiza boton de actualizar-->
+            <v-btn v-else-if="associatedCasting && formFields.length > 0 && formId" color="purple" @click="updateCastingFormDialog = true">Actualizar</v-btn>
+            <!--Para limpiar los campos agregados al template de formulario/formulario-->
             <v-btn v-if="formFields.length > 0" color="cyan" @click="formFields=[]">Limpiar</v-btn>
-            <v-btn variant="flat" color="grey" @click="cancelFormCreation()">Cancelar</v-btn>
+            <!--Para cancelacion de creacion o edicion de Form Template se visualiza boton de cancelar que llama a cancelFormTemplateCreation-->
+            <v-btn v-if="!associatedCasting" variant="flat" color="grey" @click="cancelFormTemplateCreationEdition()">Cancelar</v-btn>
+            <!--Para cancelacion de edicion de Form de casting se visualiza boton de cancelar que llama a cancelFormEdition-->
+            <v-btn v-else-if="associatedCasting" variant="flat" color="grey" @click="cancelFormEdition()">Cancelar</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
+    <ConfirmActionDialog
+      :isOpen="updateCastingFormDialog"
+      dialogTitle="Actualizar Formulario"
+      action="Actualizar"
+      @confirm-action="handleFormUpdate"
+      @cancel-action="updateCastingFormDialog = false"
+    >
+      <template #dialog-text>
+        <div style="text-align:center; font-size:16px;">Se está por actualizar el Formulario generado para el Rol <b>{{associatedRole}}</b> dentro del Casting <b>{{associatedCasting.title}}</b></div>
+        <div style="text-align:center; font-size:16px;">¿Confirma la acción?</div>
+      </template>
+    </ConfirmActionDialog>
     <InformationSnackbar ref="InformationSnackbar"/>
   </v-container>
 </template>
@@ -134,6 +154,8 @@ import SelectFieldInput from '@/components/FormElements/SelectFieldInput.vue';
 import DateFieldInput from '@/components/FormElements/DateFieldInput.vue';
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import FormTemplateService from '@/services/form-template.service';
+import FormService from '@/services/form.service';
+import ConfirmActionDialog from '@/components/ConfirmActionDialog.vue';
 import draggable from 'vuedraggable';
 
 
@@ -152,22 +174,34 @@ export default {
     SelectFieldInput,
     DateFieldInput,
     InformationSnackbar,
+    ConfirmActionDialog,
     draggable
   },
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
 
-    //route es diferente de router  
-    if (this.$route.params.id) {
+    //route es diferente de router
+    //Si viene con id significa que es pantalla para editar form template
+    //Si viene tambien con id de casting significa que es pantalla para editar el form
+    //de un casting (el form se crea a partir de un form template)
+    if (this.$route.params.id && this.$route.params.castingid) {
       this.formId = this.$route.params.id;
+      this.associatedCasting = {"id": this.$route.params.castingid, "title": this.$route.query.castingTitle};
+      this.associatedRole = this.$route.query.roleName;
       this.loadFormData(this.formId);
+    } else if (this.$route.params.id) {
+      this.formId = this.$route.params.id;
+      this.loadFormTemplateData(this.formId);
     }
   },
   data() {
     return {
+      updateCastingFormDialog: false,
       formFields: [],
       formTitle: '',
-      formId: null, //Para cuando la ruta es para la edicion del formulario
+      formId: null, //Para cuando la ruta es para la edicion del formulario, sera el id del form template para edicion de form template, y sera id de form para cuando se edita un form de un casting
+      associatedCasting: null, //Si es edicion de form va a haber un casting asociado
+      associatedRole: null, //Si es edicion de form va a haber un rol al cual el formulario esta asociado dentro del casting
       formCreatedDate: null,
       originalTitle: '', //Esto es para cuando la vista se usa como edicion
       tab: 'Info Básica',
@@ -202,8 +236,11 @@ export default {
     }
   },
   methods: {
-    cancelFormCreation() {
+    cancelFormTemplateCreationEdition() {
       this.$router.push({ path: '/user-forms'});
+    },
+    cancelFormEdition() {
+      this.$router.push(`/casting-call/${this.associatedCasting.id}`);
     },
     buttonDisabled(button) {
       return this.formFields.some(field => field.title === button.label);
@@ -242,7 +279,7 @@ export default {
           return null;
       }
     },
-    async submitForm() {
+    async submitFormTemplate() {
       // Validar que el título no esté vacío
       if (!this.formTitle.trim()) {
         this.$root.InformationSnackbar.show({ message: "El Formulario debe tener un Título", color: 'dark', buttonColor: 'red' });
@@ -277,7 +314,7 @@ export default {
         }
       }
     },
-    async loadFormData(id) {
+    async loadFormTemplateData(id) {
       this.viewIsLoading = true;
       try {
         const response = await FormTemplateService.getFormTemplate(id);
@@ -295,12 +332,35 @@ export default {
           additionalText: ''
         }));
       } catch (error) {
+        console.log('Error al cargar el template de formulario:', error);
+      } finally {
+        this.viewIsLoading = false; 
+      }
+    },
+    async loadFormData(id) {
+      this.viewIsLoading = true;
+      try {
+        const response = await FormService.getForm(id);
+        const formData = response.data;
+        this.formTitle = formData.form_title;
+        this.originalTitle = formData.form_title;
+        this.formCreatedDate = formData.created_at;
+        this.formFields = formData.form_fields.map(field => ({
+          type: field.type,
+          title: field.title,
+          value: '',
+          options: [],
+          placeholder: this.placeholderMap[field.type] || '',
+          required: field.is_required,
+          additionalText: ''
+        }));
+      } catch (error) {
         console.log('Error al cargar el formulario:', error);
       } finally {
         this.viewIsLoading = false; 
       }
     },
-    async updateForm() {
+    async updateFormTemplate() {
       const fieldsToSend = this.formFields.map((field, index) => ({
         title: field.title,
         type: field.type,
@@ -322,6 +382,27 @@ export default {
           } else {
             this.$root.InformationSnackbar.show({ message: "Hubo un problema con la solicitud", color: 'dark', buttonColor: 'red' });
           }
+        } else if (error.request) {
+          this.$root.InformationSnackbar.show({ message: "No se pudo conectar con el servidor", color: 'dark', buttonColor: 'red' });
+        }
+      }
+    },
+    async handleFormUpdate() {
+      const fieldsToSend = this.formFields.map((field, index) => ({
+        title: field.title,
+        type: field.type,
+        order: index, // El orden se basa en la posición que tiene en formFields
+        is_required: field.required,
+      }));
+
+      const payload = {id: this.formId, form_title: this.formTitle, created_at: this.formCreatedDate, form_fields: fieldsToSend };
+      
+      try {
+        await FormService.updateForm(payload);
+        this.$router.push({ path: `/casting-call/${this.associatedCasting.id}`, query: {updatedRole: this.associatedRole } });
+      } catch (error) {
+        if (error.response) {
+          this.$root.InformationSnackbar.show({ message: "Hubo un problema con la solicitud", color: 'dark', buttonColor: 'red' });
         } else if (error.request) {
           this.$root.InformationSnackbar.show({ message: "No se pudo conectar con el servidor", color: 'dark', buttonColor: 'red' });
         }
