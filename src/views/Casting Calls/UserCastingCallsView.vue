@@ -5,7 +5,7 @@
       <v-col cols="12" class="d-flex justify-space-between align-center">
         <h1 class="castings-title">Mis Castings</h1>
         <div class="d-flex">
-          <v-btn class="mr-3" rounded @click="reelDialog = true" to="/casting-call-creation">            
+          <v-btn class="mr-3" rounded @click="reelDialog = true" to="/casting-call">            
             <img 
               :src="require('@/assets/casting-call-icon.png')"
               alt="Create Casting Call Icon" 
@@ -104,7 +104,7 @@
                 </v-btn>
                 <v-tooltip text="Editar" location="top">
                   <template v-slot:activator="{ props }">
-                    <v-icon v-bind="props" class="mr-2">mdi-pencil</v-icon>
+                    <v-icon v-bind="props" class="mr-2" @click="editCastingCall(casting.state, casting.id)">mdi-pencil</v-icon>
                   </template>
                 </v-tooltip>
                 <v-tooltip text="Eliminar" location="top">
@@ -149,7 +149,7 @@
       </v-card>
     </v-dialog>
     <!-- Dialog para publicar casting -->
-    <v-dialog v-model="publishDialog" max-width="500px">
+    <v-dialog v-model="publishDialog" max-width="700px">
       <v-card>
         <v-card-title>
           <span class="text-h5">{{currentCasting.state == "Pausado" ? 'Reanudar Casting' : 'Publicar Casting'}}</span>
@@ -157,7 +157,15 @@
         <v-form ref="form" @submit.prevent="handlePublication">
           <v-card-text>
             <v-row>
-              <v-col cols="12" class="d-flex justify-center">
+              <v-col cols="8" class="d-flex justify-center">
+                <v-text-field
+                  label="Título de Búsqueda"
+                  v-model="titleToPublish"
+                  :rules="[maxLengthRule, requiredRule].flat()" 
+                  outlined
+                ></v-text-field>
+              </v-col>
+              <v-col cols="4">
                 <v-text-field
                   label="Fecha de Expiración"
                   v-model="publishExpirationDate"
@@ -234,6 +242,7 @@ export default {
       completionDialog: false,
       currentCasting: null,
       publishExpirationDate: '',
+      titleToPublish: '', //Maneja el titulo con el que se va a publicar, ya que antes de la publicacion se permite cambiar el titulo por si ya existe alguna publicacion con ese titulo
       expirationDateRules: [
         value => !!value || 'Campo requerido',
         value => value.split('-')[0] >= 1900 && value.split('-')[0] <= 3000 || 'La fecha no es válida', 
@@ -245,6 +254,10 @@ export default {
           return selectedDate > argentineTime || 'La fecha de expiración debe ser mayor a la fecha actual';
         }
       ],
+      requiredRule: [value => !!value || 'Este campo es requerido.'],
+      maxLengthRule: [
+          value => (value.length <= 100) || 'Máximo 100 caracteres',
+      ]
     };
   },
   computed: {
@@ -260,14 +273,15 @@ export default {
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
 
-    if (this.$route.query.title) {
+    if (this.$route.query.title && this.$route.query.status == 'created') {
       this.$root.InformationSnackbar.show({message: 'Casting creado en estado Borrador', color: 'green', buttonColor:'white'} );
+    } else if (this.$route.query.title && this.$route.query.status == 'updated') {
+      this.$root.InformationSnackbar.show({message: 'Casting actualizado correctamente!', color: 'green', buttonColor:'white'} );
     }
   },
   created() {
     CastingCallService.getUserCastingCalls()
       .then(response => {
-        console.log(response.data); 
         this.castingCalls = response.data;
         this.sort('created_at', this.dateOrderDesc);
         this.isLoading = false; 
@@ -293,6 +307,7 @@ export default {
       this.currentCasting = casting;
       this.publishExpirationDate = "";
       this.publishDialog = true;
+      this.titleToPublish = this.currentCasting.title;
     },
     openPauseDialog(casting) {
       this.currentCasting = casting;
@@ -306,7 +321,7 @@ export default {
       this.$refs.form.validate().then(result => {
         if (result.valid) {
           const payload = {
-            "title": this.currentCasting.title,
+            "title": this.titleToPublish,
             "state": this.currentCasting.state,
             "expiration_date": this.publishExpirationDate
           };
@@ -319,11 +334,27 @@ export default {
             });
             this.publishDialog = false;
             this.currentCasting.state = 'Publicado';
+            this.currentCasting.title = this.titleToPublish;
           })
           .catch((error) => {
-            console.error('Error al publicar el casting:', error);
+            let errorMessage = "";
+            console.log("Error")
+            console.log(error.response)
+            if (error.response && error.response.status === 400) {
+              // Mostramos mensajes de error segun el error generado
+              if (error.response.data.detail && error.response.data.detail.includes("there is already a published casting with the title")) {
+                errorMessage = 'Error al publicar el casting: ya existe un casting publicado con ese título.';
+              } else if (error.response.data.detail && error.response.data.detail.includes("cannot be published because it has already ended")) {
+                errorMessage = 'Error al publicar el casting: el casting está finalizado.';
+              } else {
+                errorMessage = 'Error al publicar el casting.';
+              }
+            } else {
+              console.error('Error al publicar el casting:', error);
+              errorMessage = 'Error al publicar el casting.';
+            }
             this.$root.InformationSnackbar.show({
-              message: 'Error al publicar el casting.',
+              message: errorMessage,
               color: 'dark', 
               buttonColor: 'red'
             });
@@ -380,6 +411,21 @@ export default {
           buttonColor: 'red'
         });
       });
+    },
+    editCastingCall(castingCallState, castingCallId) {
+      //El casting no puede ser editado si esta publicado o finalizado
+      if (castingCallState != "Borrador" && castingCallState != "Pausado") {
+        let errorMessage = "";
+        if (castingCallState == "Publicado") errorMessage = "El casting debe ser pausado para poder editarse"
+        else if (castingCallState == "Finalizado") errorMessage = "El casting ha finalizado y no puede ser editado"
+        this.$root.InformationSnackbar.show({
+          message: errorMessage,
+          color: 'dark', 
+          buttonColor: 'red'
+        });
+        return;
+      }
+      this.$router.push(`/casting-call/${castingCallId}`);
     }
   },
 };
@@ -425,9 +471,6 @@ export default {
 .v-chip.Finalizado{
   color: rgb(218, 154, 59); 
 }
-
-
-
 
 .casting-content {
   display: flex;

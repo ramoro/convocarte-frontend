@@ -55,6 +55,7 @@
           </v-col>
         </v-row>
       </v-card>
+      <!--- Dialog para llenar la info.-->
       <v-dialog v-model="skillsDialog" max-width="800px">
         <v-card>
           <v-card-title class="justify-center text-center">
@@ -246,9 +247,6 @@ export default {
       if (!obj) {
         return null;  // Si el objeto es null o undefined, retorna un string vacío.
       }
-      console.log("OBJ");
-      console.log(obj)
-      console.log(Object.values(obj).join(', '))
 
       return Object.values(obj).join(', ');
     },
@@ -260,10 +258,8 @@ export default {
               this.formData[field] = null;
             }
           }
-          console.log("language skills");
-          console.log(this.formData.language_skills);
+
           this.formData.language_skills = this.formData.language_skills ? this.objectToString(this.formData.language_skills) : null;
-          console.log(this.formData.language_skills);
           this.formData.sports_skills = this.formData.sports_skills ? this.objectToString(this.formData.sports_skills) : null;
           this.formData.instruments_skills = this.formData.instruments_skills ? this.objectToString(this.formData.instruments_skills) : null;
           this.formData.other_skills = this.formData.other_skills ? this.objectToString(this.formData.other_skills) : null;

@@ -67,7 +67,8 @@
       if (this.selectedFile && validationResult.valid) {
         const photo = {
           file: this.selectedFile,
-          name: this.selectedFile.name
+          name: this.selectedFile.name,
+          photoUrl: URL.createObjectURL(this.selectedFile)
         };
 
         this.$emit('add-photo', photo);
