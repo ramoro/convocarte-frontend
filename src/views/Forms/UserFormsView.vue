@@ -58,7 +58,7 @@
                 <div justify="space-between" class="mt-2">
                   <v-tooltip text="Editar" location="top">
                     <template v-slot:activator="{ props }">
-                      <v-icon v-bind="props" class="edition-icon mr-2" @click="editForm(form.id)">mdi-pencil</v-icon>
+                      <v-icon v-bind="props" class="edition-icon mr-2" @click="editFormTemplate(form.id)">mdi-pencil</v-icon>
                     </template>
                   </v-tooltip>
                   <v-tooltip text="Eliminar" location="top">
@@ -163,7 +163,7 @@ export default {
           console.error('Error al eliminar template de formulario', error);
         });
     },
-    editForm(formTemplateId) {
+    editFormTemplate(formTemplateId) {
       this.$router.push(`/form-builder/${formTemplateId}`);
     }
   },

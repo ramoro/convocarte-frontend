@@ -337,39 +337,27 @@ export default {
             this.currentCasting.title = this.titleToPublish;
           })
           .catch((error) => {
-            // Si error es 400
+            let errorMessage = "";
+            console.log("Error")
             console.log(error.response)
-            console.log(error.response.status)
             if (error.response && error.response.status === 400) {
-              console.log(error.response.data.detail)
               // Mostramos mensajes de error segun el error generado
               if (error.response.data.detail && error.response.data.detail.includes("there is already a published casting with the title")) {
-                this.$root.InformationSnackbar.show({
-                  message: 'Error al publicar el casting: ya existe un casting publicado con ese título.',
-                  color: 'dark', 
-                  buttonColor: 'red'
-                });
+                errorMessage = 'Error al publicar el casting: ya existe un casting publicado con ese título.';
               } else if (error.response.data.detail && error.response.data.detail.includes("cannot be published because it has already ended")) {
-                this.$root.InformationSnackbar.show({
-                  message: 'Error al publicar el casting: el casting está finalizado.',
-                  color: 'dark', 
-                  buttonColor: 'red'
-                });
+                errorMessage = 'Error al publicar el casting: el casting está finalizado.';
               } else {
-                this.$root.InformationSnackbar.show({
-                  message: 'Error al publicar el casting.',
-                  color: 'dark',
-                  buttonColor: 'red'
-                });
+                errorMessage = 'Error al publicar el casting.';
               }
             } else {
               console.error('Error al publicar el casting:', error);
-              this.$root.InformationSnackbar.show({
-                message: 'Error al publicar el casting.',
-                color: 'dark', 
-                buttonColor: 'red'
-              });
+              errorMessage = 'Error al publicar el casting.';
             }
+            this.$root.InformationSnackbar.show({
+              message: errorMessage,
+              color: 'dark', 
+              buttonColor: 'red'
+            });
           });
         }
       }).catch(error => {
