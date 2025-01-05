@@ -273,14 +273,15 @@ export default {
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
 
-    if (this.$route.query.title) {
+    if (this.$route.query.title && this.$route.query.status == 'created') {
       this.$root.InformationSnackbar.show({message: 'Casting creado en estado Borrador', color: 'green', buttonColor:'white'} );
+    } else if (this.$route.query.title && this.$route.query.status == 'updated') {
+      this.$root.InformationSnackbar.show({message: 'Casting actualizado correctamente!', color: 'green', buttonColor:'white'} );
     }
   },
   created() {
     CastingCallService.getUserCastingCalls()
       .then(response => {
-        console.log(response.data); 
         this.castingCalls = response.data;
         this.sort('created_at', this.dateOrderDesc);
         this.isLoading = false; 

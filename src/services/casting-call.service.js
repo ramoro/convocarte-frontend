@@ -7,6 +7,7 @@ class CastingCallService {
     async createCastingCall(casting, castingPhotos, castingRoles) {
         const formData = new FormData();
         console.log(casting);
+        console.log("Casting photos:");
         console.log(castingPhotos);
         console.log(castingRoles);
 
@@ -26,6 +27,41 @@ class CastingCallService {
 
         return axios
         .post(API_URL + 'casting-calls', formData, {
+            headers: authHeaderMultipartFormData()
+        })
+        .then(response => {
+            return response.data;
+        });
+    }
+
+    async updateCastingCall(castingId, casting, deletedPhotos, newCastingPhotos, castingRoles) {
+        const formData = new FormData();
+        console.log(casting);
+        console.log(deletedPhotos);
+        console.log("Casting photos:");
+        console.log(newCastingPhotos);
+        console.log(castingRoles);
+ 
+        formData.append('casting_state', casting.state);
+        formData.append('title', casting.title);
+        formData.append('description', casting.description);
+        formData.append('project_id', casting.project_id);
+        formData.append('remuneration_type', casting.remuneration_type);
+        formData.append('deleted_casting_call_photos', JSON.stringify(deletedPhotos));
+
+        for (var photo of newCastingPhotos) {
+            console.log("Agrega a added_casting_call_photos")
+            console.log(photo);
+            formData.append('added_casting_call_photos', photo.file, photo.name)
+        }
+
+        for (var role of castingRoles) {
+            console.log("role stringify", JSON.stringify(role))
+            formData.append('casting_roles', JSON.stringify(role))
+        }
+
+        return axios
+        .patch(API_URL + 'casting-calls/' + castingId, formData, {
             headers: authHeaderMultipartFormData()
         })
         .then(response => {
