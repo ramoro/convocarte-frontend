@@ -6,10 +6,6 @@ class CastingCallService {
 
     async createCastingCall(casting, castingPhotos, castingRoles) {
         const formData = new FormData();
-        console.log(casting);
-        console.log("Casting photos:");
-        console.log(castingPhotos);
-        console.log(castingRoles);
 
         formData.append('title', casting.title);
         formData.append('description', casting.description);
@@ -36,11 +32,6 @@ class CastingCallService {
 
     async updateCastingCall(castingId, casting, deletedPhotos, newCastingPhotos, castingRoles) {
         const formData = new FormData();
-        console.log(casting);
-        console.log(deletedPhotos);
-        console.log("Casting photos:");
-        console.log(newCastingPhotos);
-        console.log(castingRoles);
  
         formData.append('casting_state', casting.state);
         formData.append('title', casting.title);
