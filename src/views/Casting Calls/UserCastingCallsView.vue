@@ -104,7 +104,7 @@
                 </v-btn>
                 <v-tooltip text="Editar" location="top">
                   <template v-slot:activator="{ props }">
-                    <v-icon v-bind="props" class="mr-2" @click="editCastingCall(casting.id)">mdi-pencil</v-icon>
+                    <v-icon v-bind="props" class="mr-2" @click="editCastingCall(casting.state, casting.id)">mdi-pencil</v-icon>
                   </template>
                 </v-tooltip>
                 <v-tooltip text="Eliminar" location="top">
@@ -424,7 +424,19 @@ export default {
         });
       });
     },
-    editCastingCall(castingCallId) {
+    editCastingCall(castingCallState, castingCallId) {
+      //El casting no puede ser editado si esta publicado o finalizado
+      if (castingCallState != "Borrador" && castingCallState != "Pausado") {
+        let errorMessage = "";
+        if (castingCallState == "Publicado") errorMessage = "El casting debe ser pausado para poder editarse"
+        else if (castingCallState == "Finalizado") errorMessage = "El casting ha finalizado y no puede ser editado"
+        this.$root.InformationSnackbar.show({
+          message: errorMessage,
+          color: 'dark', 
+          buttonColor: 'red'
+        });
+        return;
+      }
       this.$router.push(`/casting-call/${castingCallId}`);
     }
   },
