@@ -250,7 +250,6 @@ export default {
           },
           error => {
             if (error.response) {
-              this.loading = false;
               var snackbarText = '';
               if (error.response.status === 409) {
                 snackbarText = 'El Email ya se encuentra registrado';
@@ -261,6 +260,7 @@ export default {
               snackbarText = 'No se pudo conectar con el servidor';
             }
             this.showSnackbarError(snackbarText);
+            this.loading = false;
           }
         );
       }

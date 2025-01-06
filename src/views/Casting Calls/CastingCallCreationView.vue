@@ -492,15 +492,19 @@
             const validation = await this.$refs.form.validate();
             if (validation.valid) {
                 this.buttonLoading = true;
-
+                
+                for (let role of this.rolesToCast) {
+                    //Transforma los objetos con los colores de pelos a un string de forma: Morocho, Castaño, etc.
+                    console.log(role.hair_colors_required);
+                    role.hair_colors_required =  role.hair_colors_required ? Object.values(role.hair_colors_required).join(', ') : null;
+                }
                 if (this.editionMode) {
                     let allRolesDisabled = true;
                     for (let role of this.rolesToCast) {
-                        //Transforma los objetos con los colores de pelos a un string de forma: Morocho, Castaño, etc.
-                        console.log(role.hair_colors_required);
-                        role.hair_colors_required =  role.hair_colors_required ? Object.values(role.hair_colors_required).join(', ') : null;
-                        
-                        if (role.disabled == false) allRolesDisabled = false;
+                        if (role.disabled == false) {
+                            allRolesDisabled = false;
+                            break;
+                        }
                     }
                     
                     //Si no hay al menos un rol habilitado la edicion no se efectua
