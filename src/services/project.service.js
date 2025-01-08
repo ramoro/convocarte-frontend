@@ -15,6 +15,10 @@ class ProjectService {
     getUserProjectsWithRoles() {
         return axios.get(API_URL + 'projects/with-roles', { headers: authHeader() });
     }
+
+    deleteProject(id) {
+        return axios.delete(API_URL + 'projects/' + id, { headers: authHeader() });
+    }
     
 }
 

@@ -177,7 +177,7 @@
             </v-row>
           </v-card-text>
           <v-card-actions class="justify-end">
-            <v-btn color="purple" class="no-bg" flat type="submit">
+            <v-btn :loading="buttonLoading" color="purple" class="no-bg" flat type="submit">
               Publicar
             </v-btn>
             <v-btn color="grey" class="no-bg" flat @click="publishDialog = false">
@@ -232,6 +232,7 @@ export default {
   data() {
     return {
       castingCalls: [],
+      buttonLoading: false,
       isLoading: true, 
       showDialog: false, 
       currentCastingPhotos: [],
@@ -320,6 +321,7 @@ export default {
     async handlePublication() {
       this.$refs.form.validate().then(result => {
         if (result.valid) {
+          this.buttonLoading = true;
           const payload = {
             "title": this.titleToPublish,
             "state": this.currentCasting.state,
@@ -335,11 +337,11 @@ export default {
             this.publishDialog = false;
             this.currentCasting.state = 'Publicado';
             this.currentCasting.title = this.titleToPublish;
+            this.buttonLoading = false;
           })
           .catch((error) => {
             let errorMessage = "";
-            console.log("Error")
-            console.log(error.response)
+
             if (error.response && error.response.status === 400) {
               // Mostramos mensajes de error segun el error generado
               if (error.response.data.detail && error.response.data.detail.includes("there is already a published casting with the title")) {
@@ -353,6 +355,7 @@ export default {
               console.error('Error al publicar el casting:', error);
               errorMessage = 'Error al publicar el casting.';
             }
+            this.buttonLoading = false;
             this.$root.InformationSnackbar.show({
               message: errorMessage,
               color: 'dark', 

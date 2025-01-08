@@ -105,7 +105,8 @@ export default {
       deleteDialog: false,
       deleteIndex: null,
       isLoading: true, // Estado de carga (para mostrar simbolo de carga hasta que esten cargados los formularios del usuario)
-      dateOrderDesc: false    }
+      dateOrderDesc: false    
+    }
   },
   computed: {
     currentUser() {
