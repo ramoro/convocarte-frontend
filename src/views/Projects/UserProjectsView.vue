@@ -11,7 +11,7 @@
       <v-col cols="12" class="d-flex justify-space-between align-center">
         <h1 class="projects-title">Mis Proyectos</h1>
         <div class="d-flex">
-          <v-btn class="mr-3" rounded @click="reelDialog = true" to="/project-creation">            
+          <v-btn class="mr-3" rounded @click="reelDialog = true" to="/project/new">            
             <img 
               :src="require('@/assets/project-icon.png')"
               alt="Create Project Icon" 
@@ -71,7 +71,7 @@
                 <div justify="space-between" class="mt-2">
                   <v-tooltip text="Editar" location="top">
                     <template v-slot:activator="{ props }">
-                      <v-icon v-bind="props" class="edition-icon mr-2">mdi-pencil</v-icon>
+                      <v-icon v-bind="props" class="edition-icon mr-2" @click="editProject(project.id)">mdi-pencil</v-icon>
                     </template>
                   </v-tooltip>
                   <v-tooltip text="Eliminar" location="top">
@@ -134,6 +134,8 @@ export default {
 
     if (this.$route.query.name) {
       this.$root.InformationSnackbar.show({message: 'El Proyecto ' + this.$route.query.name + ' se acaba de crear', color: 'green', buttonColor:'white'});
+    } else if (this.$route.query.updating) {
+      this.$root.InformationSnackbar.show({message: 'El proyecto ha sido actualizado!', color: 'green', buttonColor:'white'});
     }
   },
   created() {
@@ -168,7 +170,6 @@ export default {
         this.$root.InformationSnackbar.show({message: 'El Proyecto está en uso. Finalizá él o los castings que lo contengan para eliminarlo.', color: 'dark', buttonColor:'red'});
         return;
       }
-      console.log("Pepara delete")
       this.itemToDelete = project;
       this.deleteIndex = index;
       this.deleteDialog = true;
@@ -183,6 +184,9 @@ export default {
           console.error('Error al eliminar proyecto', error);
         });
     },
+    editProject(projectId) {
+      this.$router.push(`/project/${projectId}`);
+    }
   },
 };
 </script>

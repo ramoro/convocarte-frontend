@@ -1,6 +1,6 @@
 <template>
     <div class="text-center ma-2">
-        <v-snackbar v-model="showSnackbar" :timeout="timer" :color="color">
+        <v-snackbar class="mb-10" v-model="showSnackbar" :timeout="timer" :color="color">
             <v-icon class="mr-1" v-if="color === 'green'">mdi-check-circle</v-icon>
             <span v-html="message"></span>
         

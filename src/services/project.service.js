@@ -19,7 +19,14 @@ class ProjectService {
     deleteProject(id) {
         return axios.delete(API_URL + 'projects/' + id, { headers: authHeader() });
     }
+
+    getProject(id) {
+        return axios.get(API_URL + 'projects/' + id, { headers: authHeader() });
+    }
     
+    updateProject(id, payload) {
+        return axios.put(API_URL + 'projects/' + id, payload, { headers: authHeader() });
+    }
 }
 
 export default new ProjectService();
