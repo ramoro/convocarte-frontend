@@ -1,0 +1,7 @@
+#Ambiente Local
+VUE_APP_BACKEND_API_URL=http://localhost/
+VUE_APP_FRONTEND_API_URL=http://localhost:8080/
+
+#Ambiente productivo
+# VUE_APP_BACKEND_API_URL=https://deploy-convocarte-backend-prod.onrender.com/
+# VUE_APP_FRONTEND_API_URL=https://convocarte-frontend.onrender.com/
