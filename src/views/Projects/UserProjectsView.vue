@@ -1,11 +1,17 @@
 <template>
   <v-container>
-
+    <DeleteConfirmationDialog
+      :isOpen="deleteDialog"
+      itemName="proyecto"
+      extraInfo="Esta acción eliminará todos los castings asociados a este proyecto."
+      @delete-confirmed="confirmDelete"
+      @delete-cancelled="deleteDialog = false"
+    />
     <v-row>
       <v-col cols="12" class="d-flex justify-space-between align-center">
         <h1 class="projects-title">Mis Proyectos</h1>
         <div class="d-flex">
-          <v-btn class="mr-3" rounded @click="reelDialog = true" to="/project-creation">            
+          <v-btn class="mr-3" rounded @click="reelDialog = true" to="/project/new">            
             <img 
               :src="require('@/assets/project-icon.png')"
               alt="Create Project Icon" 
@@ -36,7 +42,7 @@
             </v-tooltip>
             <v-tooltip text="Ordenar por Estado" location="top">
               <template v-slot:activator="{ props }">
-                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sort('state', stateOrderDesc)">
+                <v-btn small class="text-white ml-2" text style="text-transform: none" color="cyan" v-bind="props" @click="sort('is_used', stateOrderDesc)">
                   <v-icon left small>mdi-list-status</v-icon>
                   <span class="caption">Por Estado</span>
                 </v-btn>
@@ -45,7 +51,7 @@
           </v-row>
 
           <v-card flat class="pa-3" v-for="(project, index) in projects" :key="index">
-            <v-row :class="`pa-3 project ${translateStateName(project.state)}`"> 
+            <v-row :class="`pa-3 project ${translateState(project.is_used)}`"> 
               <v-col cols="3">
                 <div class="caption text-grey">Nombre del Proyecto</div>
                 <div>{{project.name}}</div>
@@ -59,18 +65,18 @@
                 <div>{{formatDateToTextFormat(project.created_at)}}</div>
               </v-col>
               <v-col cols="2">
-                <div><v-chip small :class="`${translateStateName(project.state)} caption mt-2`">{{project.state}}</v-chip></div>
+                <div><v-chip small :class="`${translateState(project.is_used)} caption mt-2`">{{project.is_used ? "En Uso" : "Sin Usar"}}</v-chip></div>
               </v-col>
               <v-col cols="2">
                 <div justify="space-between" class="mt-2">
                   <v-tooltip text="Editar" location="top">
                     <template v-slot:activator="{ props }">
-                      <v-icon v-bind="props" class="edition-icon mr-2">mdi-pencil</v-icon>
+                      <v-icon v-bind="props" class="edition-icon mr-2" @click="editProject(project.id)">mdi-pencil</v-icon>
                     </template>
                   </v-tooltip>
                   <v-tooltip text="Eliminar" location="top">
                     <template v-slot:activator="{ props }">
-                      <v-icon v-bind="props" class="remove-icon">mdi-delete</v-icon>
+                      <v-icon v-bind="props" class="remove-icon" @click="prepareDelete(project, index)">mdi-delete</v-icon>
                     </template>
                   </v-tooltip>
                 </div>
@@ -93,6 +99,7 @@
 </template>
 
 <script>
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog.vue';
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import ProjectService from '@/services/project.service';
 import { sortBy } from '@/utils';
@@ -100,13 +107,16 @@ import { sortBy } from '@/utils';
 export default {
   components: {
     InformationSnackbar,
+    DeleteConfirmationDialog
   },
   data() {
     return {
       projects: [],
       isLoading: true, // Estado de carga (para mostrar simbolo de carga hasta que esten cargados los proyectos del usuario)
       dateOrderDesc: false,
-      stateOrderDesc: true
+      stateOrderDesc: true,
+      deleteDialog: false,
+      itemToDelete: null,
     }
   },
   computed: {
@@ -124,6 +134,8 @@ export default {
 
     if (this.$route.query.name) {
       this.$root.InformationSnackbar.show({message: 'El Proyecto ' + this.$route.query.name + ' se acaba de crear', color: 'green', buttonColor:'white'});
+    } else if (this.$route.query.updating) {
+      this.$root.InformationSnackbar.show({message: 'El proyecto ha sido actualizado!', color: 'green', buttonColor:'white'});
     }
   },
   created() {
@@ -147,11 +159,33 @@ export default {
     sort(attribute, orderDesc) {
       sortBy(this.projects, attribute, orderDesc);
       if (attribute == 'created_at') this.dateOrderDesc = !this.dateOrderDesc;
-      if (attribute == 'state') this.stateOrderDesc = !this.stateOrderDesc;
+      if (attribute == 'is_used') this.stateOrderDesc = !this.stateOrderDesc;
     },
-    translateStateName(stateName) {
-      if (stateName == "Sin Uso") return "unused";
-      else if(stateName == "En Uso") return "used";
+    translateState(isUsed) {
+      if (!isUsed) return "unused";
+      else if(isUsed) return "used";
+    },
+    prepareDelete(project, index) {
+      if (project.is_used) {
+        this.$root.InformationSnackbar.show({message: 'El Proyecto está en uso. Finalizá él o los castings que lo contengan para eliminarlo.', color: 'dark', buttonColor:'red'});
+        return;
+      }
+      this.itemToDelete = project;
+      this.deleteIndex = index;
+      this.deleteDialog = true;
+    },
+    async confirmDelete() {
+      ProjectService.deleteProject(this.itemToDelete.id)
+        .then( () => {
+          this.projects.splice(this.deleteIndex, 1);
+          this.deleteDialog = false;
+        })
+        .catch(error => {
+          console.error('Error al eliminar proyecto', error);
+        });
+    },
+    editProject(projectId) {
+      this.$router.push(`/project/${projectId}`);
     }
   },
 };

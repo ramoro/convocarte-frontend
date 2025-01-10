@@ -1,7 +1,13 @@
 <template>
   <!-- Dialogo para agregar roles al proyecto -->
   <v-dialog v-model="addRoleDialog" max-width="600px">
-    <v-card>
+    <v-row v-if="viewIsLoading" justify="center" align="center" style="height: 60vh;">
+      <v-container class="text-center">
+        <v-progress-circular indeterminate color="cyan"></v-progress-circular>
+        <div>Cargando campos del proyecto...</div>
+      </v-container>
+    </v-row>
+    <v-card v-else>
       <v-card-title class="justify-center text-center">
         <span class="text-h5">Agregar Rol</span>
         <p class="text-center text-red" style="font-size: 16px;" v-if="sameRoleNameError">El proyecto ya tiene un rol con el nombre {{ roleErrorName }}</p>
@@ -116,7 +122,7 @@
               class="mr-2"
               type="submit"
             >
-              Guardar
+              {{ projectId ? "Actualizar" : "Guardar" }}
             </v-btn>
             <v-btn
               text
@@ -175,7 +181,7 @@
 <script>
 import { projectCategories } from '@/config/project-categories';
 import { argentineRegions } from '@/config/regions';
-import projectService from '@/services/project.service';
+import ProjectService from '@/services/project.service';
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 
 export default {
@@ -184,10 +190,17 @@ export default {
   },
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
+    //Si viene con id pantalla se usa para editar Proyecto
+    if (this.$route.params.id) {
+      this.projectId = this.$route.params.id;
+      this.loadProjectData(this.projectId);
+    }
   },
   data() {
     return {
       valid: false, // Valida si el formulario es correcto
+      projectId: null, //Se usa si la pantalla se esta utilizando para edicion de proyecto
+      viewIsLoading: false,
       project: {
         name: '',
         description: '',
@@ -223,7 +236,6 @@ export default {
       if (result.valid) { 
         try {
           if (this.projectRoles.length === 0) {
-            console.log("Entro al if");
             this.$root.InformationSnackbar.show({ 
               message: "El proyecto debe poseer al menos un Rol", 
               color: 'dark', 
@@ -241,18 +253,19 @@ export default {
             name: this.project.name,
             description: this.project.description,
             region: this.project.region,
-            category: this.project.category, 
-            roles: this.projectRoles 
+            category: this.project.category,
+            is_used: this.project.is_used, 
+            roles: this.projectRoles,
           };
-
-         
-          const response = await projectService.createProject(payload);
-
-          console.log('Se creó un nuevo proyecto', response.data);
-
           
-          this.$router.push({ path: '/user-projects', query: { name: this.project.name } });
-
+          //Si projectId no es null significa que estamos en modo edicion
+          if (this.projectId) {
+            await ProjectService.updateProject(this.projectId, payload);
+            this.$router.push({ path: '/user-projects', query: { updating: payload.name } });
+          } else {
+            await ProjectService.createProject(payload);
+            this.$router.push({ path: '/user-projects', query: { name: this.project.name } });
+          }
         } catch (error) {
          
           if (error.response) {
@@ -331,7 +344,30 @@ export default {
     },
     deleteRole(index) {
       this.projectRoles.splice(index, 1);
-    }
+    },
+    async loadProjectData(id) {
+      this.viewIsLoading = true;
+      try {
+        const response = await ProjectService.getProject(id);
+        const projectData = response.data;
+        console.log(projectData)
+        this.project.name = projectData.name;
+        this.project.category = projectData.category;
+        this.project.region = projectData.region;
+        this.project.description = projectData.description ? projectData.description : "";
+        this.project.is_used = projectData.is_used;
+        
+        this.projectRoles = projectData.roles.map(role => ({
+          name: role.name,
+          description: role.description
+        }));
+
+      } catch (error) {
+        console.log('Error al cargar el proyecto:', error);
+      } finally {
+        this.viewIsLoading = false; 
+      }
+    },
   }
 };
 </script>

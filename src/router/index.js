@@ -73,8 +73,13 @@ const routes = [
     component: () => import('../views/Projects/UserProjectsView.vue')
   },
   {
-    path: '/project-creation',
+    path: '/project/new',
     name: 'projectcreation',
+    component: () => import('../views/Projects/ProjectCreationView.vue')
+  },
+  {
+    path: '/project/:id',
+    name: 'projectedition',
     component: () => import('../views/Projects/ProjectCreationView.vue')
   },
   {
