@@ -163,7 +163,7 @@ export default {
   },
   created() {
     if (this.loggedIn) {
-      this.$router.push('/user-profile');
+      this.$router.push('/casting-call-search');
     }
   },
   methods: {
@@ -203,7 +203,7 @@ export default {
           data => {
             console.log('Login successful:', data);
             this.loading = false;
-            this.$router.push({ path: '/user-profile' });
+            this.$router.push({ path: '/casting-call-search' });
           },
           error => {
             this.loading = false;  

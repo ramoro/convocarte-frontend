@@ -26,6 +26,7 @@ class AuthService {
 
   logout() {
     localStorage.removeItem('user');
+    localStorage.removeItem('filtersSettings');
   }
 
   register(user_registration) {
