@@ -213,7 +213,8 @@ export default {
       completionDialog: false,
       currentCasting: null,
       publishExpirationDate: '',
-      titleToPublish: '', //Maneja el titulo con el que se va a publicar, ya que antes de la publicacion se permite cambiar el titulo por si ya existe alguna publicacion con ese titulo
+      titleToPublish: '', //Maneja el titulo con el que se va a publicar, 
+      // ya que antes de la publicacion se permite cambiar el titulo por si ya existe alguna publicacion con ese titulo
       expirationDateRules: [
         value => !!value || 'Campo requerido',
         value => value.split('-')[0] >= 1900 && value.split('-')[0] <= 3000 || 'La fecha no es válida', 

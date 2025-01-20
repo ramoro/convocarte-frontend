@@ -81,7 +81,6 @@ class CastingCallService {
     }
 
     async searchPublishedCastingCalls(payload) {
-        console.log(payload);
         return axios.post(API_URL + 'casting-calls/published', payload, { headers: authHeader() });
     }
 
