@@ -97,6 +97,11 @@ const routes = [
     name: 'castingcalledition',
     component: () => import('../views/Casting Calls/CastingCallCreationView.vue')
   },
+  {
+    path: '/casting-call-search',
+    name: 'castingcallsearch',
+    component: () => import('../views/Casting Calls/CastingCallSearchView.vue')
+  },
 
 ]
 

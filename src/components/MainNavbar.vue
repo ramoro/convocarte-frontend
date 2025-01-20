@@ -43,13 +43,16 @@
       <v-app-bar app color="cyan">
         <v-app-bar-nav-icon color="white" @click="drawer = !drawer"></v-app-bar-nav-icon>
         <v-toolbar-title class="text-uppercase text-white">
+        <router-link to="/casting-call-search" class="text-white" style="text-decoration: none;">
             <span class="font-weight-light">Convoc</span>
             <span>Arte</span>
-        </v-toolbar-title>
-            <v-btn class="ml-3 mr-2 font-weight-light" color="white" text @click="logOut()">
-                <span>Salir</span>
-                <v-icon right>mdi-exit-to-app</v-icon>
-            </v-btn>
+        </router-link>
+    </v-toolbar-title>
+
+        <v-btn class="ml-3 mr-2 font-weight-light" color="white" text @click="logOut()">
+            <span>Salir</span>
+            <v-icon right>mdi-exit-to-app</v-icon>
+        </v-btn>
       </v-app-bar>
   
     </nav>
@@ -62,6 +65,7 @@
         return {
             drawer: false, //El drawer va a servir para manejar visibilidad del navigation drawer
             links: [
+                { icon: 'mdi-home', text: 'Inicio', route: '/casting-call-search' },
                 { icon: 'mdi-account', text: 'Mi Perfil', route: '/user-profile' },
                 { icon: 'mdi-folder', text: 'Mis Proyectos', route: '/user-projects' },
                 { icon: 'mdi-form-select', text: 'Mis Formularios', route: '/user-forms' },

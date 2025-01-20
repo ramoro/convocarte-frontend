@@ -65,7 +65,7 @@
                 <div>{{formatDateToTextFormat(project.created_at)}}</div>
               </v-col>
               <v-col cols="2">
-                <div><v-chip small :class="`${translateState(project.is_used)} caption mt-2`">{{project.is_used ? "En Uso" : "Sin Usar"}}</v-chip></div>
+                <div><v-chip small variant="elevated" :class="`${translateState(project.is_used)} caption mt-2`">{{project.is_used ? "En Uso" : "Sin Usar"}}</v-chip></div>
               </v-col>
               <v-col cols="2">
                 <div justify="space-between" class="mt-2">
@@ -204,15 +204,15 @@ export default {
   width: 80%;
 }
 .project.unused {
-  border-left: 4px solid rgb(194, 192, 192);
+  border-left: 4px solid rgb(116, 104, 104);
 }
 .project.used {
-  border-left: 4px solid rgb(103, 235, 103);
+  border-left: 4px solid rgb(45, 185, 27);
 }
 .v-chip.unused {
-  background: rgb(194, 192, 192);
+  background-color: rgb(116, 104, 104);
 }
 .v-chip.used {
-  background: rgb(103, 235, 103);
+  background-color: rgb(45, 185, 27);
 }
 </style>

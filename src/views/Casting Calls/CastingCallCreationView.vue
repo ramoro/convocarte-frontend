@@ -656,14 +656,15 @@
   
   <style scoped>
   
-  .cyan-border {
-    border-top: 3px solid rgb(2, 151, 156);
-  }
+    .cyan-border {
+        border-top: 3px solid rgb(2, 151, 156);
+    }
 
     .elevable-chip {
         cursor: pointer; 
         transition: transform 0.2s ease, box-shadow 0.2s ease; /* Transición suave */
-        background-color: #00bcd4;
+        background-color: purple;
+        color: white;
     }
 
     .elevable-chip:hover {

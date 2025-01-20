@@ -57,7 +57,7 @@
             <!-- Estado y iconos -->
             <v-row justify="space-between" align="center" class="casting-state-container">
               <v-col class="text-left" cols="auto">
-                <v-chip small :class="` ${casting.state} v-chip--active caption my-2`">{{ casting.state }}</v-chip>
+                <v-chip small variant="elevated" :class="`${casting.state} v-chip--active caption my-2`">{{ casting.state }}</v-chip>
               </v-col>
               <!-- Iconos a la derecha -->
               <v-col class="text-right d-flex" cols="auto">
@@ -94,17 +94,9 @@
                     Finalizar
                   </v-btn>
                 </div>
-                <v-btn 
-                  size="small"
-                  class="no-bg"
-                  flat
-                  @click="showPhotosPreview(casting)"
-                >
-                  Preview Fotos
-                </v-btn>
                 <v-tooltip text="Editar" location="top">
                   <template v-slot:activator="{ props }">
-                    <v-icon v-bind="props" class="mr-2" @click="editCastingCall(casting.state, casting.id)">mdi-pencil</v-icon>
+                    <v-icon v-bind="props" class="mr-2 ml-4" @click="editCastingCall(casting.state, casting.id)">mdi-pencil</v-icon>
                   </template>
                 </v-tooltip>
                 <v-tooltip text="Eliminar" location="top">
@@ -127,27 +119,6 @@
       </v-container>
     </v-row>
 
-    <!-- Dialogo para mostrar las fotos del casting -->
-    <v-dialog v-model="showDialog" max-width="1000px">
-      <v-card class="rounded-lg">
-        <v-card-title>
-          <span class="text-h5">Fotos de la Búsqueda</span>
-        </v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col v-if="currentCastingPhotos.length == 0">
-              <span class="text-h6">El Casting no posee fotos...</span>
-            </v-col>
-            <v-col v-for="(photo, index) in currentCastingPhotos" :key="index" cols="6" class="mb-2">
-              <v-img :src="photo" :alt="'Foto ' + index" aspect-ratio="1" contain></v-img>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn text @click="showDialog = false">Cerrar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
     <!-- Dialog para publicar casting -->
     <v-dialog v-model="publishDialog" max-width="700px">
       <v-card>
@@ -223,11 +194,10 @@ import CastingCallService from '@/services/casting-call.service';
 import ConfirmActionDialog from '@/components/ConfirmActionDialog.vue';
 import { sortBy } from '@/utils';
 
-
 export default {
   components: {
     InformationSnackbar,
-    ConfirmActionDialog
+    ConfirmActionDialog 
   },
   data() {
     return {
@@ -243,7 +213,8 @@ export default {
       completionDialog: false,
       currentCasting: null,
       publishExpirationDate: '',
-      titleToPublish: '', //Maneja el titulo con el que se va a publicar, ya que antes de la publicacion se permite cambiar el titulo por si ya existe alguna publicacion con ese titulo
+      titleToPublish: '', //Maneja el titulo con el que se va a publicar, 
+      // ya que antes de la publicacion se permite cambiar el titulo por si ya existe alguna publicacion con ese titulo
       expirationDateRules: [
         value => !!value || 'Campo requerido',
         value => value.split('-')[0] >= 1900 && value.split('-')[0] <= 3000 || 'La fecha no es válida', 
@@ -293,11 +264,6 @@ export default {
       });
   },
   methods: {
-    // Función para mostrar las fotos del casting
-    showPhotosPreview(casting) {
-      this.currentCastingPhotos = casting.casting_photos; // Usamos las fotos del casting
-      this.showDialog = true;
-    },
     sort(attribute, orderDesc) {
       sortBy(this.castingCalls, attribute, orderDesc);
 
@@ -431,6 +397,9 @@ export default {
       this.$router.push(`/casting-call/${castingCallId}`);
     }
   },
+  getColorByState(state) {
+    return state;
+  }
 };
 </script>
 
@@ -463,16 +432,20 @@ export default {
   transform: translateY(-5px); 
 }
 
+.v-chip.Borrador{
+  background-color: rgb(116, 104, 104);
+}
+
 .v-chip.Publicado{
-  color: rgb(45, 185, 27);
+  background-color: rgb(45, 185, 27);
 }
 
 .v-chip.Pausado{
-  color: rgb(81, 159, 211); 
+  background-color: rgb(81, 159, 211); 
 }
 
 .v-chip.Finalizado{
-  color: rgb(218, 154, 59); 
+  background-color: rgb(218, 154, 59); 
 }
 
 .casting-content {

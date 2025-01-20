@@ -80,6 +80,10 @@ class CastingCallService {
         return axios.get(API_URL + 'casting-calls/' + castingId,  { headers: authHeader() });
     }
 
+    async searchPublishedCastingCalls(payload) {
+        return axios.post(API_URL + 'casting-calls/published', payload, { headers: authHeader() });
+    }
+
 }
 
 export default new CastingCallService();
