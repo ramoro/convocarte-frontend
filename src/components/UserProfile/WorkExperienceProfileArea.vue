@@ -1,7 +1,7 @@
 <template>
   <!-- Diálogo para confirmar la eliminación -->
   <DeleteConfirmationDialog
-      :isOpen="deleteDialog"
+      v-model="deleteDialog"
       itemName="experiencia laboral"
       @delete-confirmed="confirmDelete"
       @delete-cancelled="deleteDialog = false"

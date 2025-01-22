@@ -132,7 +132,7 @@
       </v-col>
     </v-row>
     <ConfirmActionDialog
-      :isOpen="updateCastingFormDialog"
+      v-model="updateCastingFormDialog"
       dialogTitle="Actualizar Formulario"
       action="Actualizar"
       @confirm-action="handleFormUpdate"

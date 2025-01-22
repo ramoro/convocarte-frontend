@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <DeleteConfirmationDialog
-      :isOpen="deleteDialog"
+      v-model="deleteDialog"
       itemName="proyecto"
       extraInfo="Esta acción eliminará todos los castings asociados a este proyecto."
       @delete-confirmed="confirmDelete"

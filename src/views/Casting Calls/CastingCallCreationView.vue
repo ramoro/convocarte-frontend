@@ -339,27 +339,14 @@
         </v-form>
     </v-col>
     </v-row>
-    <!-- Dialogo para mostrar las fotos del casting -->
-    <v-dialog v-model="photosDialog" max-width="1000px">
-      <v-card class="rounded-lg">
-        <v-card-title>
-          <span class="text-h5">Fotos de la Búsqueda</span>
-        </v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col v-if="castingPhotos.length == 0">
-              <span class="text-h6">El Casting no posee fotos...</span>
-            </v-col>
-            <v-col v-for="(photo, index) in castingPhotos" :key="index" cols="6" class="mb-2">
-              <v-img :src="photo.photoUrl" :alt="'Foto ' + index" aspect-ratio="1" contain></v-img>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn text @click="photosDialog = false">Cerrar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    
+    <!-- Dialogo para mostrar las fotos del casting-->
+    <CastingCallPhotosDialog
+        v-model="photosDialog"
+        :castingPhotos = "photoUrls"
+        @cancel-action="photosDialog = false"
+    /> 
+
     <InformationSnackbar ref="InformationSnackbar"/>
   </v-container>
   </template>
@@ -372,11 +359,13 @@
   import { hairColors } from '@/config/hair-colors';
   import AddPhotoButton from '@/components/AddPhotoButton.vue';
   import castingCallService from '@/services/casting-call.service';
+  import CastingCallPhotosDialog from '@/components/CastingCallPhotosDialog.vue';
   
   export default {
     components: {
       InformationSnackbar,
-      AddPhotoButton
+      AddPhotoButton,
+      CastingCallPhotosDialog
     },
     async mounted() {
       this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
@@ -437,6 +426,11 @@
         deletedPhotos: [] //Tendra la url de las photos eliminadas, que se mandaran cuando la pantalla se use como edicion
 
       };
+    },
+    computed: {
+        photoUrls() {
+            return this.castingPhotos.map(photo => photo.photoUrl);
+        }
     },
     methods: {
         async loadUserProjectsAndFormTemplates() {

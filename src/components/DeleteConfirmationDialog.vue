@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="dialogOpened" max-width="400px">
+    <v-dialog max-width="400px">
         <v-card>
         <v-card-title class="text-h6">Confirmación de Eliminación</v-card-title>
         <v-card-text>
@@ -19,10 +19,6 @@
   export default {
     name: "DeleteConfirmationDialog",
     props: {
-      isOpen: {
-        type: Boolean,
-        default: false
-      },
       itemName: {
         type: String,
         required: true
@@ -31,16 +27,6 @@
         type: String,
         default: ""
       }
-    },
-    data () {
-        return {
-            dialogOpened: this.isOpen,
-        }
-    },
-    watch: {
-        isOpen(newValue) {
-            this.dialogOpened = newValue;
-        }
     },
     emits: ['delete-confirmed', 'delete-cancelled'],
     methods: {

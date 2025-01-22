@@ -1,7 +1,7 @@
 <template>
   <!-- Diálogo para confirmar la eliminación -->
   <DeleteConfirmationDialog
-      :isOpen="deleteDialog"
+      v-model="deleteDialog"
       itemName="estudio"
       @delete-confirmed="confirmDelete"
       @delete-cancelled="deleteDialog = false"

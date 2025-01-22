@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="dialogOpened" max-width="70%">
+    <v-dialog max-width="70%">
         <v-card class="rounded-lg">
             <v-card-title>
                 <span class="text-h5">Filtros para la búsqueda</span>
@@ -94,10 +94,6 @@
   export default {
     name: "FiltersDialog",
     props: {
-      isOpen: {
-        type: Boolean,
-        default: false
-      },
       initialFilters: {
         type: Object,
         default: () => ({
@@ -112,7 +108,6 @@
     },
     data () {
       return {
-        dialogOpened: this.isOpen,
         currentFilters: JSON.parse(JSON.stringify(this.initialFilters)), //Copia profunda de initialFilters
         castingRemunerationTypesOptions: remunerationTypes.filter(type => type !== 'Otro'),
         projectCategoriesOptions: projectCategories.filter(category => category !== 'Otro'),
@@ -122,7 +117,6 @@
     },
     watch: {
       isOpen(newValue) {
-        this.dialogOpened = newValue;
         if (newValue) {
           //Restauro filtros del componente con los datos de filtro que tiene la view
           this.currentFilters = JSON.parse(JSON.stringify(this.initialFilters));

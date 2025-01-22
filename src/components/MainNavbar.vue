@@ -41,6 +41,7 @@
   
       <!-- App Bar fija -->
       <v-app-bar app color="cyan">
+
         <v-app-bar-nav-icon color="white" @click="drawer = !drawer"></v-app-bar-nav-icon>
         <v-toolbar-title class="text-uppercase text-white">
         <router-link to="/casting-call-search" class="text-white" style="text-decoration: none;">

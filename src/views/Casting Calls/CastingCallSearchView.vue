@@ -36,7 +36,7 @@
               </v-chip>
             </div>
             <v-btn @click="showFilterDialog = true" color="purple">
-              Agregar Filtros
+              Filtros de Búsqueda
             </v-btn>
           </v-col>
           <v-col v-for="(casting, index) in castingCalls" :key="index" cols="12" sm="6" class="d-flex justify-center mb-2 custom-col-spacing">
@@ -88,7 +88,7 @@
               </v-chip>
             </div>
             <v-btn @click="showFilterDialog = true" color="purple">
-              Agregar Filtros
+              Filtros de Búsqueda
             </v-btn>
           </v-col>
           <v-col class="text-center">
@@ -98,14 +98,14 @@
 
         <!-- Dialogo para mostrar las fotos del casting -->
         <CastingCallPhotosDialog
-        :isOpen="showDialog"
+        v-model="showDialog"
         :castingPhotos = "currentCastingPhotos"
         @cancel-action="showDialog = false"
         />
 
         <!-- Dialogo para mostrar filtros -->
          <FiltersDialog
-          :isOpen="showFilterDialog"
+          v-model="showFilterDialog"
           :initialFilters="filtersSettings"
           @save-filters="saveFilters"
           @cancel-action="showFilterDialog = false"

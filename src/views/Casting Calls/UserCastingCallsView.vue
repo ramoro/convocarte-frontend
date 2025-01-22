@@ -160,7 +160,7 @@
     </v-dialog>
     <!-- Dialog para pausar casting -->
     <ConfirmActionDialog
-      :isOpen="pauseDialog"
+      v-model="pauseDialog"
       dialogTitle="Pausar Casting"
       action="Pausar"
       @confirm-action="handlePause"
@@ -173,7 +173,7 @@
     </ConfirmActionDialog>
     <!-- Dialog para finalizar casting -->
     <ConfirmActionDialog
-      :isOpen="completionDialog"
+      v-model="completionDialog"
       dialogTitle="Finalizar Casting"
       action="Finalizar"
       @confirm-action="handleCompletion"

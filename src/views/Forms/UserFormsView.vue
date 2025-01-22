@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <DeleteConfirmationDialog
-      :isOpen="deleteDialog"
+      v-model="deleteDialog"
       itemName="plantilla de formulario"
       @delete-confirmed="confirmDelete"
       @delete-cancelled="deleteDialog = false"

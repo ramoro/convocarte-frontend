@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="dialogOpened" max-width="400px">
+    <v-dialog max-width="400px">
         <v-card>
         <v-card-title class="text-h6">{{dialogTitle}}</v-card-title>
         <v-card-text>
@@ -18,10 +18,6 @@
   export default {
     name: "ConfirmActionDialog",
     props: {
-      isOpen: {
-        type: Boolean,
-        default: false
-      },
       dialogTitle: {
         type: String,
         required: true
@@ -29,16 +25,6 @@
       action: {
         type: String,
         required: true
-      }
-    },
-    data () {
-      return {
-          dialogOpened: this.isOpen,
-      }
-    },
-    watch: {
-      isOpen(newValue) {
-          this.dialogOpened = newValue;
       }
     },
     emits: ['confirm-action', 'cancel-action'],
