@@ -102,6 +102,11 @@ const routes = [
     name: 'castingcallsearch',
     component: () => import('../views/Casting Calls/CastingCallSearchView.vue')
   },
+  {
+    path: '/published-casting-call/:id',
+    name: 'publishedcastingcall',
+    component: () => import('../views/Casting Calls/PublishedCastingCallView.vue')
+  }
 
 ]
 

@@ -40,7 +40,7 @@
             </v-btn>
           </v-col>
           <v-col v-for="(casting, index) in castingCalls" :key="index" cols="12" sm="6" class="d-flex justify-center mb-2 custom-col-spacing">
-              <v-container :class="`casting-container`" fluid>
+              <v-container :class="`casting-container`" fluid @click="goToCasting(casting.id)">
               <div>
                   <v-row justify="space-between" align="center" class="casting-header">
                       <v-col class="text-left" cols="auto">
@@ -60,6 +60,7 @@
                           size="small"
                           class="no-bg"
                           flat
+                          @click.stop
                           @click="showPhotosPreview(casting)"
                           >
                           Preview Fotos
@@ -174,7 +175,7 @@ export default {
   methods: {
     // Función para mostrar las fotos del casting
     showPhotosPreview(casting) {
-        this.currentCastingPhotos = casting.casting_photos; // Usamos las fotos del casting
+        this.currentCastingPhotos = casting.casting_photos;
         this.showDialog = true;
     },
     sort(attribute, orderDesc) {
@@ -238,6 +239,9 @@ export default {
       }
       this.saveFilters(this.filtersSettings);
     },
+    goToCasting(castingCallId) {
+      this.$router.push(`/published-casting-call/${castingCallId}`);
+    }
  }
 }
 </script>
