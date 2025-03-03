@@ -98,7 +98,7 @@
                   </p>
                 </v-card-text>
                 <v-card-actions>
-                  <v-btn class="no-bg" flat @click="applyForRole(role.id)">Postularse</v-btn>
+                  <v-btn class="no-bg" flat @click="postulateForRole(role.name, role.form_id)">Postularse</v-btn>
                 </v-card-actions>
               </v-card>
             </v-col>
@@ -140,6 +140,11 @@
         showPhotosDialog: false
       };
     },
+    beforeMount() {
+      if (!this.$store.state.auth.user) {
+        this.$router.push('/');
+      }
+    },
     async mounted() {
       this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
       const castingCallId = this.$route.params.id;
@@ -177,7 +182,8 @@
             min_height_required: role.min_height_required,
             max_height_required: role.max_height_required,
             hair_colors_required: role.hair_colors_required ? role.hair_colors_required.split(',').map(item => item.trim()) : [],
-            additional_requirements: role.additional_requirements
+            additional_requirements: role.additional_requirements,
+            form_id: role.form.id
           }));
         } catch (error) {
           console.log('Error al cargar el casting:', error);
@@ -188,14 +194,8 @@
           });
         }
       },
-      applyForRole(roleId) {
-        // Lógica para postularse al rol
-        console.log(`Postulando al rol con ID: ${roleId}`);
-        this.$root.InformationSnackbar.show({
-          message: 'Te has postulado exitosamente.',
-          color: 'green',
-          buttonColor: 'white'
-        });
+      postulateForRole(exposedRoleName, formId) {
+        this.$router.push(`/role-postulation-form/${exposedRoleName}/${formId}`);
       },
       showPhotosPreview() {
           this.showPhotosDialog = true;

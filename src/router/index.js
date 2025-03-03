@@ -106,8 +106,17 @@ const routes = [
     path: '/published-casting-call/:id',
     name: 'publishedcastingcall',
     component: () => import('../views/Casting Calls/PublishedCastingCallView.vue')
+  },
+  {
+    path: '/role-postulation-form/:roleName/:formId',
+    name: 'rolepostulationform',
+    component: () => import('../views/Casting Postulations/PostulationFormView.vue')
+  },
+  {
+    path: '/casting-postulation-created/:postulationId',
+    name: 'postulationcreated',
+    component: () => import('../views/Casting Postulations/PostulationCreatedMessageView.vue')
   }
-
 ]
 
 const router = createRouter({
