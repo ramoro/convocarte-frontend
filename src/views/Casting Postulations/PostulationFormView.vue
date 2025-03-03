@@ -164,10 +164,6 @@
         maxLengthRule: [
           value => (value.length <= 100) || 'Máximo 100 caracteres',
         ], 
-        // fileRequiredRule: [
-        //   v => (v && v.length) || 'Debes seleccionar un archivo',
-        //   v => (v && v[0] && v[0].size > 0) || 'El archivo no es válido',
-        // ]
       };
     },
     beforeMount() {
