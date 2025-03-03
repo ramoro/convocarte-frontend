@@ -353,8 +353,12 @@
 </template>
 
 <script>
+import { eyesColors } from '@/config/eyes-color';
 import UserService from '../../services/user.service';
 import { hairColors } from '@/config/hair-colors';
+import { skinColor } from '@/config/skin-color';
+import { hands } from '@/config/hands';
+import { feethTeeth } from '@/config/feet-teeth';
 
 export default {
   name: "PhysicalCharacteristicsProfileArea",
@@ -367,13 +371,13 @@ export default {
   data() {
     return {
       formData: {}, //Copia del prop que se recibe del padre para poder modificar los datos
-      eyesColorOptions: ['-----------','Verdes', 'Azules', 'Celestes', 'Negros', 'Marrones'],
-      skinColorOptions: ['-----------', 'Blanca', 'Moreno', 'Negra', 'Amarilla', 'Albino'],
+      eyesColorOptions: ['-----------'].concat(eyesColors),
+      skinColorOptions: ['-----------'].concat(skinColor),
       yesNoOptions: ['-----------','Sí', 'No'],
       hairColorOptions: ['-----------'].concat(hairColors),
-      handsOptions: ['-----------', 'Muy Malas', 'Malas', 'Regular', 'Buenas', 'Muy Buenas'],
-      feetOptions: ['-----------', 'Muy Malos', 'Malos', 'Regular', 'Buenos', 'Muy Buenos'],
-      teethOptions: ['-----------', 'Muy Malos', 'Malos', 'Regular', 'Buenos', 'Muy Buenos'],
+      handsOptions: ['-----------'].concat(hands),
+      feetOptions: ['-----------'].concat(feethTeeth),
+      teethOptions: ['-----------'].concat(feethTeeth),
       physicalCharacteristicsDialog: false,
 
       numericRule: [value => !value || /^(0|[1-9][0-9]*)(\.[0-9]+)?$/.test(value) || 'Debe ser un número positivo.'],

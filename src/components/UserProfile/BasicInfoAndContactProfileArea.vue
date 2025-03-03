@@ -259,6 +259,7 @@
 </template>
 
 <script>
+import { genders } from '@/config/genders';
 import UserService from '../../services/user.service';
 import { formatDate, formatUrl } from '@/utils';
 
@@ -273,11 +274,11 @@ export default {
   data() {
     return {
       formData: {}, //Copia del prop que se recibe del padre para poder modificar los datos
-      genderOptions: ['-----------','Masculino', 'Femenino', 'Otro'],
+      genderOptions: ['-----------'].concat(genders),
       basicInfoDialog: false,
 
       numericRule: [
-        value => !value || /^-?[0-9]+$/.test(value) || 'Debe ser un número positivo entero'
+        value => !value ||  /^[0-9]+$/.test(value) || 'Debe ser un número válido'
       ],
       maxLengthRule: [
         value => !value || typeof value === 'string' && value.length <= 150 || 'Máximo 150 caracteres',
