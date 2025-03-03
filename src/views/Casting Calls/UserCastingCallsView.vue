@@ -470,6 +470,7 @@ export default {
 .headline {
   font-size: 16px; 
   font-weight: bold;
+  min-height: 45px; /*Para tener un tamaño fijo y evitar que se corran elementos cuando es un renglon de titulo, o dos*/
 }
 
 .v-btn {

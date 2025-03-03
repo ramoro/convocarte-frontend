@@ -44,7 +44,7 @@
               <div>
                   <v-row justify="space-between" align="center" class="casting-header">
                       <v-col class="text-left" cols="auto">
-                        <div class="casting-title-container ">
+                        <div class="casting-title-container">
                           <span class="headline">{{ casting.title }} </span>
                         </div>
                           <p style="font-size: 14px; color: gray;margin-right: -25px; margin-top:1px;" >{{ formatDate(casting.publication_date) }}</p>
@@ -155,11 +155,6 @@ export default {
     currentUser() {
       return this.$store.state.auth.user;
     }
-  },
-  beforeMount() {
-      if (!this.currentUser) {
-        this.$router.push('/');
-      }
   },
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;

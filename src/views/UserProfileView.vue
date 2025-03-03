@@ -495,7 +495,7 @@ export default {
       if (this.basicInfo.instagram) {
         var fullLink = formatUrl(this.basicInfo.instagram)
         const regex = /https:\/\/www.instagram.com\/([^]+)\//;
-        const match = this.basicInfo.instagram.match(regex);
+        const match = fullLink.match(regex);
         // Si se encuentra una coincidencia, devolvemos el nombre de usuario, si no, 
         // devolvemos null o vacío
         var shortLink = match ? match[1] : null;
