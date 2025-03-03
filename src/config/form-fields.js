@@ -29,7 +29,7 @@ export const physicalCharacteristicsFormFields = [
   { label: 'Peso (kg)', type: 'number'},
   { label: 'Altura (cm)', type: 'number' },
   { label: 'Color de Ojos', type: 'select', additionalText: 'Opciones: Verdes, Azules, Celestes, Negros, Marrones', icon:'mdi-eye'},
-  { label: 'Color de Piel', type: 'select', additionalText: 'Opciones: Blanca, Moreno, Negra, Amarilla, Albino'},
+  { label: 'Color de Piel', type: 'select', additionalText: 'Opciones: Blanca, Vainilla, Crema, Trigueña, Marrón, Negra, Albina'},
   { label: 'Medida Cintura', type: 'number' },
   { label: 'Medida Cadera', type: 'number' },
   { label: 'Medida Busto', type: 'number' },
@@ -42,12 +42,11 @@ export const physicalCharacteristicsFormFields = [
   { label: 'Pies', type: 'select' , icon: 'mdi-shoe-print', additionalText: 'Opciones: Muy Malos, Malos, Regular, etc.'},
   { label: 'Dientes', type: 'select' , icon: 'mdi-tooth', additionalText: 'Opciones: Muy Malos, Malos, Regular, etc.'},
   { label: 'Brackets', type: 'select' , additionalText: 'Opciones: Si, No'},
-  { label: 'Brackets', type: 'select' , additionalText: 'Opciones: Si, No'},
   { label: 'Tatuajes', type: 'select' , icon: 'mdi-compass-rose', additionalText: 'Opciones: Si, No'},
   { label: 'Zona Tatuajes', type: 'text'},
   { label: 'Piercings', type: 'select' , icon: 'mdi-ear-hearing', additionalText: 'Opciones: Si, No'},
   { label: 'Zona Piercings', type: 'text'},
-  { label: 'Aclaraciones', type: 'text area'},
+  { label: 'Aclaraciones Datos Físicos', type: 'text area'},
 ]
 
 export const skillsFormFields = [
