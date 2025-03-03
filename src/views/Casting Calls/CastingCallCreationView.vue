@@ -367,6 +367,11 @@
       AddPhotoButton,
       CastingCallPhotosDialog
     },
+    beforeMount() {
+      if (!this.$store.state.auth.user) {
+        this.$router.push('/');
+      }
+    },
     async mounted() {
       this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
       if (this.$route.params.id) {
