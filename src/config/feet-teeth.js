@@ -1,0 +1,1 @@
+export const feethTeeth = ['Muy Malos', 'Malos', 'Regular', 'Buenos', 'Muy Buenos']
