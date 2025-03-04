@@ -71,6 +71,10 @@
                     <span v-else>Cupos limitados:
                       {{ 'No' }}
                     </span>
+                    <span v-if="role.has_limited_spots && role.occupied_spots === role.spots_amount" 
+                      class="ml-2" style="color: red; font-size: 12px;">
+                      (Cupos llenos)
+                    </span>
                   </p>
                   <p v-if="role.min_age_required && role.max_age_required" class="mt-1">
                     Edad: Entre {{ role.min_age_required }} y {{ role.max_age_required }} años
@@ -98,7 +102,15 @@
                   </p>
                 </v-card-text>
                 <v-card-actions>
-                  <v-btn class="no-bg" flat @click="postulateForRole(role.name, role.form_id)">Postularse</v-btn>
+                  <v-btn
+                    class="no-bg"
+                    flat
+                    :disabled="role.has_limited_spots && role.occupied_spots === role.spots_amount"  
+                    @click="postulateForRole(role.name, role.form_id)"
+                  >
+                    Postularse
+                  </v-btn>
+
                 </v-card-actions>
               </v-card>
             </v-col>
@@ -176,7 +188,7 @@
             name: role.role.name,
             has_limited_spots: role.has_limited_spots,
             spots_amount: role.spots_amount,
-            spots_filled: role.spots_filled,
+            occupied_spots: role.occupied_spots,
             min_age_required: role.min_age_required,
             max_age_required: role.max_age_required,
             min_height_required: role.min_height_required,
