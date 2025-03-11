@@ -29,7 +29,7 @@
         </v-col>
         <v-col cols="3" md="3">
           <div class="caption">País de Residencia</div>
-          <div style="color:black !important">{{basicInfo.residence_Country || '----------'}}</div>
+          <div style="color:black !important">{{basicInfo.residence_country || '----------'}}</div>
         </v-col>
         <v-col cols="3" md="3">
           <div class="caption">Localidad</div>
@@ -300,7 +300,7 @@ export default {
       this.$refs.form.validate().then(result => {
       if (result.valid) {
         for (let field in this.formData) {
-          if (this.formData[field] == '-----------') {
+          if (this.formData[field] == '-----------' || this.formData[field] == '') {
             this.formData[field] = null;
           }
         }

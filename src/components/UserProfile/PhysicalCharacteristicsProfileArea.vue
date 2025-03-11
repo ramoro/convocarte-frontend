@@ -85,7 +85,7 @@
           <div class="caption">Tatuajes</div>
           <div style="color:black !important">{{ phCharacteristics.tattoos === null ? '----------' : (phCharacteristics.tattoos ? 'Sí' : 'No') }}</div>
         </v-col>
-        <v-col v-if="formData.tattoos == 'Sí'" cols="3" md="3">
+        <v-col v-if="phCharacteristics.tattoos == true" cols="3" md="3">
           <div class="caption">Zona de Tatuajes</div>
           <div style="color:black !important">{{phCharacteristics.tattoos_area || '----------'}}</div>
         </v-col>
@@ -93,13 +93,13 @@
           <div class="caption">Piercings</div>
           <div style="color:black !important">{{ phCharacteristics.piercings === null ? '----------' : (phCharacteristics.piercings ? 'Sí' : 'No') }}</div>
         </v-col>
-        <v-col v-if="formData.piercings == 'Sí'" cols="3" md="3">
+        <v-col v-if="phCharacteristics.piercings == true" cols="3" md="3">
           <div class="caption">Zona de Piercings</div>
           <div style="color:black !important">{{phCharacteristics.piercings_area || '----------'}}</div>
         </v-col>
         <v-col cols="3" md="3">
           <div class="caption">Aclaraciones</div>
-          <div style="color:black !important">{{phCharacteristics.extra_information || '----------'}}</div>
+          <div style="color:black !important">{{phCharacteristics.physical_characs_extra_info || '----------'}}</div>
         </v-col>
       </v-row>
     </v-card>
@@ -331,7 +331,7 @@
               </v-col>
               <v-col cols="6">
                 <v-text-field
-                  v-model="formData.extra_information"
+                  v-model="formData.physical_characs_extra_info"
                   label="Aclaraciones"
                   :rules="maxLengthRule2"
                   outlined
@@ -408,7 +408,7 @@ export default {
       this.$refs.form.validate().then(result => {
       if (result.valid) {
         for (let field in this.formData) {
-          if (this.formData[field] == '-----------') {
+          if (this.formData[field] == '-----------' || this.formData[field] == '') {
             this.formData[field] = null;
           }
         }
