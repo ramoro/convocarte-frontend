@@ -82,8 +82,13 @@ export function getOptionsFromField(fieldName) {
             return ['No Selecciona'].concat(feethTeeth);
         case 'Dientes':
             return ['No Selecciona'].concat(feethTeeth);
-        case 'Tatuajes' || 'Piercings' || 'Brackets' 
-            || 'Canto' || 'Danza'|| 'Lic. Conducir (Auto)' || 'Lic. Conducir (Moto)' : 
+        case 'Tatuajes':
+        case 'Piercings':
+        case 'Brackets':
+        case 'Canto':
+        case 'Danza':
+        case 'Lic. Conducir (Auto)':
+        case 'Lic. Conducir (Moto)':
             return ['No Selecciona', 'Sí', 'No'];
         case 'Idiomas':
             return languages;
