@@ -1,0 +1,1 @@
+export const hands = ['Muy Malas', 'Malas', 'Regular', 'Buenas', 'Muy Buenas']

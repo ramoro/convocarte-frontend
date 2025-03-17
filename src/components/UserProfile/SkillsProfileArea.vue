@@ -254,7 +254,7 @@ export default {
       this.$refs.form.validate().then(result => {
         if (result.valid) {
           for (let field in this.formData) {
-            if (this.formData[field] == '-----------') {
+            if (this.formData[field] == '-----------' || this.formData[field] == '') {
               this.formData[field] = null;
             }
           }

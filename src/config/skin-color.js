@@ -1,0 +1,1 @@
+export const skinColor= ['Blanca', 'Vainilla', 'Crema', 'Trigueña', 'Marrón', 'Negra', 'Albina']

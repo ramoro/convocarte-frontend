@@ -1,0 +1,1 @@
+export const eyesColors = ['Verdes', 'Azules', 'Celestes', 'Negros', 'Marrones'];

@@ -229,6 +229,11 @@ export default {
       indexOnEdition: null
     };
   },
+  beforeMount() {
+    if (!this.$store.state.auth.user) {
+      this.$router.push('/');
+    }
+  },
   methods: {
     async submitForm() {
       const result = await this.$refs.form.validate(); 

@@ -76,16 +76,10 @@
             <p v-if="currentUser" class="caption mt-2"><v-icon class="mr-1" color="blue">mdi-email-outline</v-icon>{{ currentUser.email }}</p>
             <p v-if="currentUser && basicInfo.instagram" class="caption mt-2"><v-icon class="mr-1" color="pink-lighten-1">mdi-instagram</v-icon><a :href="currentInstagram.fullLink">{{ currentInstagram.shortLink }}</a></p>
             <p v-if="currentUser && basicInfo.phone_number" class="caption mt-2"><v-icon class="mr-1" color="blue-darken-4">mdi-phone-outline</v-icon>{{ basicInfo.phone_number }}</p>
-            <p v-if="currentUser && cv" class="caption mt-2">            
-                <v-chip v-if="cv" color="red" class="ma-2" closable @click:close="deleteCV">
-                  <img 
-                      :src="require('@/assets/logo-pdf-2.png')"
-                      alt="Upload Icon" 
-                      class="button-image mr-2"
-                      height="20"
-                  />
-                  <a @click="downloadCV" href="#">Curriculum</a>
-                </v-chip>
+            <p v-if="currentUser && cv" class="caption mt-2">   
+              <DownloadFileChip v-if="cv" chipText="Curriculum" chipImageFileName="logo-pdf-2.png"
+              chipColor="red" :fileUrl=cv  @delete-file="deleteCV"
+              />          
             </p>
             <p v-if="currentUser && reelLink" class="caption mt-2">            
                 <v-chip v-if="reelLink" color="blue-grey-lighten-2" class="ma-2" closable @click:close="deleteReel">
@@ -182,6 +176,7 @@ import SkillsProfileArea from '@/components/UserProfile/SkillsProfileArea.vue';
 import BasicInfoAndContactProfileArea from '@/components/UserProfile/BasicInfoAndContactProfileArea.vue';
 import UploadFileButton from '@/components/UploadFileButton.vue';
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
+import DownloadFileChip from '@/components/DownloadFileChip.vue';
 import { formatUrl } from '@/utils';
 import axios from 'axios';
 
@@ -194,7 +189,8 @@ export default {
     SkillsProfileArea,
     BasicInfoAndContactProfileArea,
     UploadFileButton,
-    InformationSnackbar
+    InformationSnackbar,
+    DownloadFileChip
   },
   created() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
@@ -467,7 +463,7 @@ export default {
         tattoos_area: data.tattoos_area,
         piercings: data.piercings,
         piercings_area: data.piercings_area,
-        extra_information: data.extra_information,
+        physical_characs_extra_info: data.physical_characs_extra_info,
       };
     },
     setSkills(data) {
@@ -495,7 +491,7 @@ export default {
       if (this.basicInfo.instagram) {
         var fullLink = formatUrl(this.basicInfo.instagram)
         const regex = /https:\/\/www.instagram.com\/([^]+)\//;
-        const match = this.basicInfo.instagram.match(regex);
+        const match = fullLink.match(regex);
         // Si se encuentra una coincidencia, devolvemos el nombre de usuario, si no, 
         // devolvemos null o vacío
         var shortLink = match ? match[1] : null;

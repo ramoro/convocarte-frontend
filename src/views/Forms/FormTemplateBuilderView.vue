@@ -158,7 +158,6 @@ import FormService from '@/services/form.service';
 import ConfirmActionDialog from '@/components/ConfirmActionDialog.vue';
 import draggable from 'vuedraggable';
 
-
 import { 
   basicInfoFormFields, 
   physicalCharacteristicsFormFields, 
@@ -290,10 +289,8 @@ export default {
         title: field.title,
         type: field.type,
         order: index, // El orden se basa en la posición que tiene en formFields
-        is_required: field.required,
+        is_required: field.required,     
       }));
-
-      console.log("Fields to send", fieldsToSend);
 
       const payload = { form_template_title: this.formTitle, form_template_fields: fieldsToSend };
 
@@ -369,7 +366,6 @@ export default {
       }));
 
       const payload = {id: this.formId, original_form_template_title: this.originalTitle, form_template_title: this.formTitle, created_at: this.formCreatedDate, form_template_fields: fieldsToSend };
-      
       try {
         const response = await FormTemplateService.updateFormTemplate(payload);
         console.log('Se actualizó un template form:', response.data);
@@ -413,7 +409,7 @@ export default {
     },
     isHovered(index) {
       return !!this.hoverStates[index];
-    }
+    },
 
   },
   beforeMount() {

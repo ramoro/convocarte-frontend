@@ -40,11 +40,11 @@
             </v-btn>
           </v-col>
           <v-col v-for="(casting, index) in castingCalls" :key="index" cols="12" sm="6" class="d-flex justify-center mb-2 custom-col-spacing">
-              <v-container :class="`casting-container`" fluid>
+              <v-container :class="`casting-container`" fluid @click="goToCasting(casting.id)">
               <div>
                   <v-row justify="space-between" align="center" class="casting-header">
                       <v-col class="text-left" cols="auto">
-                        <div class="casting-title-container ">
+                        <div class="casting-title-container">
                           <span class="headline">{{ casting.title }} </span>
                         </div>
                           <p style="font-size: 14px; color: gray;margin-right: -25px; margin-top:1px;" >{{ formatDate(casting.publication_date) }}</p>
@@ -60,6 +60,7 @@
                           size="small"
                           class="no-bg"
                           flat
+                          @click.stop
                           @click="showPhotosPreview(casting)"
                           >
                           Preview Fotos
@@ -155,11 +156,6 @@ export default {
       return this.$store.state.auth.user;
     }
   },
-  beforeMount() {
-      if (!this.currentUser) {
-        this.$router.push('/');
-      }
-  },
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
   },
@@ -174,7 +170,7 @@ export default {
   methods: {
     // Función para mostrar las fotos del casting
     showPhotosPreview(casting) {
-        this.currentCastingPhotos = casting.casting_photos; // Usamos las fotos del casting
+        this.currentCastingPhotos = casting.casting_photos;
         this.showDialog = true;
     },
     sort(attribute, orderDesc) {
@@ -238,6 +234,9 @@ export default {
       }
       this.saveFilters(this.filtersSettings);
     },
+    goToCasting(castingCallId) {
+      this.$router.push(`/published-casting-call/${castingCallId}`);
+    }
  }
 }
 </script>

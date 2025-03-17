@@ -7,9 +7,11 @@
                 <v-avatar size="43" class="elevation-3">
                     <v-img :src="currentUser?.profile_picture || require('@/assets/empty-photo.png')" alt="" />
                 </v-avatar>
-                <p v-if="currentUser" class="white--text text-subtitle-1 ml-3">
-                    {{ currentUser.fullname }}
-                </p>
+                <RouterLink to="/user-profile" style="text-decoration: none; color: black">
+                    <p v-if="currentUser" class="white--text text-subtitle-1 ml-3">
+                        {{ currentUser.fullname }}
+                    </p>
+                </RouterLink>
             </v-col>
         </v-row>
 
@@ -60,7 +62,10 @@
   </template>
   
   <script>
+import { RouterLink } from 'vue-router';
+
   export default {
+    components: RouterLink,
     name: "MainNavbar",
     data() {
         return {
