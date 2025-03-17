@@ -57,7 +57,7 @@
                 const link = document.createElement('a');
                 //Si corre local puedo descargarlo con axios y elegir el nombre con el que descargo el pdf
                 //Si no es local, debo descargarlo seteando en href el link porque sino google drive tira error de CORS
-                if (!process.env.VUE_APP_BACKEND_API_URL.includes("localhost")) {
+                if (process.env.VUE_APP_BACKEND_API_URL.includes("localhost")) {
                     const response = await axios({
                         url: this.fileUrl,// URL del archivo en mi backend
                         method: 'GET',
