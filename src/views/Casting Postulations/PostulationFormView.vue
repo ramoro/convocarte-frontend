@@ -175,6 +175,7 @@ import UserService from '@/services/user.service';
 import AcademicExperienceService from '@/services/academic-experience.service';
 import WorkExperienceService from '@/services/work-experience.service';
 import DownloadFileChip from '@/components/DownloadFileChip.vue';
+import { fieldMappings } from '@/config/field-mappings';
 
 
 export default {
@@ -257,200 +258,71 @@ export default {
     async mapFieldWithUserData(field, userData) {
       switch (field.title) {
         case 'Nombre y Apellido':
-          this.formData[field.title] = userData.fullname?? null;
-          break;
         case 'Edad':
-          this.formData[field.title] = userData.age?? null;
-          break;
         case 'Fecha Nacimiento':
-          this.formData[field.title] = userData.birth_date?? null;
-          break;
         case 'Género':
-          this.formData[field.title] = userData.gender?? null;
-          break;
         case 'País de Residencia':
-          this.formData[field.title] = userData.residence_country?? null;
-          break;
         case 'Localidad':
-          this.formData[field.title] = userData.locality?? null;
-          break;
         case 'Nacionalidad':
-          this.formData[field.title] = userData.nationality?? null;
-          break;
         case 'Teléfono':
-          this.formData[field.title] = userData.phone_number?? null;
-          break;
         case 'Teléfono 2':
-          this.formData[field.title] = userData.phone_number_two?? null;
-          break;
         case 'Instagram':
-          this.formData[field.title] = userData.instagram?? null;
-          break;
         case 'Facebook':
-          this.formData[field.title] = userData.facebook?? null;
-          break;
         case 'Canal Youtube':
-          this.formData[field.title] = userData.youtube_channel?? null;
-          break;
         case 'Página Web':
-          this.formData[field.title] = userData.website?? null;
-          break;
         case 'Reel':
-          this.formData[field.title] = userData.reel_link?? null;
-          break;
-        // Mapeo de campos físicos
         case 'Peso (kg)':
-          this.formData[field.title] = userData.weight ?? null;
-          break;
         case 'Altura (cm)':
-          this.formData[field.title] = userData.height ?? null;
-          break;
         case 'Color de Ojos':
-          this.formData[field.title] = userData.eyes_color ?? null;
-          break;
         case 'Color de Piel':
-          this.formData[field.title] = userData.skin_color ?? null;
-          break;
         case 'Medida Cintura':
-          this.formData[field.title] = userData.waist_measurement ?? null;
-          break;
         case 'Medida Cadera':
-          this.formData[field.title] = userData.hip_measurement ?? null;
-          break;
         case 'Medida Busto':
-          this.formData[field.title] = userData.bust_measurement ?? null;
-          break;
         case 'Color de Pelo':
-          this.formData[field.title] = userData.hair_color ?? null;
-          break;
         case 'Talle Pantalón':
-          this.formData[field.title] = userData.pant_size ?? null;
-          break;
         case 'Talle Remera':
-          this.formData[field.title] = userData.tshirt_size ?? null;
-          break;
         case 'Talle Saco':
-          this.formData[field.title] = userData.jacket_size ?? null;
-          break;
         case 'Calzado':
-          this.formData[field.title] = userData.shoes_size ?? null;
-          break;
         case 'Manos':
-          this.formData[field.title] = userData.hands ?? null;
-          break;
         case 'Pies':
-          this.formData[field.title] = userData.feet ?? null;
-          break;
         case 'Dientes':
-          this.formData[field.title] = userData.teeth ?? null;
+        case 'Zona Tatuajes':
+        case 'Zona Piercings':
+        case 'Aclaraciones Datos Físicos':
+        case 'Tipos de Danza':
+        case 'Adicionales':
+          this.formData[field.title] = userData[fieldMappings[field.title]]?? null;
           break;
         case 'Brackets':
-          this.formData[field.title] = userData.braces === null ? 'No Selecciona' : (userData.braces ? 'Sí' : 'No');
-          break;
         case 'Tatuajes':
-          this.formData[field.title] = userData.tattoos === null ? 'No Selecciona' : (userData.tattoos ? 'Sí' : 'No');
-          break;
-        case 'Zona Tatuajes':
-          this.formData[field.title] = userData.tattoos_area ?? null;
-          break;
         case 'Piercings':
-          this.formData[field.title] = userData.piercings === null ? 'No Selecciona' : (userData.piercings ? 'Sí' : 'No');
-          break;
-        case 'Zona Piercings':
-          this.formData[field.title] = userData.piercings_area ?? null;
-          break;
-        case 'Aclaraciones Datos Físicos':
-          this.formData[field.title] = userData.physical_characs_extra_info ?? null;
-          break;
-
-        // Mapeo de habilidades
-        case 'Idiomas':
-          var languagesString = userData.language_skills ?? null;
-          this.formData[field.title] = languagesString ? languagesString.split(',').map(item => item.trim()) : null;
-          break;
-        case 'Deportes':
-          var sportsString = userData.sports_skills ?? null;
-          this.formData[field.title] = sportsString ? sportsString.split(',').map(item => item.trim()) : null;
-          break;
-        case 'Instrumentos':
-          var instrumentsString = userData.instruments_skills ?? null;
-          this.formData[field.title] = instrumentsString ? instrumentsString.split(',').map(item => item.trim()) : null;
-          break;
-        case 'Habilidades Extras':
-          var extrasString = userData.other_skills ?? null;
-          this.formData[field.title] = extrasString ? extrasString.split(',').map(item => item.trim()) : null;
-          break;
         case 'Canto':
-          this.formData[field.title] = userData.is_singer === null ? 'No Selecciona' : (userData.is_singer ? 'Sí' : 'No');
-          break;
         case 'Danza':
-          this.formData[field.title] = userData.is_dancer === null ? 'No Selecciona' : (userData.is_dancer ? 'Sí' : 'No');
-          break;
-        case 'Tipos de Danza':
-          this.formData[field.title] = userData.dance_types ?? null;
-          break;
         case 'Lic. Conducir (Auto)':
-          this.formData[field.title] = userData.car_drivers_license === null ? 'No Selecciona' : (userData.car_drivers_license ? 'Sí' : 'No');
-          break;
         case 'Lic. Conducir (Moto)':
-          this.formData[field.title] = userData.moto_drivers_license === null ? 'No Selecciona' : (userData.moto_drivers_license ? 'Sí' : 'No');
+          this.formData[field.title] = userData[fieldMappings[field.title]] === null ? 'No Selecciona' : (userData[fieldMappings??[field.title]] ? 'Sí' : 'No');
           break;
-        case 'Adicionales':
-          this.formData[field.title] = userData.skills_additionals ?? null;        
+        case 'Idiomas':
+        case 'Deportes':
+        case 'Instrumentos':
+        case 'Habilidades Extras':
+          var dataString = userData[fieldMappings[field.title]] ?? null;
+          this.formData[field.title] = dataString ? dataString.split(',').map(item => item.trim()) : null;
           break;
-        //Mapeo de estudios y experiencias laborales
         case 'Estudios':
-          var response = await AcademicExperienceService.getUserAcademicExperiences();
-          var academicExperienceString = "";
-          for (var academicExperience of response.data) {
-              const startDateFormatted = formatDate(academicExperience.start_date);
-              const endDateFormatted = academicExperience.end_date ? formatDate(academicExperience.end_date) : 'Presente';
-              
-              const description = academicExperience.description ? academicExperience.description : '';
-              
-              // Se arma string para mostrar de forma atractiva los estudios del usuario
-              academicExperienceString += `• ${academicExperience.institution} - ${academicExperience.field_of_study} (${startDateFormatted} - ${endDateFormatted}), ${description}\n`;
-          }
-          this.formData[field.title] = academicExperienceString;
-      
+          await this.setStudiesToField(field);      
           break;
         case 'Experiencias Laborales':
-          var workExperienceResponse = await WorkExperienceService.getUserWorkExperiences();
-          var workExperiencesString = "";
-          for (var workExperience of workExperienceResponse.data) {
-              const startDateFormatted = formatDate(workExperience.start_date);
-              const endDateFormatted = workExperience.end_date ? formatDate(workExperience.end_date) : 'Presente';
-              
-              const description = workExperience.description ? workExperience.description : '';
-              const producer = workExperience.producer ? ' - Productora: ' + workExperience.producer : '';
-              const projectUrl = workExperience.project_url ? ' - Link: ' + workExperience.project_url: '';
-              
-              // Se arma string para mostrar de forma atractiva la experiencia laboral del usuario
-              workExperiencesString += `• ${workExperience.work_title}: ${description} ` + 
-              `(${startDateFormatted} - ${endDateFormatted}) - Rol: ${workExperience.role}` +
-              `${producer}${projectUrl}\n`;
-          }
-          this.formData[field.title] = workExperiencesString;
-      
+          await this.setWorkExperiencesToField(field);
           break;
         //Mapeo del Curriculum y las fotos de la galeria del usuario
         case 'Curriculum':
-          this.setDefaultFileToField(userData.cv, field);
-          break;
         case 'Foto Plano Pecho':
-          this.setDefaultFileToField(userData.chest_up_shot, field);
-          break;
         case 'Foto Plano General':
-          this.setDefaultFileToField(userData.full_body_shot, field);
-          break;
         case 'Foto un Perfil':
-          this.setDefaultFileToField(userData.profile_shot, field);
-          break;
         case 'Foto Adicional 1':
-          this.setDefaultFileToField(userData.additional_shot_1, field);
-          break;
         case 'Foto Adicional 2':
-          this.setDefaultFileToField(userData.additional_shot_2, field);
+          this.setDefaultFileToField(userData[fieldMappings[field.title]], field);
           break;
         default:
           return null;
@@ -466,6 +338,40 @@ export default {
         //la url cargada en el nombre del File
         this.formData[field.title] = new File([], fileUrl);
       }
+    },
+
+    async setStudiesToField(field) {
+      var response = await AcademicExperienceService.getUserAcademicExperiences();
+      var academicExperienceString = "";
+      for (var academicExperience of response.data) {
+          const startDateFormatted = formatDate(academicExperience.start_date);
+          const endDateFormatted = academicExperience.end_date ? formatDate(academicExperience.end_date) : 'Presente';
+          
+          const description = academicExperience.description ? academicExperience.description : '';
+          
+          // Se arma string para mostrar de forma atractiva los estudios del usuario
+          academicExperienceString += `• ${academicExperience.institution} - ${academicExperience.field_of_study} (${startDateFormatted} - ${endDateFormatted}), ${description}\n`;
+      }
+      this.formData[field.title] = academicExperienceString;
+    },
+
+    async setWorkExperiencesToField(field) {
+      var workExperienceResponse = await WorkExperienceService.getUserWorkExperiences();
+      var workExperiencesString = "";
+      for (var workExperience of workExperienceResponse.data) {
+          const startDateFormatted = formatDate(workExperience.start_date);
+          const endDateFormatted = workExperience.end_date ? formatDate(workExperience.end_date) : 'Presente';
+          
+          const description = workExperience.description ? workExperience.description : '';
+          const producer = workExperience.producer ? ' - Productora: ' + workExperience.producer : '';
+          const projectUrl = workExperience.project_url ? ' - Link: ' + workExperience.project_url: '';
+          
+          // Se arma string para mostrar de forma atractiva la experiencia laboral del usuario
+          workExperiencesString += `• ${workExperience.work_title}: ${description} ` + 
+          `(${startDateFormatted} - ${endDateFormatted}) - Rol: ${workExperience.role}` +
+          `${producer}${projectUrl}\n`;
+      }
+      this.formData[field.title] = workExperiencesString;
     },
 
     async submitForm() {
