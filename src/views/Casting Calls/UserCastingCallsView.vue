@@ -1,5 +1,11 @@
 <template>
   <v-container>
+    <DeleteConfirmationDialog
+      v-model="deleteDialog"
+      itemName="casting"
+      @delete-confirmed="confirmDelete"
+      @delete-cancelled="deleteDialog = false"
+    />
     <!-- Título y botón para crear casting -->
     <v-row>
       <v-col cols="12" class="d-flex justify-space-between align-center">
@@ -101,7 +107,7 @@
                 </v-tooltip>
                 <v-tooltip text="Eliminar" location="top">
                   <template v-slot:activator="{ props }">
-                    <v-icon v-bind="props">mdi-delete</v-icon>
+                    <v-icon v-bind="props" @click="prepareDelete(casting, index)">mdi-delete</v-icon>
                   </template>
                 </v-tooltip>
 
@@ -193,11 +199,13 @@ import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import CastingCallService from '@/services/casting-call.service';
 import ConfirmActionDialog from '@/components/ConfirmActionDialog.vue';
 import { sortBy } from '@/utils';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog.vue';
 
 export default {
   components: {
     InformationSnackbar,
-    ConfirmActionDialog 
+    ConfirmActionDialog,
+    DeleteConfirmationDialog
   },
   data() {
     return {
@@ -229,7 +237,9 @@ export default {
       requiredRule: [value => !!value || 'Este campo es requerido.'],
       maxLengthRule: [
           value => (value.length <= 100) || 'Máximo 100 caracteres',
-      ]
+      ],
+      deleteIndex: null,
+      deleteDialog: false
     };
   },
   computed: {
@@ -395,11 +405,33 @@ export default {
         return;
       }
       this.$router.push(`/casting-call/${castingCallId}`);
-    }
+    },
+    prepareDelete(castingCall, index) {
+      if (castingCall.state == "Publicado") {
+        this.$root.InformationSnackbar.show({message: 'El Casting está Publicado. Debe estar finalizado para poder ser eliminado.', color: 'dark', buttonColor:'red'});
+        return;
+      } else if (castingCall.state == "Pausado") {
+        this.$root.InformationSnackbar.show({message: 'El Casting está Pausado. Debe estar finalizado para poder ser eliminado.', color: 'dark', buttonColor:'red'});
+        return;
+      }
+      this.deleteIndex = index;
+      this.deleteDialog = true;
+    },
+    async confirmDelete() {
+      CastingCallService.deleteCastingCall(this.castingCalls[this.deleteIndex].id)
+      .then( () => {
+        this.castingCalls.splice(this.deleteIndex, 1);
+        this.deleteDialog = false;
+      })
+      .catch(error => {
+        console.error('Error al eliminar casting', error);
+      });
+    },
   },
   getColorByState(state) {
     return state;
-  }
+  },
+ 
 };
 </script>
 

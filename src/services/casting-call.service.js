@@ -84,6 +84,10 @@ class CastingCallService {
         return axios.post(API_URL + 'casting-calls/published', payload, { headers: authHeader() });
     }
 
+    async deleteCastingCall(castingId) {
+        return axios.delete(API_URL + 'casting-calls/' + castingId, { headers: authHeader() });
+    }
+
 }
 
 export default new CastingCallService();
