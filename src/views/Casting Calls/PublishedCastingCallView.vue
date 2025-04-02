@@ -50,7 +50,7 @@
     
       <v-row justify="center" align="center" style="width: 100%;">
         <v-col cols="12" md="8">
-          <v-row style="margin-top:-15px;" align="center">
+          <v-row style="margin-top:-34px;" align="center">
             <v-col cols="auto">
               <h3 class="mt-4">Nombre del Proyecto:</h3>
             </v-col>
@@ -58,7 +58,9 @@
               <p class="mt-4">{{castingCall.associated_project}}</p>
             </v-col>
           </v-row>
-          <h3 class="mt-6">Roles Para Postularse</h3>
+          <p class="mt-7 mb-4" style="font-size: 20px; font-weight: bold; text-decoration: underline;">
+            Roles Para Postularse
+          </p>
           <v-row >
             <v-col v-for="role in enabledRoles" :key="role.id" class="mt-2" align="start" cols="12" sm="6" md="6"> 
               <v-card class="mb-4" style="display: flex; flex-direction: column; height: 100%;" >
