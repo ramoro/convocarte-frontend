@@ -102,3 +102,42 @@ export function getOptionsFromField(fieldName) {
           return null;
     }
 }
+
+/**
+ * Recibe la categoría de un proyecto y devuelve el icono que le corresponde
+ * @param {string} category 
+ * @returns {string} nombre del icono
+ */
+export function getCategoryIcon(category) {
+    if (category.includes('Cine') || category.includes('Corto')) return 'mdi-movie';
+    if (category.includes('Teatro')) return 'mdi-theater';
+    if (category.includes('Web')) return 'mdi-web';
+    if (category.includes('Publicidad')) return 'mdi-video-account';
+    return '';
+}
+
+/**
+ * Recibe el tipo de remuneracion que ofrece un casting y devuelve el icono que le corresponde
+ * @param {string} remunerationType 
+ * @returns {string} nombre del icono
+ */
+export function getRemunerationIcon(remunerationType){
+    if (remunerationType.includes('No')) return 'mdi-currency-usd-off';
+    if (remunerationType.includes('Remunerado') || remunerationType.includes('Simbólica')) return 'mdi-currency-usd';
+    if (remunerationType.includes('Cooperativa')) return 'mdi-account-group';
+    return '';
+}
+
+/**
+ * Recibe el estado de una postulacion en forma de texto y devuelve el color que corresponde a ese estado
+ * @param {string} state 
+ * @returns {string} nombre del color para el estado
+ */
+export function getPostulationStateColor(state) {
+    switch (state) {
+      case 'Pendiente': return 'amber-darken-4';
+      case 'Seleccionada': return 'success';
+      case 'Rechazada': return 'error';
+      default: return 'grey';
+    }
+}

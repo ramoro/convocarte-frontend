@@ -17,9 +17,18 @@
           
           <v-row>
               <v-col cols="12" class="mt-4">
-                  <v-chip small variant = "elevated" color="white" :class="` v-chip--active caption my-2`">{{ castingCall.remuneration_type }}</v-chip>
-                  <v-chip small variant = "elevated" color="white" :class="` v-chip--active caption my-2 ml-2`">{{ castingCall.project_category }}</v-chip>
-                  <v-chip small variant = "elevated" color="white" :class="` v-chip--active caption my-2 ml-2`">{{ castingCall.region }}</v-chip>
+                  <v-chip small variant = "elevated" color="white" :class="` v-chip--active caption my-2`">
+                    <v-icon size="small" class="mr-1">{{ remunerationIcon(castingCall.remuneration_type) }}</v-icon>
+                    {{ castingCall.remuneration_type }}
+                  </v-chip>
+                  <v-chip small variant = "elevated" color="white" :class="` v-chip--active caption my-2 ml-2`">
+                    <v-icon size="small" class="mr-1">{{ categoryIcon(castingCall.project_category) }}</v-icon>
+                    {{ castingCall.project_category }}
+                  </v-chip>
+                  <v-chip small variant = "elevated" color="white" :class="` v-chip--active caption my-2 ml-2`">
+                    <v-icon size="small" class="mr-1">mdi-map-marker</v-icon>
+                    {{ castingCall.region }}
+                  </v-chip>
               </v-col>
               <v-col cols="12">
           <v-row align="center" no-gutters>
@@ -139,7 +148,7 @@
   import CastingCallPhotosDialog from '@/components/CastingCallPhotosDialog.vue';
   import InformationSnackbar from '@/components/InformationSnackbar.vue';
   import castingCallService from '@/services/casting-call.service';
-  import { formatDate} from '@/utils';
+  import { formatDate, getCategoryIcon, getRemunerationIcon } from '@/utils';
   
   export default {
     components: {
@@ -214,6 +223,12 @@
       showPhotosPreview() {
           this.showPhotosDialog = true;
       },
+      categoryIcon(category) {
+        return getCategoryIcon(category);
+      },
+      remunerationIcon(remunerationType) {
+        return getRemunerationIcon(remunerationType);
+      }
     }
   };
   </script>
