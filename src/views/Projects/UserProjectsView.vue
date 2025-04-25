@@ -71,7 +71,7 @@
                 <div justify="space-between" class="mt-2">
                   <v-tooltip text="Editar" location="top">
                     <template v-slot:activator="{ props }">
-                      <v-icon v-bind="props" class="edition-icon mr-2" @click="editProject(project.id)">mdi-pencil</v-icon>
+                      <v-icon v-bind="props" class="edition-icon mr-2" @click="editProject(project)">mdi-pencil</v-icon>
                     </template>
                   </v-tooltip>
                   <v-tooltip text="Eliminar" location="top">
@@ -184,8 +184,12 @@ export default {
           console.error('Error al eliminar proyecto', error);
         });
     },
-    editProject(projectId) {
-      this.$router.push(`/project/${projectId}`);
+    editProject(project) {
+      if (project.is_used) {
+        this.$root.InformationSnackbar.show({message: 'El Proyecto está en uso. Finalizá él o los castings que lo contengan para editarlo.', color: 'dark', buttonColor:'red'});
+        return;
+      }
+      this.$router.push(`/project/${project.id}`);
     }
   },
 };
