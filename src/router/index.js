@@ -116,7 +116,17 @@ const routes = [
     path: '/casting-postulation-created/:postulationId',
     name: 'postulationcreated',
     component: () => import('../views/Casting Postulations/PostulationCreatedMessageView.vue')
-  }
+  },
+  {
+    path: '/user-postulations',
+    name: 'usercastingpostulations',
+    component: () => import('../views/Casting Postulations/UserPostulationsView.vue')
+  },
+  {
+    path: '/my-postulation/:postulationId',
+    name: 'mycastingpostulation',
+    component: () => import('../views/Casting Postulations/MyPostulationView.vue')
+  },
 ]
 
 const router = createRouter({

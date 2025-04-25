@@ -31,6 +31,10 @@ class CastingPostulationService {
     async getCastingPostulationById(postulationId) {
         return axios.get(API_URL + 'casting-postulations/' + postulationId,  { headers: authHeader() });
     }
+
+    async getUserCastingPostulations() {
+        return axios.get(API_URL + 'casting-postulations',  { headers: authHeader() });
+    }
 }
 
 export default new CastingPostulationService();

@@ -8,7 +8,7 @@
                     <v-img :src="currentUser?.profile_picture || require('@/assets/empty-photo.png')" alt="" />
                 </v-avatar>
                 <RouterLink to="/user-profile" style="text-decoration: none; color: black">
-                    <p v-if="currentUser" class="white--text text-subtitle-1 ml-3">
+                    <p v-if="currentUser" class="text-subtitle-1 ml-3">
                         {{ currentUser.fullname }}
                     </p>
                 </RouterLink>
@@ -76,6 +76,7 @@ import { RouterLink } from 'vue-router';
                 { icon: 'mdi-folder', text: 'Mis Proyectos', route: '/user-projects' },
                 { icon: 'mdi-form-select', text: 'Mis Formularios', route: '/user-forms' },
                 { icon: 'mdi-bell-ring', text: 'Mis Castings', route: '/user-casting-calls' },
+                { icon: 'mdi-card-account-details-outline', text: 'Mis Postulaciones', route: '/user-postulations' },
             ],
             avatarImage: ""
         }
