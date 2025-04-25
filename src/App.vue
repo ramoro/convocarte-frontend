@@ -23,4 +23,34 @@ export default {
 .v-application--wrap {
   background-color: inherit; /* Asegura que el fondo se aplique correctamente */
 }
+.v-chip.Borrador{
+  background-color: rgb(116, 104, 104);
+}
+p.Borrador{
+  color:rgb(116, 104, 104);
+}
+
+.v-chip.Publicado{
+  background-color: rgb(45, 185, 27);
+}
+
+p.Publicado {
+  color: rgb(45, 185, 27);
+}
+
+.v-chip.Pausado {
+  background-color: rgb(81, 159, 211); 
+}
+
+p.Pausado {
+  color: rgb(81, 159, 211);  
+}
+
+.v-chip.Finalizado, p.Finalizado{
+  background-color: rgb(218, 154, 59); 
+}
+
+p.Finalizado {
+  color: rgb(218, 154, 59); 
+}
 </style>
