@@ -28,8 +28,8 @@
           class="white--text"
           size="small"
           variant="elevated"
-        >
-          {{ item.state }}
+        > <!--Puede estar en Pendiente/Pre-seleccionada, pero al usuario se le va a seguir mostrando como Pendiente-->
+          {{ item.state.includes('Pendiente') ? 'Pendiente' : item.state }} 
         </v-chip>
       </td>
       <td>

@@ -10,7 +10,7 @@
     <v-container v-else>
         <div align="right">
             <v-btn size="small" rounded to="/user-postulations">
-                Volver
+                Mis Postulaciones
             </v-btn>
         </div> 
       <v-row justify="center" align="center" style="width: 100%;">
@@ -23,8 +23,8 @@
                 :color="getStateColor(postulationData.state)"
                 class="ml-3 status-chip"
                 small
-                >
-                {{ postulationData.state }}
+                > <!--Puede estar en Pendiente/Pre-seleccionada, pero al usuario se le va a seguir mostrando como Pendiente-->
+                {{ postulationData.state.includes('Pendiente') ? 'Pendiente' : postulationData.state }}
                 </v-chip>
             </div>
             <p class="text-body-1 text-medium-emphasis mt-2">

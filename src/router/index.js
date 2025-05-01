@@ -127,6 +127,11 @@ const routes = [
     name: 'mycastingpostulation',
     component: () => import('../views/Casting Postulations/MyPostulationView.vue')
   },
+  {
+    path: '/casting-call-postulations/:castingCallId',
+    name: 'castingcallpostulations',
+    component: () => import('../views/Casting Postulations/CastingCallPostulationsView.vue')
+  },
 ]
 
 const router = createRouter({

@@ -67,7 +67,6 @@
               </v-col>
               <!-- Iconos a la derecha -->
               <v-col class="text-right d-flex" cols="auto">
-
                 <v-btn
                   v-if="casting.state == 'Borrador' || casting.state == 'Pausado'" 
                   size="small"
@@ -100,9 +99,20 @@
                     Finalizar
                   </v-btn>
                 </div>
-                <v-tooltip text="Editar" location="top">
+                <template v-if="casting.state != 'Borrador'">
+                  <v-tooltip text="Gestionar Postulaciones" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-icon v-bind="props" class="mr-2 ml-4" color="purple"
+                        @click="goToCastingCallPostulations(casting.id)">mdi-account-box-multiple</v-icon>
+                    </template>
+                  </v-tooltip>
+                </template>
+                <template v-else>
+                  <span class=" ml-1" style="width: 20px; display: inline-block;"></span>
+                </template>
+                <v-tooltip  text="Editar" location="top">
                   <template v-slot:activator="{ props }">
-                    <v-icon v-bind="props" class="mr-2 ml-4" @click="editCastingCall(casting.state, casting.id)">mdi-pencil</v-icon>
+                    <v-icon v-bind="props" class="mr-2" @click="editCastingCall(casting.state, casting.id)">mdi-pencil</v-icon>
                   </template>
                 </v-tooltip>
                 <v-tooltip text="Eliminar" location="top">
@@ -427,6 +437,9 @@ export default {
         console.error('Error al eliminar casting', error);
       });
     },
+    goToCastingCallPostulations(castingCallId) {
+      this.$router.push(`/casting-call-postulations/${castingCallId}`);
+    }
   },
   getColorByState(state) {
     return state;
@@ -462,22 +475,6 @@ export default {
 .casting-container:hover {
   box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2); 
   transform: translateY(-5px); 
-}
-
-.v-chip.Borrador{
-  background-color: rgb(116, 104, 104);
-}
-
-.v-chip.Publicado{
-  background-color: rgb(45, 185, 27);
-}
-
-.v-chip.Pausado{
-  background-color: rgb(81, 159, 211); 
-}
-
-.v-chip.Finalizado{
-  background-color: rgb(218, 154, 59); 
 }
 
 .casting-content {

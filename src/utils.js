@@ -136,6 +136,7 @@ export function getRemunerationIcon(remunerationType){
 export function getPostulationStateColor(state) {
     switch (state) {
       case 'Pendiente': return 'amber-darken-4';
+      case 'Pendiente/Pre-seleccionada': return 'amber-darken-4';
       case 'Seleccionada': return 'success';
       case 'Rechazada': return 'error';
       default: return 'grey';
