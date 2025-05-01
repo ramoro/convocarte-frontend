@@ -17,7 +17,7 @@
       <!-- Fila centrada con los botones separados por margen -->
       <v-row justify="center" class="mt-5">
         <v-col cols="auto">
-          <v-btn color="purple" class="mx-2">IR A LA POSTULACIÓN</v-btn>
+          <v-btn color="purple" class="mx-2" :to="`/my-postulation/${postulationId}`">IR A LA POSTULACIÓN</v-btn>
         </v-col>
         <v-col cols="auto">
             <v-btn color="cyan" class="mx-2" style="color:white !important;" :to="`/published-casting-call/${castingCallId}`">
@@ -42,6 +42,7 @@ export default {
     return {
       isLoading: true,
       castingCallId: null,
+      postulationId: null,
       castingCallTitle: '',
       appliedRoleName: '' 
     };
@@ -65,6 +66,7 @@ export default {
         try {
           const response = await CastingPostulationService.getCastingPostulationById(postulationId);
           const postulationData = response.data;
+          this.postulationId = postulationData.id;
           this.castingCallTitle = postulationData.casting_call.title;
           this.appliedRoleName = postulationData.exposed_role.role.name;
           this.castingCallId = postulationData.casting_call.id;

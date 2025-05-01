@@ -429,6 +429,10 @@ export default {
           console.log('Datos para enviar (incluyendo JSON y archivos):', jsonFields);
           console.log("cv a enviar: ", postulationCv);
           console.log("photos a enviar: ", postulationPhotos);
+          console.log("foto perfil usuario ", this.$store.state.auth.user.profile_picture);
+          //Se agrega foto de perfil para que despues el director de casting reciba la data
+          //de la postulacion con la foto de perfil del usuario
+          jsonFields['Foto de Perfil'] = this.$store.state.auth.user.profile_picture;
           var resp = await CastingPostulacionService.createCastingPostulation(this.$route.params.formId, jsonFields, 
                                                                     postulationCv, postulationPhotos);
           this.$router.push(`/casting-postulation-created/${resp.id}`);

@@ -92,9 +92,7 @@ export default {
   methods: {
     filteredPostulations(filter) {
       return this.postulations.filter(p => 
-      filter === 'Seleccionado' 
-          ? p.state.includes(filter) 
-          : p.state === filter
+        p.state.includes(filter)
       );
     },
   },
