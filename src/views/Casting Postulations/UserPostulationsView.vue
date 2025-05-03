@@ -32,19 +32,31 @@
       <v-card-text class="pa-0">
         <v-window v-model="activeTab">
           <v-window-item value="todas">
-            <PostulationsTable :postulations="postulations" />
+            <PostulationsTable 
+            :postulations="postulations"
+            @delete-postulation="handleDeletedPostulation"
+             />
           </v-window-item>
           
           <v-window-item value="pendientes">
-            <PostulationsTable :postulations="filteredPostulations('Pendiente')" />
+            <PostulationsTable 
+            :postulations="filteredPostulations('Pendiente')"
+            @delete-postulation="handleDeletedPostulation"
+            />
           </v-window-item>
           
           <v-window-item value="seleccionadas">
-            <PostulationsTable :postulations="filteredPostulations('Seleccionada')" />
+            <PostulationsTable 
+            :postulations="filteredPostulations('Seleccionada')"
+            @delete-postulation="handleDeletedPostulation"
+            />
           </v-window-item>
           
           <v-window-item value="rechazadas">
-            <PostulationsTable :postulations="filteredPostulations('Rechazada')" />
+            <PostulationsTable 
+            :postulations="filteredPostulations('Rechazada')"
+            @delete-postulation="handleDeletedPostulation"
+            />
           </v-window-item>
         </v-window>
       </v-card-text>
@@ -94,6 +106,9 @@ export default {
       return this.postulations.filter(p => 
         p.state.includes(filter)
       );
+    },
+    handleDeletedPostulation(index) {
+      this.postulations.splice(index, 1);
     },
   },
   

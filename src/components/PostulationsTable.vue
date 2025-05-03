@@ -1,19 +1,27 @@
 <template>
-<v-data-table
-  :headers="headers"
-  :items="postulations"
-  :items-per-page="10"
-  class="elevation-0 text-caption"
-  density="compact"
-  items-per-page-text="Ítems por página"
-  :items-per-page-options="[
-    { value: 10, title: '10' },
-    { value: 25, title: '25' },
-    { value: 100, title: '100' },
-    { value: -1, title: 'Todo' }
-  ]"
-  no-data-text="No hay datos disponibles"
->
+    <!-- Diálogo para confirmar la eliminación -->
+    <DeleteConfirmationDialog
+      v-model="deleteDialog"
+      itemName="postulación"
+      extraInfo="Al ejecutar esta acción ya no vas a poder ver ni recibir mensajes correspondientes a la postulación."
+      @delete-confirmed="confirmPostulationDelete"
+      @delete-cancelled="deleteDialog = false"
+  />
+  <v-data-table
+    :headers="headers"
+    :items="postulations"
+    :items-per-page="10"
+    class="elevation-0 text-caption"
+    density="compact"
+    items-per-page-text="Ítems por página"
+    :items-per-page-options="[
+      { value: 10, title: '10' },
+      { value: 25, title: '25' },
+      { value: 100, title: '100' },
+      { value: -1, title: 'Todo' }
+    ]"
+    no-data-text="No hay datos disponibles"
+  >
   <template v-slot:item="{ item }">
     <tr class="text-no-wrap" style="height: 60px !important; font-size: 13px;">
       <td>
@@ -63,8 +71,17 @@
           size="small"
           @click="goToPostulationDetails(item.id)"
         >
-          <v-icon>mdi-eye</v-icon>
+        <v-tooltip text="Ver" location="top">
+          <template v-slot:activator="{ props }">
+            <v-icon v-bind="props" >mdi-eye</v-icon>
+          </template>
+        </v-tooltip>
         </v-btn>
+        <v-tooltip text="Eliminar" location="top">
+          <template v-slot:activator="{ props }">
+            <v-icon v-bind="props" color="purple" @click="prepareDelete(item)">mdi-delete</v-icon>
+          </template>
+        </v-tooltip>
       </td>
     </tr>
   </template>
@@ -73,12 +90,18 @@
   
   <script>
   import { formatDate, getCategoryIcon, getRemunerationIcon, getPostulationStateColor } from '@/utils';
+  import DeleteConfirmationDialog from './DeleteConfirmationDialog.vue';
+  import CastingPostulationService from '@/services/casting-postulation.service'
+
     export default {
         props: {
           postulations: {
               type: Array,
               required: true
           },
+        },
+        components: {
+          DeleteConfirmationDialog
         },
         data() {
             return {
@@ -89,11 +112,15 @@
                     { title: 'Tipo', key: 'category', width: '150px' },
                     { title: 'Región', key: 'region', sortable: false, width: '120px' },
                     { title: 'Remuneración', key: 'remuneration_type', width: '120px' },
-                    { title: 'Ver Postulación', key: 'acciones', sortable: false, width: '80px' }
-                ]
+                    { title: 'Acciones', key: 'acciones', sortable: false, width: '80px' }
+                ],
+                deleteDialog: false,
+                itemToDelete: null,
+                deleteIndex: null,
             }
 
         },
+        emits: ['delete-postulation'],
         methods: {
             getStateColor(state) {
               return getPostulationStateColor(state);
@@ -109,7 +136,21 @@
             },
             formatCreationDate(date) {
               return formatDate(date.split('T')[0]); //Es un timezone, por lo que se splitea para obtener solo la fecha
-            }
+            },
+            prepareDelete(postulation) {
+              this.itemToDelete = postulation;
+              this.deleteDialog = true;
+            },
+            async confirmPostulationDelete() {
+              CastingPostulationService.deletePostulation(this.itemToDelete.id)
+                .then( () => {
+                  this.$emit('delete-postulation', this.deleteIndex);
+                  this.deleteDialog = false;
+                })
+                .catch(error => {
+                  console.error('Error al eliminar postulación', error);
+                });
+          },
         }
 
     }

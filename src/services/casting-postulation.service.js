@@ -44,6 +44,14 @@ class CastingPostulationService {
     async updatePostulation(postulationId, payload) {
         return axios.put(API_URL + 'casting-postulations/' + postulationId, payload, { headers: authHeader() });
     }
+
+    async deletePostulation(postulationId) {
+        return axios.delete(API_URL + 'casting-postulations/' + postulationId, { headers: authHeader() });
+    }
+
+    async rejectPostulations(postulationsIds) {
+        return axios.patch(API_URL + 'casting-postulations/reject/', postulationsIds, { headers: authHeader() });
+    }
 }
 
 export default new CastingPostulationService();

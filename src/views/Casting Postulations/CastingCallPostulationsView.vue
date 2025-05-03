@@ -1,6 +1,21 @@
 <template>
+    <!-- Diálogo para confirmar la eliminación -->
+    <DeleteConfirmationDialog
+      v-model="deleteDialog"
+      itemName="postulación"
+      :manyItems="manyPostulationsToDelete"
+      extraInfo="Al eliminar una o varias postulaciones significa que están siendo RECHAZADAS. 
+      Las personas Rechazadas serán notificadas mediante un mensaje en su postulación."
+      @delete-confirmed="confirmDelete"
+      @delete-cancelled="deleteDialog = false"
+  />
     <v-container class="py-8">
-      <h1 class="text-h4 font-weight-bold mb-6">Gestión de Postulaciones</h1>
+      <div class="d-flex justify-space-between align-center mb-6">
+        <h1 class="text-h4 font-weight-bold mb-0">Gestión de Postulaciones</h1>
+        <v-btn rounded to="/user-casting-calls">
+          Volver
+        </v-btn>
+      </div>
       <!-- Cargando Postulaciones -->
       <v-row v-if="isLoading" justify="center" align="center" style="height: 60vh;">
         <v-container class="text-center">
@@ -57,7 +72,7 @@
                 size="small"
                 color="error"
                 prepend-icon="mdi-delete-outline"
-                @click="deleteSelectedPostulations(columnId)"
+                @click="prepareDelete(columnId, true)"
               >
                 Eliminar
               </v-btn>
@@ -129,7 +144,7 @@
                               </template>
                               <v-list-item-title>Enviar mensaje</v-list-item-title>
                             </v-list-item>
-                            <v-list-item @click="deletePostulation(columnId, item.id)" class="text-error">
+                            <v-list-item @click="prepareDelete(columnId, false, item.id)" class="text-error">
                               <template v-slot:prepend>
                                 <v-icon size="small" class="mr-2" color="error">mdi-delete-outline</v-icon>
                               </template>
@@ -160,10 +175,12 @@
   import draggable from 'vuedraggable';
   import CastingCallPostulationService from '@/services/casting-postulation.service'
   import { sortBy, formatDate, getPostulationStateColor } from '@/utils';
+  import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog.vue';
 
   export default {
     components: {
-      draggable
+      draggable,
+      DeleteConfirmationDialog
     },
     data() {
       return {
@@ -171,16 +188,13 @@
           postulations: {
             id: 'postulations',
             title: 'Postulaciones',
-            items: [
-              { id: '1', name: 'Ana García', age: 24, date: '12/04/2025', foto: '/placeholder.svg?height=40&width=40' },
-  
+            items: [  
             ],
           },
           preSelectedPostulations: {
             id: 'preselectedpostulations',
             title: 'Postulaciones Pre Seleccionadas',
             items: [
-              { id: '6', nombre: 'Diego Sánchez', edad: 25, date: '11/04/2025', foto: '/placeholder.svg?height=40&width=40' },
             ],
           },
         }),
@@ -188,7 +202,11 @@
           postulations: [],
           preSelectedPostulations: [],
         }),
-        isLoading: true
+        isLoading: true,
+        manyPostulationsToDelete: false,
+        deleteDialog: false,
+        columnIdToDelete: null,
+        postulationIdToDelete: null
       }
     },
     created() {
@@ -240,13 +258,16 @@
           var newState = '';
           if (event.added.element.state.includes('Pre-seleccionada')) {
             newState = 'Pendiente';
-          } else {
+          } else if (event.added.element.state == 'Pendiente') {
             newState = 'Pendiente/Pre-seleccionada'
-          }
-          console.log('newstate', newState);
-          CastingCallPostulationService.updatePostulation(event.added.element.id, 
+          } 
+          
+          if (newState) {
+            CastingCallPostulationService.updatePostulation(event.added.element.id, 
             {'state': newState, 'postulation_data': JSON.stringify(event.added.element.postulation_data)})
-          event.added.element.state = newState;
+            event.added.element.state = newState;
+          }
+
         }
       },
       
@@ -270,27 +291,71 @@
           this.selected[columnId] = this.columns[columnId].items.map(item => item.id);
         }
       },
-      
-      // Eliminar postulaciones seleccionadas
-      deleteSelectedPostulations(columnId) {
-        if (this.selected[columnId].length === 0) return;
-        
-        this.columns[columnId].items = this.columns[columnId].items.filter(
-          item => !this.selected[columnId].includes(item.id)
-        );
-        
-        // Limpiar selecciones
-        this.selected[columnId] = [];
+
+      prepareDelete(columnId, manyPostulationsToDelete, postulationId = null) {
+        //Si eligió eliminar de la seleccion de postulaciones y no selecciono nada, no sucede nada
+        if (manyPostulationsToDelete && this.selected[columnId].length === 0) return;
+
+        this.columnIdToDelete = columnId;
+        this.postulationIdToDelete = postulationId;
+        this.manyPostulationsToDelete = manyPostulationsToDelete;
+        this.deleteDialog = true;
+      },
+      async confirmDelete() {
+        if (this.manyPostulationsToDelete) {
+          this.rejectSelectedPostulations(this.columnIdToDelete);
+        } else {
+          this.rejectPostulation(this.columnIdToDelete, this.postulationIdToDelete);
+        }
       },
       
-      // Eliminar una postulación individual
-      deletePostulation(columnId, itemId){
-        this.columns[columnId].items = this.columns[columnId].items.filter(item => item.id !== itemId);
+      // Rechaza postulaciones seleccionadas
+      async rejectSelectedPostulations(columnId) {
         
-        // Si estaba seleccionado, quitarlo de la selección
-        if (this.selected[columnId].includes(itemId)) {
-          this.selected[columnId] = this.selected[columnId].filter(id => id !== itemId);
-        }
+        let postulationsIdsToDelete = this.columns[columnId].items.filter(
+          item => this.selected[columnId].id != item.id
+        ).map(item => item.id);
+
+        let payload = {"ids": postulationsIdsToDelete};
+
+        console.log(payload);
+
+        CastingCallPostulationService.rejectPostulations(payload)
+          .then( () => {
+            this.columns[columnId].items = this.columns[columnId].items.filter(
+              item => !this.selected[columnId].includes(item.id)
+            );
+        
+            // Limpiar selecciones
+            this.selected[columnId] = [];
+                this.deleteDialog = false;
+              })
+          .catch(error => {
+            console.error('Error al eliminar las postulaciones', error);
+          });
+        
+    
+      },
+      
+      // Rechaza una postulación individual
+      async rejectPostulation(columnId, itemId) {
+
+        var payload = {"ids": [itemId] };
+        
+        CastingCallPostulationService.rejectPostulations(payload)
+          .then( () => {
+            this.columns[columnId].items = this.columns[columnId].items.filter(item => item.id !== itemId);
+        
+            // Si estaba seleccionado, quitarlo de la selección
+            if (this.selected[columnId].includes(itemId)) {
+              this.selected[columnId] = this.selected[columnId].filter(id => id !== itemId);
+            }
+            this.deleteDialog = false;
+          })
+          .catch(error => {
+            console.error('Error al rechazar la postulación', error);
+          });
+      
       },
       
       // Función de alerta simple (en una aplicación real, usarías un sistema de notificaciones de Vuetify)
