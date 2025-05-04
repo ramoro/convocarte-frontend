@@ -53,4 +53,12 @@ p.Pausado {
 p.Finalizado {
   color: rgb(218, 154, 59); 
 }
+
+.v-chip.Eliminado {
+  background-color: rgb(244, 35, 3); 
+}
+
+p.Eliminado {
+  color: rgb(244, 35, 3);
+}
 </style>

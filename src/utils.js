@@ -113,6 +113,7 @@ export function getCategoryIcon(category) {
     if (category.includes('Teatro')) return 'mdi-theater';
     if (category.includes('Web')) return 'mdi-web';
     if (category.includes('Publicidad')) return 'mdi-video-account';
+    if (category.includes('Serie')) return 'mdi-filmstrip';
     return '';
 }
 

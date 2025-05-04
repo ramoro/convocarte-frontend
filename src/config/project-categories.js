@@ -4,5 +4,6 @@ export const projectCategories = [
     'Cine: Largometraje',
     'Cine: Cortometraje',
     'Contenido Web',
+    'Serie',
     'Otro'
 ]

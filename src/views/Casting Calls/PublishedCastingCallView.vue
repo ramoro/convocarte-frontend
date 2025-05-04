@@ -94,7 +94,7 @@
                     Edad: A partir de {{ role.min_age_required }} años
                   </p>
                   <p v-else-if="role.max_age_required" class="mt-1">
-                    Edad: Hasta {{ role.min_age_required }} años
+                    Edad: Hasta {{ role.max_age_required }} años
                   </p>
                   <p v-if="role.min_height_required && role.max_height_required" class="mt-1">
                     Altura: Entre {{ role.min_height_required }} cm y {{ role.max_height_required }} cm
