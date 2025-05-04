@@ -36,11 +36,6 @@ class CastingPostulationService {
         return axios.get(API_URL + 'casting-postulations',  { headers: authHeader() });
     }
 
-    async getCastingPostulationsByCastingCallId(castingCallId) {
-        return axios.get(API_URL + 'casting-postulations/postulations-by-casting-call/' + castingCallId,
-                        { headers: authHeader() });
-    }
-
     async updatePostulation(postulationId, payload) {
         return axios.put(API_URL + 'casting-postulations/' + postulationId, payload, { headers: authHeader() });
     }

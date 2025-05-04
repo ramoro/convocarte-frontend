@@ -88,6 +88,11 @@ class CastingCallService {
         return axios.delete(API_URL + 'casting-calls/' + castingId, { headers: authHeader() });
     }
 
+    async getCastingCallWithPostulations(castingId) {
+        return axios.get(API_URL + 'casting-calls/with-postulations/' + castingId,  { headers: authHeader() });
+
+    }
+
 }
 
 export default new CastingCallService();
