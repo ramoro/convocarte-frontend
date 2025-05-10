@@ -507,9 +507,9 @@ export default {
   margin: 0 auto;
 }
 
-.v-overlay {
-  background-color: rgba(0, 0, 0, 0.7) !important; /* Fondo opaco */
-}
+/* .v-overlay {
+  background-color: rgba(0, 0, 0, 0.7) !important; 
+} */
 
 .v-dialog__content {
   background-color: transparent !important; /* Fondo transparente para la imagen */
