@@ -110,7 +110,8 @@ const routes = [
   {
     path: '/role-postulation-form/:roleName/:formId',
     name: 'rolepostulationform',
-    component: () => import('../views/Casting Postulations/PostulationFormView.vue')
+    component: () => import('../views/Casting Postulations/PostulationFormView.vue'),
+    
   },
   {
     path: '/casting-postulation-created/:postulationId',
@@ -131,6 +132,12 @@ const routes = [
     path: '/casting-call-postulations/:castingCallId',
     name: 'castingcallpostulations',
     component: () => import('../views/Casting Postulations/CastingCallPostulationsView.vue')
+  },
+  {
+    path: '/casting-call-user-postulation/:postulationId',
+    name: 'castingcalluserpostulation',
+    component: () => import('../views/Casting Postulations/CastingCallUserPostulationView.vue')
+    
   },
 ]
 
