@@ -2,7 +2,7 @@
   <div class="gallery mt-1">
     <v-container grid-list-xl>
       <v-row style="margin-bottom:20px;">
-        <v-col v-if="currentUser" cols="12" class="d-flex justify-between align-center position-relative">
+        <v-col v-if="userData" cols="12" class="d-flex justify-between align-center position-relative">
           <div >
             <h1 class="gallery-title">
               <img 
@@ -11,32 +11,42 @@
                 class="button-image mr-2" 
                 height="25"
               />
-              Galería de {{ currentUser.fullname }}
+              Galería de {{ userData.fullname }}
             </h1>
-            <a class="ml-10" :href="require('@/assets/esquema-planos.jpeg')" download="esquema-planos.jpeg" >
+            <a v-if="editingMode" 
+            class="ml-10" :href="require('@/assets/esquema-planos.jpeg')" download="esquema-planos.jpeg" >
               Esquema de Planos
             </a>
           </div>
    
-          <v-btn class="position-absolute" style="right: 0;" size="small" rounded to="/user-profile">
+          <v-btn class="position-absolute" style="right: 0;" 
+          size="small" rounded :to="'/user-profile/' + $route.params.userId">
             Volver al Perfil
           </v-btn>
         </v-col>
       </v-row>
       
       <v-row>
-        <v-col cols="8" style="padding:0px; margin-left:-50px; margin-top: -15px;">
-          <v-carousel :show-arrows="true" class="custom-carousel" v-model="carouselIndex" ref="myCarousel"
-          >
-            <v-carousel-item
-              v-for="(item,i) in currentCarrouselItems"
-              :key="i"
-              :src="item.src"
-            ></v-carousel-item>
-          </v-carousel>
-        </v-col>
-        <!-- Columna con botones a la izquierda -->
-        <v-col cols="4" class="mt-5 pd-0 justify-center align-center">
+        <v-col 
+    :cols="editingMode ? 8 : 12" 
+    :style="editingMode ? 'padding:0px; margin-left:-50px; margin-top: -15px;' : 'display: flex; justify-content: center;'"
+  >
+    <v-carousel 
+      :show-arrows="true" 
+      class="custom-carousel" 
+      :class="{'full-size-carousel': !editingMode}"
+      v-model="carouselIndex" 
+      ref="myCarousel"
+    >
+      <v-carousel-item
+        v-for="(item,i) in currentCarrouselItems"
+        :key="i"
+        :src="item.src"
+      ></v-carousel-item>
+    </v-carousel>
+  </v-col>
+        <!-- Columna con botones a la derecha -->
+        <v-col v-if="editingMode" cols="4" class="mt-5 pd-0 justify-center align-center">
           <v-row>
             <v-col cols="12">
               <v-defaults-provider :defaults="{'VIcon':{'color':userShotsInputs[0].iconColor}}">
@@ -180,15 +190,15 @@ export default {
         { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null, sizeError: false},
         { img_url: null, iconColor: 'blue-grey-lighten-1', selectedFile: null, sizeError: false},
       ],
+      userData: null,
       shotsRecentUploadPreviewName : [null, null, null, null, null], //Para guardar y luego recuperar los nombres de las fotos recien subidas 
                                                                     //-> sirve para casos en que se sube una foto, luego se clikea para cambiarla y se cancela
                                                                     //para que no se borre el nombre del input (ya que permite eliminarla) se lo restuara con este array
-      currentCarrouselItems: [ {
-        src: require('@/assets/gallery-img-default.jpg'),
-      }],
+      currentCarrouselItems: null,
       fileError: false,     // Control de errores por tamaño de archivo
       maxSize:  1448.16, //2MB
-      carouselIndex: 0 //Para manejar lo que se esta viendo del carrusel
+      carouselIndex: 0, //Para manejar lo que se esta viendo del carrusel
+      editingMode: true
     };
   },
   methods: {
@@ -319,7 +329,7 @@ export default {
         //Si el contador de imagenes es igual a 0 significa que no hay imagenes seleccionadas y que se debe
         //mostrar la imagen default
         if (shotsImgCounter == 0) {
-          this.currentCarrouselItems[0] = { src: require('@/assets/gallery-img-default.jpg')};
+          this.currentCarrouselItems[0] = { src: this.editingMode ? require('@/assets/gallery-img-default.jpg') : require('@/assets/gallery-user-no-imgs.jpg')};
         }
 
       },
@@ -334,11 +344,17 @@ export default {
   beforeMount() {
     if (!this.currentUser) {
       this.$router.push('/');
+    } if (this.currentUser.id != this.$route.params.userId) {
+      this.editingMode = false;
     }
+    this.currentCarrouselItems =  [ {
+        src: this.editingMode ? require('@/assets/gallery-img-default.jpg') : require('@/assets/gallery-user-no-imgs.jpg'),
+      }];
   },
   created() {
-    UserService.getUserById(this.$store.state.auth.user.id)
+    UserService.getUserById(this.$route.params.userId)
       .then(response => {
+        this.userData = response.data;
         this.setShot(0, response.data['chest_up_shot'], "Seleccion Plano Pecho.")
         this.setShot(1, response.data['full_body_shot'], "Seleccion Plano General.")
         this.setShot(2, response.data['profile_shot'], "Seleccion Foto Perfil.")
@@ -374,6 +390,31 @@ export default {
   max-width: 600px;
   max-height: 650px; 
   margin: 0 auto; /* Centrar el carrusel */
+}
+
+.full-size-carousel {
+  max-width: 800px !important; /* Más grande en modo visualización */
+  max-height: 800px !important;
+  width: 100%;
+}
+
+/* Ajustes para el contenedor principal */
+.gallery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 960px) {
+  .custom-carousel {
+    max-width: 100%;
+    max-height: 500px;
+  }
+  
+  .full-size-carousel {
+    max-height: 600px !important;
+  }
 }
 
 </style>

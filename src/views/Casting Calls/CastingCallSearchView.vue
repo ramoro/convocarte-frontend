@@ -6,8 +6,8 @@
         </v-col>
       </v-row>
       <v-row justify="center" class="align-center caption text-center text-subtitle-2 mb-2" style="color: gray">
-        <p >
-          Para facilitar tu búsqueda probá aplicando los filtros que más se adecúen a tus necesidades.
+        <p class="text-body-1 text-medium-emphasis">
+          Para facilitar tu búsqueda probá aplicando los filtros que más se adecúen a tus necesidades
           <br/>
           ¡ÉXITOS!
         </p>
@@ -52,8 +52,14 @@
                   </v-row>
                   <v-row justify="space-between" align="center" class="casting-info-container">
                       <v-col class="text-left" cols="auto">
-                          <v-chip small variant = "elevated" color="white" :class="` v-chip--active caption my-2`">{{ casting.project.category }}</v-chip>
-                          <v-chip small variant = "elevated" color="white" :class="` v-chip--active caption my-2 ml-2`">{{ casting.remuneration_type }}</v-chip>
+                          <v-chip small variant = "elevated" color="white" :class="` v-chip--active caption my-2`">
+                            <v-icon size="small" class="mr-1">{{ categoryIcon(casting.project.category) }}</v-icon>
+                            {{ casting.project.category }}
+                          </v-chip>
+                          <v-chip small variant = "elevated" color="white" :class="` v-chip--active caption my-2 ml-2`">
+                            <v-icon size="small" class="mr-1">{{ remunerationIcon(casting.remuneration_type) }}</v-icon>
+                            {{ casting.remuneration_type == 'Remuneración Simbólica' ? 'Rem. Simbólica' : casting.remuneration_type}}
+                          </v-chip>
                       </v-col>
                       <v-col class="text-right d-flex" cols="auto">
                           <v-btn 
@@ -120,9 +126,7 @@ import CastingCallPhotosDialog from '@/components/CastingCallPhotosDialog.vue';
 import FiltersDialog from '@/components/FiltersDialog.vue';
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import CastingCallService from '@/services/casting-call.service';
-import { formatDate} from '@/utils';
-import { sortBy } from '@/utils';
-
+import { formatDate, sortBy, getCategoryIcon, getRemunerationIcon} from '@/utils';
 
 export default {
   components: {
@@ -154,7 +158,7 @@ export default {
   computed: {
     currentUser() {
       return this.$store.state.auth.user;
-    }
+    },
   },
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
@@ -236,6 +240,12 @@ export default {
     },
     goToCasting(castingCallId) {
       this.$router.push(`/published-casting-call/${castingCallId}`);
+    },
+    categoryIcon(category) {
+      return getCategoryIcon(category);
+    },
+    remunerationIcon(remunerationType) {
+      return getRemunerationIcon(remunerationType)
     }
  }
 }
@@ -243,7 +253,7 @@ export default {
 
 <style scoped>
 .castings-title {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: bold;
 }
 
@@ -349,6 +359,14 @@ export default {
 
 .chips-container::-webkit-scrollbar-thumb:hover {
   background-color: #7e7c7c; /* Color de la barra de desplazamiento cuando se pasa el mouse por encima */
+}
+
+.category-chip,
+.remuneration-chip {
+  max-width: 150px; /* Ajusta este valor según necesites */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 </style>

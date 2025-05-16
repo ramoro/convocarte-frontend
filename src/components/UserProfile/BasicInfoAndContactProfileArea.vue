@@ -5,7 +5,7 @@
         <p class="font-weight-bold text-h6">Información Básica</p>
       </v-col>
       <v-col cols="auto" class="text-right">
-        <v-btn color="purple" @click="openBasicInfoDialog">Editar Formulario</v-btn>
+        <v-btn v-if="editingMode" color="purple" @click="openBasicInfoDialog">Editar Formulario</v-btn>
       </v-col>
     </v-row>
     <!--- Visualizacion de la data ---->
@@ -269,6 +269,10 @@ export default {
     basicInfo: {
       type: Object,
       default: () => {}
+    },
+    editingMode: {
+      type: Boolean,
+      default: true
     }
   },
   data() {

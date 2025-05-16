@@ -7,7 +7,7 @@
                   <v-icon color="purple" class="mr-2 mb-1" v-bind="props">mdi-information</v-icon>
               </template>
           </v-tooltip> 
-          <span class="text-h5">Fotos de la Búsqueda</span>
+          <span class="text-h5">Fotos del Casting</span>
         </v-card-title>
         <v-card-text>
             <v-row>

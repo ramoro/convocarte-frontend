@@ -34,7 +34,7 @@
         <v-col cols="12" class="d-flex justify-space-between align-center">
           <h1 class="profile-title">Perfil de usuario</h1>
           <div class="d-flex">
-            <v-btn class="mr-3" rounded to="/user-gallery">              
+            <v-btn class="mr-3" rounded :to="'/user-gallery/' + $route.params.userId" >              
               <img 
               :src="require('@/assets/gallery-icon.png')"
               alt="Gallery Icon" 
@@ -43,7 +43,8 @@
               />
               Galería de Fotos
             </v-btn>
-            <v-btn             
+            <v-btn   
+            v-if="editingMode"          
             class="mr-3"
             rounded
             @click="reelDialog = true">            
@@ -54,7 +55,7 @@
                 height="25"
               />Agregar reel
             </v-btn>
-            <UploadFileButton button-text="Subir CV" @add-uploaded-cv="handleUploadedCV" />
+            <UploadFileButton v-if="editingMode" button-text="Subir CV" @add-uploaded-cv="handleUploadedCV" />
           </div>
         </v-col>
       </v-row>
@@ -73,16 +74,16 @@
               @click="openCropperDialog"
             ></v-img>
             <p v-if="currentUser" class="caption" style="font-weight: bold;">{{ currentUser.fullname }}</p>
-            <p v-if="currentUser" class="caption mt-2"><v-icon class="mr-1" color="blue">mdi-email-outline</v-icon>{{ currentUser.email }}</p>
+            <p v-if="currentUser" class="caption mt-2"><v-icon class="mr-1" color="blue">mdi-email-outline</v-icon>{{ userEmail }}</p>
             <p v-if="currentUser && basicInfo.instagram" class="caption mt-2"><v-icon class="mr-1" color="pink-lighten-1">mdi-instagram</v-icon><a :href="currentInstagram.fullLink">{{ currentInstagram.shortLink }}</a></p>
             <p v-if="currentUser && basicInfo.phone_number" class="caption mt-2"><v-icon class="mr-1" color="blue-darken-4">mdi-phone-outline</v-icon>{{ basicInfo.phone_number }}</p>
             <p v-if="currentUser && cv" class="caption mt-2">   
               <DownloadFileChip v-if="cv" chipText="Curriculum" chipImageFileName="logo-pdf-2.png"
-              chipColor="red" :fileUrl=cv  @delete-file="deleteCV"
+              chipColor="red" :fileUrl=cv  @delete-file="deleteCV" :isClosable="editingMode"
               />          
             </p>
             <p v-if="currentUser && reelLink" class="caption mt-2">            
-                <v-chip v-if="reelLink" color="blue-grey-lighten-2" class="ma-2" closable @click:close="deleteReel">
+                <v-chip v-if="reelLink" color="blue-grey-lighten-2" class="ma-2" :closable="editingMode" @click:close="deleteReel">
                   <img 
                     :src="require('@/assets/camera-recorder.png')"
                     alt="Camera Recorder Icon" 
@@ -111,16 +112,19 @@
                   <v-card-text>
                     <!-- Mostrar el componente solo si el tab actual es "Info Básica" -->
                     <BasicInfoAndContactProfileArea v-if="items[tab] === 'Info Básica'"
+                      :editingMode="editingMode"
                       :basicInfo = "basicInfo"
                       @update-basic-info="handleUpdatedBasicInfo"
                     />
                     <!-- Mostrar el componente solo si el tab actual es "Habilidades" -->
                     <SkillsProfileArea v-if="items[tab] === 'Habilidades'"
+                      :editingMode="editingMode"
                       :skills = "skills"
                       @update-skills="handleUpdatedSkills"
                     />
                     <!-- Mostrar el componente solo si el tab actual es "Estudios" -->
                     <EducationProfileArea v-if="items[tab] === 'Estudios'"
+                      :editingMode="editingMode"
                       :educationItems="educationItems" 
                       @add-education="handleAddEducation"
                       @delete-education="handleDeletedEducation"
@@ -128,6 +132,7 @@
                     />
                     <!-- Mostrar el componente solo si el tab actual es "Experiencia Laboral" -->
                     <WorkExperienceProfileArea v-if="items[tab] === 'Experiencia Laboral'"
+                      :editingMode="editingMode"
                       :workExperienceItems="workExperienceItems" 
                       @add-work-experience="handleAddWorkExperience"
                       @delete-work-experience="handleDeletedWorkExperience"
@@ -135,6 +140,7 @@
                     />
                     <!-- Mostrar el componente solo si el tab actual es "Caracteristicas fisicas" -->
                     <PhysicalCharacteristicsProfileArea v-if="items[tab] === 'Características Físicas'"
+                      :editingMode="editingMode"
                       :phCharacteristics = "physicalCharacteristics"
                       @update-physical-characteristics="handleUpdatedPhysicalCharacteristics"
                     />
@@ -194,38 +200,7 @@ export default {
   },
   created() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
-    // Cargar la lista de estudios del usuario
-    AcademicExperienceService.getUserAcademicExperiences()
-      .then(response => {
-        this.educationItems = response.data; // `response.data` es  una lista de experiencias academicas
-      })
-      .catch(error => {
-        console.log('Error al obtener experiencias académicas', error);
-      }
-    );
-
-    // Cargar la lista de experiencias laborales del usuario
-    WorkExperienceService.getUserWorkExperiences()
-      .then(response => {
-        this.workExperienceItems = response.data; // `response.data` es  una lista de experiencias laborales
-      })
-      .catch(error => {
-        console.log('Error al obtener experiencias laborales', error);
-      }
-    );
-
-    UserService.getUserById(this.$store.state.auth.user.id)      
-    .then(response => {
-        this.setPhysicalCharacteristics(response.data);
-        this.setSkills(response.data);
-        this.setBasicInfo(response.data);
-        this.cv = response.data.cv;
-        this.reelLink = response.data.reel_link;
-      })
-      .catch(error => {
-        console.log('Error al obtener datos del usuario', error);
-      }
-    );
+    this.loadUserData(this.$route.params.userId);
   },
   data() {
     return {
@@ -246,6 +221,8 @@ export default {
       requiredRule: [
         value => !!value || 'Campo requerido'
       ],
+      userEmail: null,
+      editingMode: true
     };
   },
   methods: {
@@ -279,8 +256,6 @@ export default {
         });
     },
     async handleUploadedCV(cvFile, fileName) {
-
-
       //Se manda el nombre del archivo que ya existia si es que habia uno antes
       //para que el back lo elimine
       let oldCVName = null;
@@ -479,6 +454,38 @@ export default {
         moto_drivers_license: data.moto_drivers_license,
         skills_additionals: data.skills_additionals
       }
+    },
+    async loadUserData(userId) {
+      try {
+        const [academicExp, workExp, userData] = await Promise.all([
+          AcademicExperienceService.getUserAcademicExperiences(userId),
+          WorkExperienceService.getUserWorkExperiences(userId),
+          UserService.getUserById(userId)
+        ]);
+        
+        this.educationItems = academicExp.data;
+        this.workExperienceItems = workExp.data;
+        this.userEmail = userData.data.email;
+        this.resizedImage = userData.data.profile_picture;
+        this.setPhysicalCharacteristics(userData.data);
+        this.setSkills(userData.data);
+        this.setBasicInfo(userData.data);
+        this.cv = userData.data.cv;
+        this.reelLink = userData.data.reel_link;
+        
+        // Actualizar el modo de edición
+        this.editingMode = this.currentUser?.id == userId;
+      } catch (error) {
+        console.error('Error cargando user data:', error);
+      }
+    }
+  },
+  watch: {
+  '$route.params.userId': {
+      immediate: true, // Para que se ejecute al montar el componente
+      handler(newUserId) {
+        this.loadUserData(newUserId);
+      }
     }
   },
   computed: {
@@ -502,10 +509,15 @@ export default {
     }
   },
   beforeMount() {
+    console.log("userid", this.$route.params.userId);
     if (!this.currentUser) {
       this.$router.push('/');
-    } else if (this.currentUser.profile_picture != "") {
-      this.resizedImage = this.currentUser.profile_picture;
+    } else if (this.currentUser.id == this.$route.params.userId) {
+      if (this.currentUser.profile_picture != "") {
+        this.resizedImage = this.currentUser.profile_picture;
+      }
+    } else {
+      this.editingMode = false;
     }
   }
 };

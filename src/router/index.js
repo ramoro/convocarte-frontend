@@ -38,12 +38,12 @@ const routes = [
     }
   },
   {
-    path: '/user-profile',
+    path: '/user-profile/:userId',
     name: 'userprofile',
     component: () => import('../views/UserProfileView.vue')
   },
   {
-    path: '/user-gallery',
+    path: '/user-gallery/:userId',
     name: 'usergallery',
     component: () => import('../views/UserGalleryView.vue')
   },
@@ -110,13 +110,35 @@ const routes = [
   {
     path: '/role-postulation-form/:roleName/:formId',
     name: 'rolepostulationform',
-    component: () => import('../views/Casting Postulations/PostulationFormView.vue')
+    component: () => import('../views/Casting Postulations/PostulationFormView.vue'),
+    
   },
   {
     path: '/casting-postulation-created/:postulationId',
     name: 'postulationcreated',
     component: () => import('../views/Casting Postulations/PostulationCreatedMessageView.vue')
-  }
+  },
+  {
+    path: '/user-postulations',
+    name: 'usercastingpostulations',
+    component: () => import('../views/Casting Postulations/UserPostulationsView.vue')
+  },
+  {
+    path: '/my-postulation/:postulationId',
+    name: 'mycastingpostulation',
+    component: () => import('../views/Casting Postulations/MyPostulationView.vue')
+  },
+  {
+    path: '/casting-call-postulations/:castingCallId',
+    name: 'castingcallpostulations',
+    component: () => import('../views/Casting Postulations/CastingCallPostulationsView.vue')
+  },
+  {
+    path: '/casting-call-user-postulation/:postulationId',
+    name: 'castingcalluserpostulation',
+    component: () => import('../views/Casting Postulations/CastingCallUserPostulationView.vue')
+    
+  },
 ]
 
 const router = createRouter({

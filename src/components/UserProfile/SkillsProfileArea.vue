@@ -5,7 +5,7 @@
           <p class="font-weight-bold text-h6">Habilidades</p>
         </v-col>
         <v-col cols="auto" class="text-right">
-          <v-btn color="purple" @click="openSkillsDialog">Editar Formulario</v-btn>
+          <v-btn v-if="editingMode" color="purple" @click="openSkillsDialog">Editar Formulario</v-btn>
         </v-col>
       </v-row>
       <!--- Visualizacion de la data ---->
@@ -202,6 +202,10 @@ export default {
     skills: {
       type: Object,
       default: () => {}
+    },
+    editingMode: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
