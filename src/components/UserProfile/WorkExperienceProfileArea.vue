@@ -142,7 +142,7 @@
     <p class="font-weight-bold text-h6">Experiencias Laborales</p>
   </v-col>
   <v-col cols="auto">
-    <v-btn @click="openAddWorkExperienceDialog" style="margin-left:0px;" color="cyan" icon size="35" class="text-white">
+    <v-btn v-if="editingMode" @click="openAddWorkExperienceDialog" style="margin-left:0px;" color="cyan" icon size="35" class="text-white">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
   </v-col>
@@ -168,7 +168,7 @@
       <div style="color:black !important">{{workExperience.end_date ? formatDate(workExperience.end_date) : '-'}}</div>
     </v-col>
     <v-col cols="1" md="1">
-      <div style="text-align: right;">
+      <div v-if="editingMode" style="text-align: right;">
         <v-tooltip text="Editar" location="top">
           <template v-slot:activator="{ props }">
             <v-icon v-bind="props" @click="openEditWorkExperienceDialog(workExperience, index)">mdi-pencil</v-icon>
@@ -216,6 +216,10 @@ props: {
   workExperienceItems: {
     type: Array,
     default: () => []
+  },
+  editingMode: {
+    type: Boolean,
+    default: true
   }
 },
 emits: ['add-work-experience', 'delete-work-experience', 'update-work-experience'],

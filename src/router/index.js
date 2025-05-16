@@ -38,12 +38,12 @@ const routes = [
     }
   },
   {
-    path: '/user-profile',
+    path: '/user-profile/:userId',
     name: 'userprofile',
     component: () => import('../views/UserProfileView.vue')
   },
   {
-    path: '/user-gallery',
+    path: '/user-gallery/:userId',
     name: 'usergallery',
     component: () => import('../views/UserGalleryView.vue')
   },

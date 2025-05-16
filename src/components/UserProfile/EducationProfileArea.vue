@@ -117,7 +117,7 @@
     <p class="font-weight-bold text-h6">Estudios</p>
   </v-col>
   <v-col cols="auto">
-    <v-btn @click="openAddEducationDialog" style="margin-left:0px;" color="purple" icon size="35">
+    <v-btn v-if="editingMode" @click="openAddEducationDialog" style="margin-left:0px;" color="purple" icon size="35">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
   </v-col>
@@ -142,7 +142,7 @@
       <div style="color:black !important">{{education.end_date ? formatDate(education.end_date) : '-'}}</div>
     </v-col>
     <v-col cols="1" md="1">
-      <div style="text-align: right;">
+      <div v-if="editingMode" style="text-align: right;">
         <v-tooltip text="Editar" location="top">
           <template v-slot:activator="{ props }">
             <v-icon v-bind="props" @click="openEditEducationDialog(education, index)">mdi-pencil</v-icon>
@@ -180,6 +180,10 @@ props: {
   educationItems: {
     type: Array,
     default: () => []
+  },
+  editingMode: {
+    type: Boolean,
+    default: true
   }
 },
 emits: ['add-education', 'delete-education', 'update-education'],

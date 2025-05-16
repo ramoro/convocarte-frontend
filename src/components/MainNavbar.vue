@@ -7,7 +7,8 @@
                 <v-avatar size="43" class="elevation-3">
                     <v-img :src="currentUser?.profile_picture || require('@/assets/empty-photo.png')" alt="" />
                 </v-avatar>
-                <RouterLink to="/user-profile" style="text-decoration: none; color: black">
+                <RouterLink :to="'/user-profile/' + currentUser.id" 
+                style="text-decoration: none; color: black">
                     <p v-if="currentUser" class="text-subtitle-1 ml-3">
                         {{ currentUser.fullname }}
                     </p>
@@ -72,7 +73,7 @@ import { RouterLink } from 'vue-router';
             drawer: false, //El drawer va a servir para manejar visibilidad del navigation drawer
             links: [
                 { icon: 'mdi-home', text: 'Inicio', route: '/casting-call-search' },
-                { icon: 'mdi-account', text: 'Mi Perfil', route: '/user-profile' },
+                { icon: 'mdi-account', text: 'Mi Perfil', route: '/user-profile/' + this.$store.state.auth.user.id },
                 { icon: 'mdi-folder', text: 'Mis Proyectos', route: '/user-projects' },
                 { icon: 'mdi-form-select', text: 'Mis Formularios', route: '/user-forms' },
                 { icon: 'mdi-bell-ring', text: 'Mis Castings', route: '/user-casting-calls' },
@@ -83,7 +84,7 @@ import { RouterLink } from 'vue-router';
     },
     computed: {
         currentUser() {
-            return this.$store.state.auth.user;
+            return this.$store.state.auth.user || {};
         }
     },
     methods: {
@@ -91,6 +92,6 @@ import { RouterLink } from 'vue-router';
             this.$store.dispatch('auth/logout');
             this.$router.push('/');
         }
-    }
+    },
   };
   </script>
