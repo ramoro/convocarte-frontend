@@ -141,7 +141,6 @@
         postulationData: null,
         isPostulationDataExpanded: true,
         socialNetworks: ['Instagram', 'Facebook', 'Sitio Web', 'Canal de Youtube'],
-        formValid: false,
         imageSrc: '',
         dialog: false,
         exposedRoleId: null,
