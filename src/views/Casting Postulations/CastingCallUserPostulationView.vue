@@ -50,6 +50,18 @@
           <v-expand-transition>
             <v-card v-show="isPostulationDataExpanded" class="mt-4 data-card" flat>
               <v-card-text>
+                <!-- Primera fila especial para el perfil del usuario -->
+                <div class="data-row">
+                  <div class="field-container">
+                    <span class="field-name">Perfil del usuario:</span>
+                    <span class="field-value ml-2">
+                      <RouterLink :to="'/user-profile/' + postulatedUserId" >
+                        Ver perfil completo
+                      </RouterLink>
+                    </span>
+                  </div>
+                  <v-divider class="my-2"></v-divider>
+                </div>
                 <div 
                   v-for="(fieldValue, fieldName) in postulationData" 
                   :key="fieldName"
@@ -133,7 +145,8 @@
         imageSrc: '',
         dialog: false,
         exposedRoleId: null,
-        castingCallId: null
+        castingCallId: null,
+        postulatedUserId: null
       };
     },
     beforeMount() {
@@ -149,6 +162,8 @@
       try {
         const postulationId = this.$route.params.postulationId;
         const response = await CastingPostulacionService.getCastingPostulationById(postulationId);
+
+        this.postulatedUserId = response.data.owner_id;
         this.exposedRoleId = response.data.exposed_role.id;
         this.castingCallId = response.data.casting_call.id;
         this.postulationData = JSON.parse(response.data.postulation_data);
@@ -247,6 +262,6 @@
 }
 
 .v-dialog__content {
-  background-color: transparent !important; /* Fondo transparente para la imagen */
+  background-color: transparent !important; /* Fondo transparente para las imagenes del usuario */
 }
 </style>
