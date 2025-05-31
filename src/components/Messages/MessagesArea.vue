@@ -147,7 +147,6 @@ import MessageForm from './MessageForm.vue';
             },
             async sendMessage(message) {
                 this.$emit('send-message', message);
-                
             },
         }
 
@@ -183,7 +182,6 @@ import MessageForm from './MessageForm.vue';
   position: relative;  /* Para el pseudo-elemento (opcional) */
 }
 
-/* Opcional: Añade un indicador de "nuevo" */
 .message-unread::before {
   content: "";
   position: absolute;
