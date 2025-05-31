@@ -27,13 +27,13 @@
       <td>
         
         <div class="d-flex align-center">
-                        <v-badge
-      v-if="item.unread_messages_count > 0"
-      color="red"
-      :content="item.unread_messages_count"
-      inline
-      class="mr-2"
-    ></v-badge>
+          <v-badge
+            v-if="item.unread_messages_count > 0"
+            color="red"
+            :content="item.unread_messages_count"
+            inline
+            class="mr-2"
+          ></v-badge>
           <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
           {{ formatCreationDate(item.created_at) }}
         </div>

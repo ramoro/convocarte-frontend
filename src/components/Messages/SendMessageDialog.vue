@@ -77,18 +77,9 @@
           "/NombreUsuario/" 
         );
         success = true;
-        this.$root.InformationSnackbar.show({
-          message: 'Mensaje enviado correctamente',
-          color: 'success'
-        });
-
       } catch (error) {
         console.error('Error al enviar mensaje:', error);
         success = false;
-        this.$root.InformationSnackbar.show({
-          message: 'Error al enviar el mensaje',
-          color: 'error'
-        });
       } finally {
         this.isSending = false;
         this.$emit('show-message-sent-result', success);
