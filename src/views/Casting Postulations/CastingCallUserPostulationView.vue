@@ -80,6 +80,7 @@
                         class="ml-2"
                         :isClosable="false"
                         :fileUrl=fieldValue
+                        :userNameToFileName="postulationData['Nombre y Apellido']"
                       />
                       
                       <v-chip 
@@ -103,16 +104,23 @@
                         <a v-else>{{ fieldValue || 'No especificado' }}</a>
                       </span>
                     </div>
-                    <v-divider class="my-2"></v-divider>
+                    <v-divider ></v-divider>
                   </template>
                 </div>
               </v-card-text>
             </v-card>
           </v-expand-transition>
           
-          <v-divider class="my-6"></v-divider>
+          <v-divider class="mt-4"></v-divider>
         </v-col>
       </v-row>
+      <MessagesArea
+        :messages="messages"
+        :current-user-profile-picture="this.$store.state.auth.user?.profile_picture"
+        :isSending="isSending"
+        @send-message="sendMessage"
+        @mark-as-read="markAsRead"
+      />
 
       <v-dialog v-model="dialog" max-width="30%">
       <v-card class="pa-0" tile>
@@ -128,33 +136,48 @@
   <script>
   import InformationSnackbar from '@/components/InformationSnackbar.vue';
   import CastingPostulacionService from '@/services/casting-postulation.service';
-  import DownloadFileChip from '@/components/DownloadFileChip.vue';  
+  import DownloadFileChip from '@/components/DownloadFileChip.vue';
+  import MessageService from '@/services/message.service';  
+  import MessagesArea from '@/components/Messages/MessagesArea.vue';
+  
   
   export default {
     components: {
       InformationSnackbar,
-      DownloadFileChip
+      DownloadFileChip,
+      MessagesArea
     },
     data() {
       return {
         isLoading: true,
         postulationData: null,
-        isPostulationDataExpanded: true,
+        isPostulationDataExpanded: false,
         socialNetworks: ['Instagram', 'Facebook', 'Sitio Web', 'Canal de Youtube'],
         imageSrc: '',
         dialog: false,
         exposedRoleId: null,
         castingCallId: null,
-        postulatedUserId: null
-      };
-    },
+        postulatedUserId: null,
+        messages: [],
+      isSending: false,
+    };
+  },
     beforeMount() {
       if (!this.$store.state.auth.user) {
         this.$router.push('/');
       }
     },
-    created() {
-      this.loadPostulationData();
+    async created() {
+      await this.loadPostulationData();
+      await this.loadMessages();
+    },
+    mounted() {
+      this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
+    },
+    computed: {
+      currentUser() {
+          return this.$store.state.auth.user;
+      },
     },
     methods: {
       async loadPostulationData() {
@@ -178,7 +201,7 @@
     },
 
     openImgDialog(url) {
-      this.imageSrc = url;  // Asignamos la URL de la imagen
+      this.imageSrc = url;
       this.dialog = true;
     },
 
@@ -186,6 +209,111 @@
       this.$router.push({ name: 'castingcallpostulations', 
       params: { castingCallId: this.castingCallId}, query:{ roleId: this.exposedRoleId } });
     },
+
+    async loadMessages() {
+      try {
+        const response = await MessageService.getMessagesByPostulationId(this.$route.params.postulationId);
+        console.log("response getmessages: ", response);
+
+        this.messages = response.map(msg => {
+          // Parsear los archivos adjuntos si existen
+          let attachments = [];
+          try {
+            if (msg.files) {
+              const filesData = JSON.parse(msg.files);
+              attachments = Object.entries(filesData).map(([url, name]) => ({
+                id: url,
+                name: name,
+                url: url,
+              }));
+            }
+          } catch (error) {
+            console.error('Error al parsear adjuntos:', error);
+            attachments = []; // Si hay error, dejamos array vacío
+          }
+
+          return {
+            id: msg.id,
+            created_at: msg.created_at,
+            content: msg.content,
+            date: msg.created_at, // Cambié resp.created_at por msg.created_at
+            expanded: false,
+            sentByMe: msg.sender_id == this.currentUser.id,
+            read: (msg.sender_id == this.currentUser.id) || !msg.state.includes("Sin Leer"), // Asegúrate que sentByMe se calcula igual aquí
+            attachments: attachments,
+            senderFullName: msg.sender_fullname || this.postulationData?.['Nombre y Apellido'] || '',
+            senderProfilePicture: msg.sender_profile_picture || this.postulationData?.['Foto de Perfil'] || require('@/assets/empty-photo.png'),
+          };
+        });
+      } catch (error) {
+        console.error('Error al cargar mensajes:', error);
+        this.$root.InformationSnackbar.show({
+          message: 'Error al cargar los mensajes',
+          color: 'error'
+        });
+      }
+    },
+
+    async sendMessage(message) {
+      this.isSending = true;
+      try {
+        const lastMessageId = this.messages.length > 0 ? this.messages.at(-1)['id'] : null;
+        
+        const resp = await MessageService.createMessage(
+          message.content, 
+          this.postulatedUserId,
+          this.$route.params.postulationId, 
+          message.filesToUpload, 
+          lastMessageId
+        );
+
+        const contentNewMessage = message.content;
+
+        this.$root.InformationSnackbar.show({
+          message: 'Mensaje enviado correctamente',
+          color: 'success'
+        });
+
+        const attachments = JSON.parse(resp.files);
+        const attachmentsArray = Object.entries(attachments).map(([url, name]) => ({
+                                  id: url,                  
+                                  name: name,               
+                                  url: url                  
+                                }));
+        this.messages.push({
+          id: resp.id,
+          content: contentNewMessage,
+          date: resp.created_at,
+          sentByMe: true,
+          read: true,
+          expanded: false,
+          attachments: attachmentsArray
+        });
+      } catch (error) {
+        console.error('Error al enviar mensaje:', error);
+        this.$root.InformationSnackbar.show({
+          message: 'Error al enviar el mensaje',
+          color: 'error'
+        });
+      } finally {
+        this.isSending = false;
+      }
+    },
+    async markAsRead(messageId) {
+      try {
+          const message = this.messages.find(m => m.id === messageId);
+          if (message) {
+            const payload = {
+              state: 'Enviado - Leído'
+            }
+            await MessageService.updateMessage(payload, message.id);
+            message.read = true;
+          }          
+      } catch (error) {
+          console.error('Error al marcar como leído:', error);
+      }
+    },
+
     },
   };
   </script>
@@ -263,4 +391,6 @@
 .v-dialog__content {
   background-color: transparent !important; /* Fondo transparente para las imagenes del usuario */
 }
+
+
 </style>
