@@ -7,7 +7,7 @@
             class="button-image mr-2"
             height="20"
         />
-        <a @click.prevent="downloadFile" href="#">{{ chipText }}</a>
+        <a @click.stop.prevent="downloadFile" href="#">{{ chipText }}</a>
     </v-chip>
 </template>
   
@@ -40,6 +40,14 @@
         isDisabled: {
             type: Boolean,
             default: false
+        },
+        userNameToFileName: {
+            type: String,
+            default: null
+        },
+        addExtension: {
+            type: Boolean,
+            default: true
         }
     },
     emits: ['delete-file'],
@@ -69,7 +77,15 @@
                     link.href = this.fileUrl// URL del archivo para descargarlo (deberia venir con el URL de descarga ya)
                 }
                 const extension = this.fileUrl.split('.').at(-1)
-                link.setAttribute('download', this.chipText + '-' + this.$store.state.auth.user.fullname.replace(/\s+/g, '') + '.' + extension); // Nombre del archivo a descargar
+                var fileName = this.chipText;
+                if (this.userNameToFileName) {
+                    fileName += '-' + this.userNameToFileName.replace(/\s+/g, '')
+                }
+                if (this.addExtension && extension) {
+                    fileName += '.' + extension
+                }
+
+                link.setAttribute('download', fileName);
                 document.body.appendChild(link);
                 link.click(); // Simula el clic para descargar el archivo
                 document.body.removeChild(link); // Elimina el enlace después de hacer clic

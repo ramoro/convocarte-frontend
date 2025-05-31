@@ -1,14 +1,22 @@
 <template>
-  <!-- Diálogo para confirmar la eliminación -->
-  <DeleteConfirmationDialog
-    v-model="deleteDialog"
-    itemName="postulación"
-    :manyItems="manyPostulationsToDelete"
-    extraInfo="Al eliminar una o varias postulaciones significa que están siendo RECHAZADAS. 
-    Las personas Rechazadas serán notificadas mediante un mensaje en su postulación."
-    @delete-confirmed="confirmDelete"
-    @delete-cancelled="deleteDialog = false"
-/>
+    <!-- Diálogo para confirmar la eliminación -->
+    <DeleteConfirmationDialog
+      v-model="deleteDialog"
+      itemName="postulación"
+      :manyItems="manyPostulationsToDelete"
+      extraInfo="Al eliminar una o varias postulaciones significa que están siendo RECHAZADAS. 
+      Las personas Rechazadas serán notificadas mediante un mensaje en su postulación."
+      @delete-confirmed="confirmDelete"
+      @delete-cancelled="deleteDialog = false"
+  />
+  
+  <!-- Diálogo para enviar mensaje -->
+  <SendMessageDialog 
+    v-model="sendMessageDialog"
+    :postulations="postulationsToSendMessage"
+    @close-dialog="closeSendMessageDialog"
+    @show-message-sent-result = "showMessageSentResult"
+  />
   <v-container class="py-8">
     <div class="d-flex justify-space-between align-center mb-6">
       <h1 class="text-h4 font-weight-bold mb-0">Gestión de Postulaciones</h1>
@@ -39,17 +47,30 @@
         v-for="role in exposedRoles" 
         :key="role.id"
       >
-        <v-card class="mx-auto" elevation="2" max-width="800">
-          <v-card-title class="d-flex justify-space-between align-center">
-            <span class="text-h5" style="font-weight: bold;">{{ role.role.name }}</span>
-            
-            <!-- Contador de postulaciones -->
-            <div class="d-flex align-center mt-2">
-              <v-icon color="purple" class="mr-1">mdi-account-box-multiple</v-icon>
-              <span class="text-body-1">
-                {{ postulationsNotRejectedAmount(role.casting_postulations) }} postulación(es)
-              </span>
-            </div>
+        <v-card class="mx-auto" elevation="2" max-width="800"
+                :class="{ 'role-card-unread': hasUnreadMessages(role) }">
+          
+          <v-card-title class="pa-4">
+            <v-row no-gutters align="center">
+              <v-col cols="auto" v-if="hasUnreadMessages(role)">
+                <v-icon color="red" class="mr-2" :size="30" title="Postulaciones con mensajes no leídos">
+                  mdi-bell
+                </v-icon>
+              </v-col>
+
+              <v-col class="flex-grow-1">
+                <span class="text-h5 font-weight-bold">{{ role.role.name }}</span>
+              </v-col>
+
+              <v-col cols="auto">
+                <div class="d-flex align-center">
+                  <v-icon color="purple" class="mr-1">mdi-account-box-multiple</v-icon>
+                  <span class="text-body-1">
+                    {{ postulationsNotRejectedAmount(role.casting_postulations) }} postulación(es)
+                  </span>
+                </div>
+              </v-col>
+            </v-row>
           </v-card-title>
 
           <v-card-text>
@@ -135,7 +156,7 @@
               size="small"
               prepend-icon="mdi-message-outline"
               class="mr-2"
-              @click="alert(`Enviar mensaje a seleccionados`)"
+              @click="prepareSendingMessage(columnId, true)"
             >
               Mensaje
             </v-btn>
@@ -143,7 +164,7 @@
               variant="outlined"
               size="small"
               color="error"
-              prepend-icon="mdi-delete-outline"
+              prepend-icon="mdi-delete"
               @click="prepareDelete(columnId, true)"
             >
               Eliminar
@@ -180,12 +201,24 @@
                         :to="getPostulationLink(item.id)"
                         class="d-inline-block"
                       >
-                        <v-avatar size="40" class="mr-3">
-                          <v-img 
-                            :src="item.photo_url || require('@/assets/empty-photo.png')" 
-                            :alt="item.name"
-                          />
-                        </v-avatar>
+                        <v-badge
+                          :content="item.unread_messages_count"
+                          :model-value="item.has_unread_messages"
+                          color="red"
+                          overlap
+                          bordered
+                          location="top end"
+                          :offset-x="5"
+                          :offset-y="5"
+                        >
+                          <v-avatar size="40" class="mr-3">
+                            <v-img 
+                              :src="item.photo_url || require('@/assets/empty-photo.png')" 
+                              :alt="item.name"
+                              
+                            />
+                          </v-avatar>
+                        </v-badge>
                       </router-link>
 
                       <div class="flex-grow-1">
@@ -232,7 +265,7 @@
                             </template>
                             <v-list-item-title>Ver Postulación</v-list-item-title>
                           </v-list-item>
-                          <v-list-item >
+                          <v-list-item @click="prepareSendingMessage(columnId, false, item.id)">
                             <template v-slot:prepend>
                               <v-icon size="small" class="mr-2">mdi-message-outline</v-icon>
                             </template>
@@ -240,7 +273,7 @@
                           </v-list-item>
                           <v-list-item @click="prepareDelete(columnId, false, item.id)" class="text-error">
                             <template v-slot:prepend>
-                              <v-icon size="small" class="mr-2" color="error">mdi-delete-outline</v-icon>
+                              <v-icon size="small" class="mr-2" color="error">mdi-delete</v-icon>
                             </template>
                             <v-list-item-title>Eliminar</v-list-item-title>
                           </v-list-item>
@@ -261,6 +294,7 @@
         </div>
       </v-col>
     </v-row>
+    <InformationSnackbar ref="InformationSnackbar"/>
   </v-container>
 </template>
 
@@ -271,11 +305,15 @@ import CastingCallService from '@/services/casting-call.service';
 import CastingCallPostulationService from '@/services/casting-postulation.service';
 import { sortBy, formatDate, getPostulationStateColor } from '@/utils';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog.vue';
+import SendMessageDialog from '@/components/Messages/SendMessageDialog.vue';
+import InformationSnackbar from '@/components/InformationSnackbar.vue';
 
 export default {
   components: {
     draggable,
-    DeleteConfirmationDialog
+    DeleteConfirmationDialog,
+    SendMessageDialog,
+    InformationSnackbar
   },
   data() {
     return {
@@ -304,7 +342,9 @@ export default {
       columnIdToDelete: null,
       postulationIdToDelete: null,
       exposedRoles: null,
-      exposedRoleIdSelected: null
+      exposedRoleIdSelected: null,
+      sendMessageDialog: false,
+      postulationsToSendMessage: []
     }
   },
   created() {
@@ -314,6 +354,7 @@ export default {
     CastingCallService.getCastingCallWithPostulations(castingCallId)
       .then(response => {
         const castingCallInfo = response.data;
+                console.log("Response: ", castingCallInfo);
         this.exposedRoles = castingCallInfo.exposed_roles;
 
         if (exposedRoleId) {
@@ -323,7 +364,7 @@ export default {
             this.isLoading = false;
             return;
           }
-        }
+        } 
         this.isLoading = false;
         this.isSelectingRole = true; 
       })
@@ -331,6 +372,9 @@ export default {
         console.log('Error al obtener postulaciones del casting', error);
         this.isLoading = false;
       });
+  },
+  mounted() {
+    this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
   },
   methods: {
     postulationsNotRejectedAmount(postulations) {
@@ -357,7 +401,10 @@ export default {
           date: this.formatPublicationDate(postulation.created_at),
           photo_url: postulation.data['Foto de Perfil'],
           postulation_data: postulation.postulation_data,
-          state: postulation.state
+          state: postulation.state,
+          unread_messages_count: postulation.unread_messages_count || 0,
+          has_unread_messages: postulation.has_unread_messages || false,
+          owner_id: postulation.owner_id
         };
 
         if (postulation.state.includes('Pre-seleccionada')) {
@@ -444,6 +491,34 @@ export default {
         this.rejectPostulation(this.columnIdToDelete, this.postulationIdToDelete);
       }
     },
+    prepareSendingMessage(columnId, manyPostulationsToSendMessage, postulationId = null) {
+      //Si eligió enviar mensaje de la seleccion de postulaciones y no selecciono nada, no sucede nada
+      if (manyPostulationsToSendMessage && this.selected[columnId].length === 0) return;
+
+      //Si viene con postulationId, significa que se selecciono una postulacion invidual para
+      //mandarle un mensaje. Sino significa que se seleccionaron varias postulaciones para enviarles un mensaje
+      if (postulationId) {
+        let postulationToSendMessage = this.columns[columnId].items.filter(
+          item => item.id == postulationId
+        );
+        this.postulationsToSendMessage.push({'postulationId': postulationId, 
+          'postulatedUserId': postulationToSendMessage[0].owner_id,
+          'postulatedUserName': postulationToSendMessage[0].name,
+        })
+        console.log('test: ', this.postulationsToSendMessage);
+
+      } else {
+        this.postulationsToSendMessage = this.columns[columnId].items.filter(
+          item => this.selected[columnId].includes(item.id)
+        ).map(item => ({
+          postulationId: item.id,
+          postulatedUserId: item.owner_id,
+          postulatedUserName: item.name
+        }));
+      }
+
+      this.sendMessageDialog = true;
+    },
     
     // Rechaza postulaciones seleccionadas
     async rejectSelectedPostulations(columnId) {
@@ -521,6 +596,31 @@ export default {
     getStateColor(state) {
       return getPostulationStateColor(state);
     },
+
+    hasUnreadMessages(role) {
+      return role.casting_postulations.some(
+        postulation => postulation.has_unread_messages
+      );
+    },
+    closeSendMessageDialog () {
+      this.sendMessageDialog = false;
+      this.postulationsToSendMessage = [];
+    },
+    showMessageSentResult(success) {
+      if (success) {
+        this.$root.InformationSnackbar.show({
+          message: 'Mensaje enviado correctamente',
+          color: 'success'
+        });
+      } else {
+        this.$root.InformationSnackbar.show({
+          message: 'Error al enviar el mensaje',
+          color: 'error'
+        });
+      }
+      this.closeSendMessageDialog();
+    }
+
   }
 }
 
@@ -536,4 +636,16 @@ cursor: move;
 .min-height-100 {
 min-height: 100%;
 }
+
+/* Asegura que el avatar tenga posición relativa para el badge */
+.v-avatar {
+  position: relative;
+}
+
+.role-card-unread {
+  border-left: 4px solid red !important;
+  position: relative;
+}
+
+
 </style>

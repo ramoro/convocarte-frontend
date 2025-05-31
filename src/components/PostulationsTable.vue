@@ -25,7 +25,15 @@
   <template v-slot:item="{ item }">
     <tr class="text-no-wrap" style="height: 60px !important; font-size: 13px;">
       <td>
+        
         <div class="d-flex align-center">
+          <v-badge
+            v-if="item.unread_messages_count > 0"
+            color="red"
+            :content="item.unread_messages_count"
+            inline
+            class="mr-2"
+          ></v-badge>
           <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
           {{ formatCreationDate(item.created_at) }}
         </div>
@@ -165,4 +173,5 @@
 .white--text {
   color: white !important;
 }
+
 </style>

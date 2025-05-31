@@ -6,7 +6,7 @@
         <v-card-title class="justify-center text-center">
           <span class="text-h5">{{ 'Agregar Reel' }}</span>
         </v-card-title>
-        <v-form ref="form" @submit.prevent="handleReelSubmit">
+        <v-form ref="form" @submit.prevent="handleReelSubmit" lazy-validation>
         <v-card-text>
             <v-row>
               <v-col cols="12">
@@ -55,7 +55,11 @@
                 height="25"
               />Agregar reel
             </v-btn>
-            <UploadFileButton v-if="editingMode" button-text="Subir CV" @add-uploaded-cv="handleUploadedCV" />
+            <UploadFileButton v-if="editingMode" 
+            button-text="Subir CV" 
+            file-extensions=".pdf"
+            attachmentIcon=""
+            @add-uploaded-file="handleUploadedCV" />
           </div>
         </v-col>
       </v-row>
@@ -73,13 +77,13 @@
               height="120"
               @click="openCropperDialog"
             ></v-img>
-            <p v-if="currentUser" class="caption" style="font-weight: bold;">{{ currentUser.fullname }}</p>
+            <p v-if="currentUser" class="caption" style="font-weight: bold;">{{ basicInfo.fullname }}</p>
             <p v-if="currentUser" class="caption mt-2"><v-icon class="mr-1" color="blue">mdi-email-outline</v-icon>{{ userEmail }}</p>
             <p v-if="currentUser && basicInfo.instagram" class="caption mt-2"><v-icon class="mr-1" color="pink-lighten-1">mdi-instagram</v-icon><a :href="currentInstagram.fullLink">{{ currentInstagram.shortLink }}</a></p>
             <p v-if="currentUser && basicInfo.phone_number" class="caption mt-2"><v-icon class="mr-1" color="blue-darken-4">mdi-phone-outline</v-icon>{{ basicInfo.phone_number }}</p>
             <p v-if="currentUser && cv" class="caption mt-2">   
               <DownloadFileChip v-if="cv" chipText="Curriculum" chipImageFileName="logo-pdf-2.png"
-              chipColor="red" :fileUrl=cv  @delete-file="deleteCV" :isClosable="editingMode"
+              chipColor="red" :fileUrl=cv  @delete-file="deleteCV" :isClosable="editingMode" :userNameToFileName="basicInfo.fullname"
               />          
             </p>
             <p v-if="currentUser && reelLink" class="caption mt-2">            
@@ -198,8 +202,10 @@ export default {
     InformationSnackbar,
     DownloadFileChip
   },
-  created() {
+  mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
+  },
+  created() {
     this.loadUserData(this.$route.params.userId);
   },
   data() {
@@ -340,8 +346,7 @@ export default {
       this.$refs.form.validate().then(result => {
         if (result.valid) {
           this.reelLink = this.currentTypedReelLink; 
-          console.log("REEL LINK ENVIANDO A SV: ", this.reelLink);  
-          console.log("current typedENVIANDO A SV: ", this.currentTypedReelLink);  
+
           UserService.updateUserData(this.$store.state.auth.user.id, {reel_link: this.reelLink})
           .then(response => {
             console.log('Se actualizo el link a reel:', response.data);

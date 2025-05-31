@@ -4,11 +4,14 @@
         <v-btn 
             color="cyan"
             class="text-white"
+            :size="buttonSize"
             rounded
             :loading="isSelecting" 
             @click="handleFileImport"
+            :prepend-icon="attachmentIcon ? attachmentIcon : ''"
         >
             <img 
+                v-if="!attachmentIcon"
                 :src="require('@/assets/logo-pdf-2.png')"
                 alt="Upload Icon" 
                 class="button-image mr-2"
@@ -22,11 +25,11 @@
             ref="uploader" 
             class="d-none" 
             type="file"
-            accept=".pdf"
+            :accept=fileExtensions
             @change="onFileChanged"
         >
         <div v-if="fileError" class="text-error mt-1 text-center" style="font-size:14px;">
-            <p>Máximo {{ Math.round(maxSize * maxSize / 1024 / 1024)}}MB</p>
+            <p>Máximo {{ maxSize }}MB</p>
         </div>  
     </div>
 </template>
@@ -41,10 +44,22 @@
             },
             maxSize: {
                 type: Number,
-                default: 1024
+                default: 1
+            },
+            attachmentIcon: {
+                type: String,
+                default: 'mdi-paperclip'
+            },
+            buttonSize: {
+                type: String,
+                default: 'default'
+            },
+            fileExtensions: {
+                type: String,
+                default: '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.odt,.ods,.odp,.jpg,.jpeg,.png,.gif,.bmp,.svg,.zip,.rar,.7z,.tar,.gz'
             }
         },
-        emits: ['add-uploaded-cv'],
+        emits: ['add-uploaded-file'],
         data(){
             return {
                 isSelecting: false,
@@ -67,20 +82,18 @@
             },
             onFileChanged(e) {
                 const files = e.target.files || e.dataTransfer.files;
-                let file = files[0];
                 if (files.length) {
-                    let size = file.size / this.maxSize / this.maxSize
-                    if (size > 1) {
+                    const file = files[0];
+                    const maxSizeBytes = this.maxSize * 1024 * 1024;  // Convertir MB a bytes
+                    if (file.size > maxSizeBytes) {
                         this.fileError = true;
                     } else {
                         this.fileError = false;
-                        this.selectedFile = files[0];
-                        //let fileName = files[0].name;
-                        this.$emit('add-uploaded-cv', file, files[0].name);
-
+                        this.selectedFile = file;
+                        this.$emit('add-uploaded-file', file, file.name);
                     }
                 }
-            },
+            }
         }
     }
 </script>
