@@ -109,6 +109,7 @@ export function getOptionsFromField(fieldName) {
  * @returns {string} nombre del icono
  */
 export function getCategoryIcon(category) {
+    if (!category) return '';
     if (category.includes('Cine') || category.includes('Corto')) return 'mdi-movie';
     if (category.includes('Teatro')) return 'mdi-theater';
     if (category.includes('Web')) return 'mdi-web';
@@ -123,6 +124,7 @@ export function getCategoryIcon(category) {
  * @returns {string} nombre del icono
  */
 export function getRemunerationIcon(remunerationType){
+    if (!remunerationType) return '';
     if (remunerationType.includes('No')) return 'mdi-currency-usd-off';
     if (remunerationType.includes('Remunerado') || remunerationType.includes('Simbólica')) return 'mdi-currency-usd';
     if (remunerationType.includes('Cooperativa')) return 'mdi-account-group';
