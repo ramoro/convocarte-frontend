@@ -168,11 +168,23 @@ export default {
   },
   methods: {
     resetRegistrationForm() {
-      this.$refs.regFullnameField.reset();
-      this.$refs.regEmailField.reset();
-      this.$refs.regPasswordField.reset();
-      this.$refs.regPasswordConfirmationField.reset();
+      this.registrationForm = {
+        fullname: '',
+        email: '',
+        password: '',
+        passwordConfirmation: ''
+      };
+      
+      // Resetear estado de validación
+      this.$nextTick(() => {
+        this.$refs.regFullnameField.resetValidation();
+        this.$refs.regEmailField.resetValidation();
+        this.$refs.regPasswordField.resetValidation();
+        this.$refs.regPasswordConfirmationField.resetValidation();
+      });
+      
       this.weakPassword = false;
+      this.step--;
     },
     goToNextStep() {
       this.$refs.emailField.reset();

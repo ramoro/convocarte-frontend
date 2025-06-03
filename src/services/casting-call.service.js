@@ -93,6 +93,12 @@ class CastingCallService {
 
     }
 
+    async updateCastingCallRejectionTemplate(castingId, rejectionText) {
+        console.log("rejectiontext", rejectionText);
+        return axios.patch(API_URL + 'casting-calls/rejection-template/' + castingId, {"rejection_template": rejectionText},
+            { headers: authHeader() });
+    }
+
 }
 
 export default new CastingCallService();
