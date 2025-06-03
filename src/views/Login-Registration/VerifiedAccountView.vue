@@ -1,6 +1,12 @@
 <template>
   <v-container class="d-flex align-center justify-center" style="text-align: center; height: 100vh;">
-    <v-card v-if="verificationApproved" class="pa-5" max-width="600" outlined border="info md">
+     <v-progress-circular
+      v-if="loading"
+      indeterminate
+      color="primary"
+      size="64"
+    ></v-progress-circular>
+    <v-card v-else-if="verificationApproved" class="pa-5" max-width="600" outlined border="info md">
       <v-card-title class="headline">¡Felicitaciones {{ userFullName }}!</v-card-title>
       <v-card-text>
         <p>Tu cuenta ya está activada.</p> <br>
@@ -29,7 +35,8 @@ export default {
       userFullName: '',
       verificationApproved: false,
       verificationRejected: false, //Necesario xq sino renderiza primero el else por un segundo
-      vueAppUrl: process.env.VUE_APP_FRONTEND_API_URL // Agrega aquí la variable de entorno
+      vueAppUrl: process.env.VUE_APP_FRONTEND_API_URL, // Agrega aquí la variable de entorno
+      loading: true
     }
   },
   computed: {
@@ -37,17 +44,20 @@ export default {
       return this.$route.params.user_id;
     }
   },
-  async beforeMount() {
-    UserService.getUserByIdWithToken(this.$route.params.user_id, this.$route.params.token)
-    .then(response => {
-      console.log('Request succesfully compelted:', response.data);
+  async mounted() {  // Cambiado a mounted
+    try {
+      const response = await UserService.getUserByIdWithToken(
+        this.$route.params.user_id, 
+        this.$route.params.token
+      );
       this.userFullName = response.data.fullname;
       this.verificationApproved = true;
-    })
-    .catch(error => {
-      console.log('Request error', error);
+    } catch (error) {
+      console.error('Request error', error);
       this.verificationRejected = true;
-    });
+    } finally {
+      this.loading = false;
+    }
   }
 }
 </script>
