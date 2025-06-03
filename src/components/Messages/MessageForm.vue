@@ -6,15 +6,27 @@
                 label="Mensaje"
                 required
                 outlined
-                rows="3"
+                rows="6"
                 :rules="[value => !!value || 'El mensaje debe tener un contenido.']"
             ></v-textarea>
-            <UploadFileButton button-text="Adjuntar Archivo" button-size="small"
-            class="mt-2"
-            attachment-icon="mdi-paperclip"
-            :maxSize="10" 
-            @add-uploaded-file="handleUploadedFile" />
+            <v-row class="mt-2">
+                <UploadFileButton button-text="Adjuntar Archivo" button-size="small"
+                class="ml-2 mt-2"
+                attachment-icon="mdi-paperclip"
+                :maxSize="10" 
+                @add-uploaded-file="handleUploadedFile" />
+                <v-btn 
+                    size="small"
+                    outlined
+                    color="purple-lighten-2"
+                    class="mt-2 ml-2"
+                    @click="addRejectionTemplate" 
+                >
+                    Usar Plantilla de Rechazo
+                </v-btn>
 
+            </v-row>
+            
             <!-- Lista de archivos adjuntos (chips) -->
             <div v-if="filesToUpload.length > 0" class="mb-2 mt-5">
                 <v-chip
@@ -49,6 +61,10 @@ import UploadFileButton from '../UploadFileButton.vue';
           isSending: {
             type: Boolean,
             default: false
+          },
+          rejectionTemplate: {
+            type: String,
+            default: ''
           }
         },
         components: {
@@ -90,6 +106,9 @@ import UploadFileButton from '../UploadFileButton.vue';
             removeAttachment(index) {
                 this.filesToUpload.splice(index, 1);
             },
+            addRejectionTemplate() {
+                this.newMessage.content = this.rejectionTemplate;
+            }
         }
 
     }

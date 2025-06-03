@@ -73,7 +73,7 @@ import { RouterLink } from 'vue-router';
             drawer: false, //El drawer va a servir para manejar visibilidad del navigation drawer
             links: [
                 { icon: 'mdi-home', text: 'Inicio', route: '/casting-call-search' },
-                { icon: 'mdi-account', text: 'Mi Perfil', route: '/user-profile/' + this.$store.state.auth.user.id },
+                { icon: 'mdi-account', text: 'Mi Perfil', route: '/user-profile/' + this.$store.state.auth.user?.id },
                 { icon: 'mdi-folder', text: 'Mis Proyectos', route: '/user-projects' },
                 { icon: 'mdi-form-select', text: 'Mis Formularios', route: '/user-forms' },
                 { icon: 'mdi-bell-ring', text: 'Mis Castings', route: '/user-casting-calls' },

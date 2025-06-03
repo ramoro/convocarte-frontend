@@ -118,6 +118,7 @@
         :messages="messages"
         :current-user-profile-picture="this.$store.state.auth.user?.profile_picture"
         :isSending="isSending"
+        :castingRejectionTemplate="rejectionTemplate"
         @send-message="sendMessage"
         @mark-as-read="markAsRead"
       />
@@ -159,7 +160,8 @@
         castingCallId: null,
         postulatedUserId: null,
         messages: [],
-      isSending: false,
+        isSending: false,
+        rejectionTemplate: ''
     };
   },
     beforeMount() {
@@ -184,10 +186,10 @@
       try {
         const postulationId = this.$route.params.postulationId;
         const response = await CastingPostulacionService.getCastingPostulationById(postulationId);
-
         this.postulatedUserId = response.data.owner_id;
         this.exposedRoleId = response.data.exposed_role.id;
         this.castingCallId = response.data.casting_call.id;
+        this.rejectionTemplate = response.data.casting_call.rejection_template;
         this.postulationData = JSON.parse(response.data.postulation_data);
       } catch (error) {
         console.error('Error al obtener postulación:', error);
@@ -259,6 +261,11 @@
       try {
         const lastMessageId = this.messages.length > 0 ? this.messages.at(-1)['id'] : null;
         
+        //Reemplazo placeholder si es que esta por el nombre del usuario
+        //Esto lo hace el back tambien
+        message.content = message.content.replace("/NombreUsuario/", 
+        this.postulationData?.['Nombre y Apellido'].split(' ')[0]);
+
         const resp = await MessageService.createMessage(
           message.content, 
           this.postulatedUserId,

@@ -5,7 +5,7 @@
       itemName="postulación"
       :manyItems="manyPostulationsToDelete"
       extraInfo="Al eliminar una o varias postulaciones significa que están siendo RECHAZADAS. 
-      Las personas Rechazadas serán notificadas mediante un mensaje en su postulación."
+      Las personas Rechazadas serán notificadas en su postulación con la plantilla de rechazo."
       @delete-confirmed="confirmDelete"
       @delete-cancelled="deleteDialog = false"
   />
@@ -14,21 +14,47 @@
   <SendMessageDialog 
     v-model="sendMessageDialog"
     :postulations="postulationsToSendMessage"
+    :castingRejectionTemplate="castingCallInfo?.rejection_template"
     @close-dialog="closeSendMessageDialog"
     @show-message-sent-result = "showMessageSentResult"
   />
+
+    <!-- Diálogo para enviar mensaje -->
+  <RejectionTemplateDialog 
+    v-model="rejectionTemplateDialog"
+    :currentText="castingCallInfo?.rejection_template"
+    :casting-call-id="castingCallInfo?.id"
+    @close-dialog="closeRejectionTemplateDialog"
+    @update-rejection-template="updateRejectionTemplate"
+  />
+
   <v-container class="py-8">
-    <div class="d-flex justify-space-between align-center mb-6">
+    <div class="d-flex justify-space-between align-center mb-2"> <!-- Reduje el margen inferior -->
       <h1 class="text-h4 font-weight-bold mb-0">Gestión de Postulaciones</h1>
       <div>
         <v-btn rounded @click="isSelectingRole = true" :disabled="isSelectingRole" class="mx-3">
           Seleccionar Rol
         </v-btn>
-        <v-btn rounded to="/user-casting-calls">
-          Volver
+        <v-btn rounded to="/user-casting-calls" class="mx-3">
+          Volver 
         </v-btn>
       </div>
     </div>
+      
+    <!-- Contenedor específico para el botón de rechazo -->
+    <div class="d-flex justify-end mt-2"> <!-- mt-2 para espacio arriba -->
+      <v-btn 
+        size="small"
+        outlined
+        color="purple"
+        class="mr-3 my-3"
+        @click="rejectionTemplateDialog = true" 
+        :disabled="isSelectingRole"
+      >
+        Plantilla de Rechazo
+      </v-btn>
+    </div>
+
 
     <!-- Cargando Postulaciones -->
     <v-row v-if="isLoading" justify="center" align="center" style="height: 60vh;">
@@ -125,7 +151,7 @@
           <div class="d-flex align-center justify-space-between mb-4">
             <div class="d-flex align-center">
               <h2 class="text-h5 font-weight-medium">{{ column.title }}</h2>
-              <v-chip class="ml-2" size="small" color="grey-lighten-3" text-color="grey-darken-2">
+              <v-chip class="ml-2" size="small">
                 {{ column.items.length }}
               </v-chip>
             </div>
@@ -307,13 +333,16 @@ import { sortBy, formatDate, getPostulationStateColor } from '@/utils';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog.vue';
 import SendMessageDialog from '@/components/Messages/SendMessageDialog.vue';
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
+import RejectionTemplateDialog from '@/components/RejectionTemplateDialog.vue';
+import MessageService from '@/services/message.service';  
 
 export default {
   components: {
     draggable,
     DeleteConfirmationDialog,
     SendMessageDialog,
-    InformationSnackbar
+    InformationSnackbar,
+    RejectionTemplateDialog
   },
   data() {
     return {
@@ -344,7 +373,9 @@ export default {
       exposedRoles: null,
       exposedRoleIdSelected: null,
       sendMessageDialog: false,
-      postulationsToSendMessage: []
+      postulationsToSendMessage: [],
+      rejectionTemplateDialog: false,
+      castingCallInfo: {}
     }
   },
   created() {
@@ -353,9 +384,9 @@ export default {
 
     CastingCallService.getCastingCallWithPostulations(castingCallId)
       .then(response => {
-        const castingCallInfo = response.data;
-                console.log("Response: ", castingCallInfo);
-        this.exposedRoles = castingCallInfo.exposed_roles;
+        this.castingCallInfo = response.data;
+                console.log("Response: ", this.castingCallInfo);
+        this.exposedRoles = this.castingCallInfo.exposed_roles;
 
         if (exposedRoleId) {
           const role = this.exposedRoles.find(r => r.id == exposedRoleId);
@@ -482,6 +513,9 @@ export default {
       this.columnIdToDelete = columnId;
       this.postulationIdToDelete = postulationId;
       this.manyPostulationsToDelete = manyPostulationsToDelete;
+      //Esto prepara los ids de postulacion a las q se les enviara el mensaje de rechazo
+      //en caso de confirmarse la eliminacion
+      this.prepareSendingMessage(columnId, manyPostulationsToDelete, postulationId, false);
       this.deleteDialog = true;
     },
     async confirmDelete() {
@@ -490,8 +524,10 @@ export default {
       } else {
         this.rejectPostulation(this.columnIdToDelete, this.postulationIdToDelete);
       }
+      //Se rechaza postulacion y se envia mensaje de rechazo
+      this.sendRejectionMessage();
     },
-    prepareSendingMessage(columnId, manyPostulationsToSendMessage, postulationId = null) {
+    prepareSendingMessage(columnId, manyPostulationsToSendMessage, postulationId = null, openMessageDialog = true) {
       //Si eligió enviar mensaje de la seleccion de postulaciones y no selecciono nada, no sucede nada
       if (manyPostulationsToSendMessage && this.selected[columnId].length === 0) return;
 
@@ -501,11 +537,12 @@ export default {
         let postulationToSendMessage = this.columns[columnId].items.filter(
           item => item.id == postulationId
         );
+        //Remuevo el apellido para restar formalidad
+        const name = postulationToSendMessage[0].name.split(' ')[0];
         this.postulationsToSendMessage.push({'postulationId': postulationId, 
           'postulatedUserId': postulationToSendMessage[0].owner_id,
-          'postulatedUserName': postulationToSendMessage[0].name,
+          'postulatedUserName': name,
         })
-        console.log('test: ', this.postulationsToSendMessage);
 
       } else {
         this.postulationsToSendMessage = this.columns[columnId].items.filter(
@@ -517,7 +554,8 @@ export default {
         }));
       }
 
-      this.sendMessageDialog = true;
+      if (openMessageDialog)
+        this.sendMessageDialog = true;
     },
     
     // Rechaza postulaciones seleccionadas
@@ -569,6 +607,19 @@ export default {
     
     },
 
+    async sendRejectionMessage() {
+      try {
+        await MessageService.createMessageForManyUsers(
+          this.castingCallInfo?.rejection_template,
+          [], 
+          this.postulationsToSendMessage,
+          "/NombreUsuario/" 
+        );
+      } catch (error) {
+        console.error('Error al enviar mensaje:', error);
+      }
+    },
+
     filterExposedRolePostulations(postulationsIdsToDelete) {
       const indexToUpdate = this.exposedRoles.findIndex(exposedRole => exposedRole.id == this.exposedRoleIdSelected);
 
@@ -606,6 +657,9 @@ export default {
       this.sendMessageDialog = false;
       this.postulationsToSendMessage = [];
     },
+    closeRejectionTemplateDialog() {
+      this.rejectionTemplateDialog = false;
+    },
     showMessageSentResult(success) {
       if (success) {
         this.$root.InformationSnackbar.show({
@@ -619,6 +673,21 @@ export default {
         });
       }
       this.closeSendMessageDialog();
+    },
+    updateRejectionTemplate(success, newTemplateText) {
+      if (success) {
+        this.castingCallInfo.rejection_template = newTemplateText;
+        this.$root.InformationSnackbar.show({
+          message: 'Plantilla de rechazo actualizada correctamente',
+          color: 'success'
+        });
+      } else {
+        this.$root.InformationSnackbar.show({
+          message: 'Error al actualizar la plantilla de rechazo',
+          color: 'error'
+        });
+      }
+      this.closeRejectionTemplateDialog();
     }
 
   }

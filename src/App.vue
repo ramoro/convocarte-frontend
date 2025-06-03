@@ -46,7 +46,7 @@ p.Pausado {
   color: rgb(81, 159, 211);  
 }
 
-.v-chip.Finalizado, p.Finalizado{
+.v-chip.Finalizado{
   background-color: rgb(218, 154, 59); 
 }
 

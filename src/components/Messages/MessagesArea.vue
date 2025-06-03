@@ -78,6 +78,7 @@
                 border: none; border-top: 1px solid purple ;" />
                 <MessageForm
                 :isSending="isSending"
+                :rejectionTemplate="castingRejectionTemplate"
                 @send-message="sendMessage"
                 >
                 </MessageForm>             
@@ -108,6 +109,10 @@ import MessageForm from './MessageForm.vue';
           titleSize: {
             type: String,
             default: '1.5rem'
+          },
+          castingRejectionTemplate: {
+            type: String,
+            default: ''
           }
         },
         components: {
