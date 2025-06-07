@@ -17,7 +17,7 @@
         <v-col cols="12" md="8">
             <div class="d-flex align-center justify-space-between">
                 <div>
-                    <h2 class="mt-2">Postulación para {{ postulationData?.exposed_role?.role?.name }}</h2>
+                    <h2 class="mt-2">Postulación para {{ postulationData?.open_role?.role?.name }}</h2>
                 </div>
                 <v-chip 
                 :color="getStateColor(postulationData?.state)"
@@ -28,7 +28,7 @@
                 </v-chip>
             </div>
             <p class="text-body-1 text-medium-emphasis mt-2">
-                {{ postulationData?.exposed_role?.role?.description }}
+                {{ postulationData?.open_role?.role?.description }}
             </p>
             <hr style="border: 1px solid rgba(0, 0, 0, 0.1);">
             
@@ -103,6 +103,7 @@
         :current-user-profile-picture="this.$store.state.auth.user?.profile_picture"
         :isSending="isSending"
         :titleSize="'20px'"
+        :mesagges-expanded="true"
         @send-message="sendMessage"
         @mark-as-read="markAsRead"
       />

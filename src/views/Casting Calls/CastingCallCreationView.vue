@@ -597,7 +597,7 @@
                 const response = await castingCallService.getCastingCallById(id);
                 const castingData = response.data;
                 const projectAssociated = castingData.project;
-                const exposedRoles = castingData.exposed_roles;
+                const openRoles = castingData.open_roles;
                 this.castingCall.title = castingData.title;
                 this.castingCall.description = castingData.description ? castingData.description : '';
                 this.castingCall.remuneration_type = castingData.remuneration_type;
@@ -605,26 +605,26 @@
                 this.castingCall.state = castingData.state;
                 //En roles pondremos los roles que han sido seleccionados para castear en el proyecto
                 this.userProjects.push({"id": projectAssociated.id, "name": projectAssociated.name, "roles": []});
-                for (const exposedRoleInfo of exposedRoles) {
-                    this.userProjects[0].roles.push({"id": exposedRoleInfo.role.id, "name": exposedRoleInfo.role.name});
-                    this.rolesProjectSelected.push({"id": exposedRoleInfo.role.id, "name": exposedRoleInfo.role.name});
-                    this.userForms.push({"id": exposedRoleInfo.form.id, "form_title": exposedRoleInfo.form.form_title});
+                for (const openRoleInfo of openRoles) {
+                    this.userProjects[0].roles.push({"id": openRoleInfo.role.id, "name": openRoleInfo.role.name});
+                    this.rolesProjectSelected.push({"id": openRoleInfo.role.id, "name": openRoleInfo.role.name});
+                    this.userForms.push({"id": openRoleInfo.form.id, "form_title": openRoleInfo.form.form_title});
                     var roleToCast = {
-                        id: exposedRoleInfo.id,
-                        role_id: exposedRoleInfo.role.id,
-                        form_id: exposedRoleInfo.form.id, //Al ser un casting ya creado este sera el id de un form, no de un form template
-                        form_title: exposedRoleInfo.form.form_title,
-                        has_limited_spots: exposedRoleInfo.has_limited_spots,
-                        spots_amount: exposedRoleInfo.spots_amount,
-                        min_age_required: exposedRoleInfo.min_age_required,
-                        max_age_required: exposedRoleInfo.max_age_required,
-                        hair_colors_required: exposedRoleInfo.hair_colors_required ? exposedRoleInfo.hair_colors_required.split(',').map(item => item.trim()) : null,
-                        additional_requirements: exposedRoleInfo.additional_requirements,
-                        disabled: exposedRoleInfo.disabled
+                        id: openRoleInfo.id,
+                        role_id: openRoleInfo.role.id,
+                        form_id: openRoleInfo.form.id, //Al ser un casting ya creado este sera el id de un form, no de un form template
+                        form_title: openRoleInfo.form.form_title,
+                        has_limited_spots: openRoleInfo.has_limited_spots,
+                        spots_amount: openRoleInfo.spots_amount,
+                        min_age_required: openRoleInfo.min_age_required,
+                        max_age_required: openRoleInfo.max_age_required,
+                        hair_colors_required: openRoleInfo.hair_colors_required ? openRoleInfo.hair_colors_required.split(',').map(item => item.trim()) : null,
+                        additional_requirements: openRoleInfo.additional_requirements,
+                        disabled: openRoleInfo.disabled
                     };
                     
                     this.rolesToCast.push(roleToCast);
-                    this.selectedRoles.push(exposedRoleInfo.role.id);
+                    this.selectedRoles.push(openRoleInfo.role.id);
                 }
                 for (let photoUrl of castingData.casting_photos) {
                     this.castingPhotos.push({photoUrl: photoUrl });

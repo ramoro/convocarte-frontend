@@ -194,7 +194,7 @@
             region: castingData.project.region,
             photos: castingData.casting_photos
           };
-          this.enabledRoles = castingData.exposed_roles.filter(role => !role.disabled).map(role => ({
+          this.enabledRoles = castingData.open_roles.filter(role => !role.disabled).map(role => ({
             id: role.role.id,
             name: role.role.name,
             has_limited_spots: role.has_limited_spots,
@@ -217,8 +217,8 @@
           });
         }
       },
-      postulateForRole(exposedRoleName, formId) {
-        this.$router.push(`/role-postulation-form/${exposedRoleName}/${formId}`);
+      postulateForRole(openRoleName, formId) {
+        this.$router.push(`/role-postulation-form/${openRoleName}/${formId}`);
       },
       showPhotosPreview() {
           this.showPhotosDialog = true;

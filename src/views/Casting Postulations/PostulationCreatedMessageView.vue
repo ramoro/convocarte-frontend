@@ -68,7 +68,7 @@ export default {
           const postulationData = response.data;
           this.postulationId = postulationData.id;
           this.castingCallTitle = postulationData.casting_call.title;
-          this.appliedRoleName = postulationData.exposed_role.role.name;
+          this.appliedRoleName = postulationData.open_role.role.name;
           this.castingCallId = postulationData.casting_call.id;
           console.log(this.castingCallId);
         } catch (error) {

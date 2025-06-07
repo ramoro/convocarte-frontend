@@ -448,7 +448,7 @@ export default {
               errorMessage ='El casting al cual pertenece el rol ha finalizado.';
             } else if (error.response.data.detail.includes('casting call for this role is paused')) {
               errorMessage ='El casting al cual pertenece el rol está pausado.';
-            } else if (error.response.data.detail.includes('role exposed for this casting call is full')) {
+            } else if (error.response.data.detail.includes('role open for this casting call is full')) {
               errorMessage ='El rol tiene los cupos llenos.';
             }
           }

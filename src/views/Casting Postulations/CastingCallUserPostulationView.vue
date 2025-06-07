@@ -156,7 +156,7 @@
         socialNetworks: ['Instagram', 'Facebook', 'Sitio Web', 'Canal de Youtube'],
         imageSrc: '',
         dialog: false,
-        exposedRoleId: null,
+        openRoleId: null,
         castingCallId: null,
         postulatedUserId: null,
         messages: [],
@@ -187,7 +187,7 @@
         const postulationId = this.$route.params.postulationId;
         const response = await CastingPostulacionService.getCastingPostulationById(postulationId);
         this.postulatedUserId = response.data.owner_id;
-        this.exposedRoleId = response.data.exposed_role.id;
+        this.openRoleId = response.data.open_role.id;
         this.castingCallId = response.data.casting_call.id;
         this.rejectionTemplate = response.data.casting_call.rejection_template;
         this.postulationData = JSON.parse(response.data.postulation_data);
@@ -209,7 +209,7 @@
 
     goBack() {
       this.$router.push({ name: 'castingcallpostulations', 
-      params: { castingCallId: this.castingCallId}, query:{ roleId: this.exposedRoleId } });
+      params: { castingCallId: this.castingCallId}, query:{ roleId: this.openRoleId } });
     },
 
     async loadMessages() {
