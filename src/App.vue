@@ -54,6 +54,14 @@ p.Finalizado {
   color: rgb(218, 154, 59); 
 }
 
+.v-chip.Vencido {
+  background-color: rgb(147, 22, 8); 
+}
+
+p.Vencido {
+  color: rgb(147, 22, 8); 
+}
+
 .v-chip.Eliminado {
   background-color: rgb(244, 35, 3); 
 }
