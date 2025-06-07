@@ -140,7 +140,7 @@
     >
       <template #dialog-text>
         <div style="text-align:center; font-size:16px;">Se está por actualizar el Formulario generado para el Rol <b>{{associatedRole}}</b> dentro del Casting <b>{{associatedCasting.title}}</b></div>
-        <div style="text-align:center; font-size:16px;">¿Confirma la acción?</div>
+        <div style="text-align:center; font-size:16px;">¿Confirmás la acción?</div>
       </template>
     </ConfirmActionDialog>
     <InformationSnackbar ref="InformationSnackbar"/>

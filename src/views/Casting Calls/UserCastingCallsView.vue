@@ -184,7 +184,7 @@
     >
       <template #dialog-text>
         <div style="text-align:center; font-size:16px;">La publicación del Casting se está por pausar.</div>
-        <div style="text-align:center; font-size:16px;">¿Confirma la acción?</div>
+        <div style="text-align:center; font-size:16px;">¿Confirmás la acción?</div>
       </template>
     </ConfirmActionDialog>
     <!-- Dialog para finalizar casting -->
@@ -197,7 +197,7 @@
     >
       <template #dialog-text>
         <div style="text-align:center; font-size:16px;">Se está por finalizar el casting, esta decisión no tiene retorno.</div>
-        <div style="text-align:center; font-size:16px;">¿Confirma la acción?</div>
+        <div style="text-align:center; font-size:16px;">¿Confirmás la acción?</div>
       </template>
     </ConfirmActionDialog>
     <InformationSnackbar ref="InformationSnackbar"/>
@@ -440,9 +440,6 @@ export default {
     goToCastingCallPostulations(castingCallId) {
       this.$router.push(`/casting-call-postulations/${castingCallId}`);
     }
-  },
-  getColorByState(state) {
-    return state;
   },
  
 };

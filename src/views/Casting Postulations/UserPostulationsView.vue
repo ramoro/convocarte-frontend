@@ -25,7 +25,7 @@
       >
         <v-tab value="todas">Todas</v-tab>
         <v-tab value="pendientes">Pendientes</v-tab>
-        <v-tab value="seleccionadas">Seleccionadas</v-tab>
+        <v-tab value="elegidas">Elegidas</v-tab>
         <v-tab value="rechazadas">Rechazadas</v-tab>
       </v-tabs>
 
@@ -45,9 +45,9 @@
             />
           </v-window-item>
           
-          <v-window-item value="seleccionadas">
+          <v-window-item value="elegidas">
             <PostulationsTable 
-            :postulations="filteredPostulations('Seleccionada')"
+            :postulations="filteredPostulations('Elegida')"
             @delete-postulation="handleDeletedPostulation"
             />
           </v-window-item>

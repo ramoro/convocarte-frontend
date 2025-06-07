@@ -1,4 +1,18 @@
 <template>
+    <!-- Diálogo para confirmar selección -->
+    <ConfirmActionDialog
+    v-model="confirmChoiceDialog"
+    dialogTitle="Elegir Artista Postulado"
+    action="Elegir"
+    @confirm-action="handleUserChoice"
+    @cancel-action="confirmChoiceDialog = false"
+  >
+    <template #dialog-text>
+      <div style="text-align:center; font-size:16px;">Estás a punto de elegir a la persona que ocupará el rol.</div>
+      <div style="text-align:center; font-size:16px;">¿Confirmás la acción?</div>
+    </template>
+  </ConfirmActionDialog>
+
     <!-- Diálogo para confirmar la eliminación -->
     <DeleteConfirmationDialog
       v-model="deleteDialog"
@@ -42,12 +56,53 @@
     </div>
       
     <!-- Contenedor específico para el botón de rechazo -->
-    <div class="d-flex justify-end mt-2"> <!-- mt-2 para espacio arriba -->
+    <div class="d-flex justify-end align-center my-4" style="position: relative;">
+      <v-chip 
+        v-if="Object.keys(chosenPostulation).length > 0"
+        color="green"
+        elevated
+        class="mx-auto"
+        variant="flat"
+        style="position: absolute; left: 50%; transform: translateX(-50%);"
+      >
+
+          <router-link 
+            :to="getPostulationLink(chosenPostulation?.id)"
+            class="text-decoration-none"
+            style="cursor: pointer; color: white"
+          >
+          <v-avatar size="25" class="mr-3">
+              <v-img 
+                :src="chosenPostulation?.photo_url || require('@/assets/empty-photo.png')" 
+                :alt="chosenPostulation?.name"
+              />
+            </v-avatar>
+            <b>{{ chosenPostulation?.name }} </b>
+        </router-link>
+        
+        <v-icon small color="white" class="ml-1"
+          @click.stop="confirmRemovingChosenPostulationDialog = true">mdi-close</v-icon>
+
+      </v-chip>
+
+      <ConfirmActionDialog
+        v-model="confirmRemovingChosenPostulationDialog"
+        dialogTitle="Deseleccionar Artista"
+        action="Deseleccionar"
+        @confirm-action="removeChosenUserPostulation(chosenPostulation?.id)"
+        @cancel-action="confirmRemovingChosenPostulationDialog = false"
+      >
+        <template #dialog-text>
+          <div style="text-align:center; font-size:16px;">
+            Estás por remover a {{ chosenPostulation?.name }} como elegido/a para el rol ¿Confirmás la acción?
+          </div>
+        </template>
+      </ConfirmActionDialog>
+      
       <v-btn 
         size="small"
         outlined
         color="purple"
-        class="mr-3 my-3"
         @click="rejectionTemplateDialog = true" 
         :disabled="isSelectingRole"
       >
@@ -70,7 +125,7 @@
         sm="10"
         md="8"
         lg="6"
-        v-for="role in exposedRoles" 
+        v-for="role in openRoles" 
         :key="role.id"
       >
         <v-card class="mx-auto" elevation="2" max-width="800"
@@ -297,6 +352,13 @@
                             </template>
                             <v-list-item-title>Enviar mensaje</v-list-item-title>
                           </v-list-item>
+                          <v-list-item v-if="Object.keys(chosenPostulation).length == 0" 
+                          @click="prepareUserSelection(columnId, item.id)" class="text-success">
+                            <template v-slot:prepend>
+                              <v-icon size="small" class="mr-2" color="success">mdi-account-star</v-icon>
+                            </template>
+                            <v-list-item-title>Elegir</v-list-item-title>
+                          </v-list-item>
                           <v-list-item @click="prepareDelete(columnId, false, item.id)" class="text-error">
                             <template v-slot:prepend>
                               <v-icon size="small" class="mr-2" color="error">mdi-delete</v-icon>
@@ -335,6 +397,7 @@ import SendMessageDialog from '@/components/Messages/SendMessageDialog.vue';
 import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import RejectionTemplateDialog from '@/components/RejectionTemplateDialog.vue';
 import MessageService from '@/services/message.service';  
+import ConfirmActionDialog from '@/components/ConfirmActionDialog.vue';
 
 export default {
   components: {
@@ -342,7 +405,8 @@ export default {
     DeleteConfirmationDialog,
     SendMessageDialog,
     InformationSnackbar,
-    RejectionTemplateDialog
+    RejectionTemplateDialog,
+    ConfirmActionDialog
   },
   data() {
     return {
@@ -360,6 +424,7 @@ export default {
           ],
         },
       }),
+      chosenPostulation: {},
       selected: reactive({
         postulations: [],
         preSelectedPostulations: [],
@@ -370,26 +435,30 @@ export default {
       deleteDialog: false,
       columnIdToDelete: null,
       postulationIdToDelete: null,
-      exposedRoles: null,
-      exposedRoleIdSelected: null,
+      columnIdToChoose: null,
+      postulationIdToChoose: null,
+      openRoles: null,
+      openRoleIdSelected: null,
       sendMessageDialog: false,
       postulationsToSendMessage: [],
       rejectionTemplateDialog: false,
-      castingCallInfo: {}
+      castingCallInfo: {},
+      confirmChoiceDialog: false,
+      confirmRemovingChosenPostulationDialog: false
     }
   },
   created() {
     const castingCallId = this.$route.params.castingCallId;
-    const exposedRoleId = this.$route.query.roleId;
+    const openRoleId = this.$route.query.roleId;
 
     CastingCallService.getCastingCallWithPostulations(castingCallId)
       .then(response => {
         this.castingCallInfo = response.data;
                 console.log("Response: ", this.castingCallInfo);
-        this.exposedRoles = this.castingCallInfo.exposed_roles;
+        this.openRoles = this.castingCallInfo.open_roles;
 
-        if (exposedRoleId) {
-          const role = this.exposedRoles.find(r => r.id == exposedRoleId);
+        if (openRoleId) {
+          const role = this.openRoles.find(r => r.id == openRoleId);
           if (role) {
             this.selectRoleToManagePostulations(role);
             this.isLoading = false;
@@ -411,21 +480,39 @@ export default {
     postulationsNotRejectedAmount(postulations) {
       return postulations.filter(postulation => postulation.state != 'Rechazada')?.length;
     },
-    selectRoleToManagePostulations(exposedRole) {
+    selectRoleToManagePostulations(openRole) {
       //Limpio columnas para no duplicar postulaciones
       this.columns.preSelectedPostulations.items = [];
       this.columns.postulations.items = [];
+      this.chosenPostulation = {};
 
-      this.exposedRoleIdSelected = exposedRole.id;
+      this.openRoleIdSelected = openRole.id;
 
-      this.sort(exposedRole.casting_postulations, 'created_at', true);
-      this.organizePostulations(exposedRole.casting_postulations);
+      this.sort(openRole.casting_postulations, 'created_at', true);
+      this.organizePostulations(openRole.casting_postulations);
       this.isSelectingRole = false;
     },
     organizePostulations(postulations) {
       postulations.forEach(postulation => {
         postulation.data = JSON.parse(postulation.postulation_data);
-        const item = {
+        const item = this.parsePostulation(postulation);
+        if (postulation.state.includes('Pre-seleccionada')) {
+          this.columns.preSelectedPostulations.items.push(item);
+        } else if (postulation.state == "Elegida") {
+          this.chosenPostulation = item;
+          console.log(this.chosenPostulation);
+        } else if (postulation.state != "Rechazada") {
+          this.columns.postulations.items.push(item);
+        } 
+        // Muestra las eliminadas, pues si el usuario se postulo, el director de casting
+        // deberia aun poder tener la posibilidad de ver los datos de la postulacion.
+        // Diferenciar de rechazada por mensaje de las que estan en estado rechazada. 
+        // Si se rechazo por mensaje, el casting sigue mostrando la postulacion (no estaria en estado rechazada),
+        // por si se quiere volver a tener contacto
+      });
+    },
+    parsePostulation(postulation) {
+      return {
           id: postulation.id,
           name: postulation.data['Nombre y Apellido'],
           age: postulation.data['Edad'],
@@ -437,18 +524,6 @@ export default {
           has_unread_messages: postulation.has_unread_messages || false,
           owner_id: postulation.owner_id
         };
-
-        if (postulation.state.includes('Pre-seleccionada')) {
-          this.columns.preSelectedPostulations.items.push(item);
-        } else if (postulation.state != "Rechazada") {
-          this.columns.postulations.items.push(item);
-        }
-        // Muestra las eliminadas, pues si el usuario se postulo, el director de casting
-        // deberia aun poder tener la posibilidad de ver los datos de la postulacion.
-        // Diferenciar de rechazada por mensaje de las que estan en estado rechazada. 
-        // Si se rechazo por mensaje, el casting sigue mostrando la postulacion (no estaria en estado rechazada),
-        // por si se quiere volver a tener contacto
-      });
     },
     formatPublicationDate(postulationDate) {
       return formatDate(postulationDate.split('T')[0]); //Es un timezone, por lo que se splitea para obtener solo la fecha
@@ -459,7 +534,7 @@ export default {
     
     // Función para manejar el cambio en el arrastrar y soltar
     async onDragChange(event) {
-      const indexToUpdate = this.exposedRoles.findIndex(exposedRole => exposedRole.id == this.exposedRoleIdSelected);
+      const indexToUpdate = this.openRoles.findIndex(openRole => openRole.id == this.openRoleIdSelected);
 
       // Esta función se llama automáticamente cuando hay cambios en las listas
       if (event.added) {
@@ -475,7 +550,7 @@ export default {
           {'state': newState, 'postulation_data': JSON.stringify(event.added.element.postulation_data)})
           .then( () => {
             event.added.element.state = newState;
-            this.exposedRoles[indexToUpdate].casting_postulations.find(postulation => postulation.id == event.added.element.id).state = newState;
+            this.openRoles[indexToUpdate].casting_postulations.find(postulation => postulation.id == event.added.element.id).state = newState;
           })
           .catch(error => {
             console.error('Error al actualizar postulaciones', error);
@@ -527,6 +602,54 @@ export default {
       //Se rechaza postulacion y se envia mensaje de rechazo
       this.sendRejectionMessage();
     },
+    prepareUserSelection(columnId, postulationId) {
+      this.columnIdToChoose = columnId;
+      this.postulationIdToChoose= postulationId;
+      this.confirmChoiceDialog = true;
+    },
+    handleUserChoice() {
+      CastingCallPostulationService.choosePostulation(this.postulationIdToChoose)
+        .then( () => {
+          this.columns[this.columnIdToChoose].items = this.columns[this.columnIdToChoose].items.
+                                                      filter(item => item.id !== this.postulationIdToChoose);
+          
+          // Si estaba seleccionado con checkbox, quitarlo de la selección
+          if (this.selected[this.columnIdToChoose].includes(this.postulationIdToChoose)) {
+            this.selected[this.columnIdToChoose] = this.selected[this.columnIdToChoose].
+            filter(id => id !== this.postulationIdToChoose);
+          }
+          //Se actualiza estado de la postulación in situ (por mas que en el back se haga eso tambien)
+          const indexToUpdate = this.openRoles.findIndex(openRole => openRole.id == this.openRoleIdSelected);
+          var postulationToUpdate = this.openRoles[indexToUpdate].casting_postulations
+          .find(postulation => postulation.id == this.postulationIdToChoose)
+          postulationToUpdate.state = 'Elegida';
+          console.log(postulationToUpdate);
+          this.chosenPostulation = this.parsePostulation(postulationToUpdate);
+          console.log("chosenpostulation: ", this.chosenPostulation);
+          this.confirmChoiceDialog = false;
+
+        })
+        .catch(error => {
+          console.error('Error al elegir una postulación', error);
+        });
+    },
+    removeChosenUserPostulation(postulationId) {
+      CastingCallPostulationService.removeChosenPostulation(postulationId)
+        .then( () => {
+          //Se agrega postulacion en columna de postulaciones
+          var postulation = this.chosenPostulation;
+          postulation.state = 'Pendiente';
+          console.log(this.columns);
+          this.columns.postulations.items.push(postulation);
+          
+          this.chosenPostulation = {};
+          this.confirmRemovingChosenPostulationDialog = false;
+
+        })
+        .catch(error => {
+          console.error('Error al deseleccionar una postulación elegida para el rol', error);
+        });
+    },
     prepareSendingMessage(columnId, manyPostulationsToSendMessage, postulationId = null, openMessageDialog = true) {
       //Si eligió enviar mensaje de la seleccion de postulaciones y no selecciono nada, no sucede nada
       if (manyPostulationsToSendMessage && this.selected[columnId].length === 0) return;
@@ -569,7 +692,7 @@ export default {
 
       CastingCallPostulationService.rejectPostulations(payload)
         .then( () => {
-          this.filterExposedRolePostulations(postulationsIdsToDelete);
+          this.filterOpenRolePostulations(postulationsIdsToDelete);
 
           this.columns[columnId].items = this.columns[columnId].items.filter(
             item => !this.selected[columnId].includes(item.id)
@@ -591,7 +714,7 @@ export default {
       
       CastingCallPostulationService.rejectPostulations(payload)
         .then( () => {
-          this.filterExposedRolePostulations([itemId]);
+          this.filterOpenRolePostulations([itemId]);
 
           this.columns[columnId].items = this.columns[columnId].items.filter(item => item.id !== itemId);
           
@@ -620,22 +743,22 @@ export default {
       }
     },
 
-    filterExposedRolePostulations(postulationsIdsToDelete) {
-      const indexToUpdate = this.exposedRoles.findIndex(exposedRole => exposedRole.id == this.exposedRoleIdSelected);
+    filterOpenRolePostulations(postulationsIdsToDelete) {
+      const indexToUpdate = this.openRoles.findIndex(openRole => openRole.id == this.openRoleIdSelected);
 
       if (indexToUpdate !== -1) {
-        // Crear una copia del exposed_role con postulaciones filtradas
-        const updatedExposedRole = {
-          ...this.exposedRoles[indexToUpdate],
-          casting_postulations: this.exposedRoles[indexToUpdate].casting_postulations
+        // Crear una copia del open_role con postulaciones filtradas
+        const updatedOpenRole = {
+          ...this.openRoles[indexToUpdate],
+          casting_postulations: this.openRoles[indexToUpdate].casting_postulations
             .filter(postulation => !postulationsIdsToDelete.includes(postulation.id))
         };
         
-        // Reemplazar en el array de exposed roles
-        this.exposedRoles[indexToUpdate] = updatedExposedRole;
+        // Reemplazar en el array de open roles
+        this.openRoles[indexToUpdate] = updatedOpenRole;
         
       } else {
-        console.log(`ExposedRole con ID ${this.exposedRoleIdSelected} no encontrado`);
+        console.log(`OpenRole con ID ${this.openRoleIdSelected} no encontrado`);
       }
 
     },

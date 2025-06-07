@@ -113,6 +113,10 @@ import MessageForm from './MessageForm.vue';
           castingRejectionTemplate: {
             type: String,
             default: ''
+          },
+          mesaggesExpanded: {
+            type: Boolean,
+            default: false
           }
         },
         components: {
@@ -122,7 +126,7 @@ import MessageForm from './MessageForm.vue';
 
         data() {
             return {
-                isMessagesExpanded: false,
+                isMessagesExpanded: this.mesaggesExpanded,
                 newMessage: {
                     content: '',
                     attachments: []

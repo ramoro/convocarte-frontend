@@ -47,6 +47,14 @@ class CastingPostulationService {
     async rejectPostulations(postulationsIds) {
         return axios.patch(API_URL + 'casting-postulations/reject/', postulationsIds, { headers: authHeader() });
     }
+
+    async choosePostulation(postulationId) {
+        return axios.patch(API_URL + 'casting-postulations/choose/' +  postulationId, {}, { headers: authHeader() });
+    }
+
+    async removeChosenPostulation(postulationId) {
+        return axios.patch(API_URL + 'casting-postulations/remove-choice/' +  postulationId, {}, { headers: authHeader() });
+    }
 }
 
 export default new CastingPostulationService();
