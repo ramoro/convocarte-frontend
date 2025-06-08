@@ -9,6 +9,21 @@
 
 <script>
 import MainNavbar from '@/components/MainNavbar'
+import axios from 'axios';
+import store from './store';
+import router from './router';
+
+//Para desloguear al usuario si se le vencio el token
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      store.dispatch('auth/logout');
+      router.push('/'); 
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default {
   name: 'App',
