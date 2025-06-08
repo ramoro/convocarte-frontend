@@ -44,6 +44,10 @@ class UserService {
     deleteUserFile(payload) {
         return axios.patch(API_URL + 'users/delete-file', payload, { headers: authHeader() });
     }
+
+    deleteUserAccount(userId) {
+        return axios.delete(API_URL + 'users/' + userId, { headers: authHeader() });
+    }
     
 }
 

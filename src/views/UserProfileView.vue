@@ -1,5 +1,27 @@
 <template>
-  <div class="profile mt-2">
+  <!-- Diálogo para confirmar la eliminación de la cuenta -->
+  <DeleteConfirmationDialog
+    v-model="openDeleteAccountDialog"
+    itemName="cuenta"
+    extraInfo="Al borrarla se eliminarán todos los formularios, proyectos, castings y postulaciones asociadas a la misma."
+    @delete-confirmed="confirmAccountDelete"
+    @delete-cancelled="openDeleteAccountDialog = false"
+  />
+  <v-container v-if="userDeleted" class="mt-4">
+    <v-alert
+      type="warning"
+      border="left"
+      prominent
+      elevation="2"
+      icon="mdi-account-remove-outline"
+      color="red-lighten-4"
+      text
+    >
+      <div class="text-h6 font-weight-medium">Este usuario ha eliminado su cuenta</div>
+
+    </v-alert>
+  </v-container>
+  <div v-else class="profile mt-2">
     <v-container grid-list-xl>
       <v-dialog v-model="reelDialog" max-width="600px">
       <v-card>
@@ -97,6 +119,15 @@
                   <a :href="formatUrl(reelLink)">Reel</a>
                 </v-chip>
             </p>
+            <p v-if="currentUser && editingMode" class="caption mt-3" style="font-size: 14px">
+                <a 
+                  style="color: red; text-decoration: underline; cursor: pointer"
+                  @click="openDeleteAccountDialog = true"
+                >
+                  Eliminar Cuenta
+                </a>
+            </p>
+
           </v-card>
         </v-col>
 
@@ -189,6 +220,7 @@ import InformationSnackbar from '@/components/InformationSnackbar.vue';
 import DownloadFileChip from '@/components/DownloadFileChip.vue';
 import { formatUrl } from '@/utils';
 import axios from 'axios';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog.vue';
 
 export default {
   components: {
@@ -200,7 +232,8 @@ export default {
     BasicInfoAndContactProfileArea,
     UploadFileButton,
     InformationSnackbar,
-    DownloadFileChip
+    DownloadFileChip,
+    DeleteConfirmationDialog
   },
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
@@ -228,7 +261,9 @@ export default {
         value => !!value || 'Campo requerido'
       ],
       userEmail: null,
-      editingMode: true
+      editingMode: true,
+      openDeleteAccountDialog: false,
+      userDeleted: false
     };
   },
   methods: {
@@ -481,8 +516,35 @@ export default {
         // Actualizar el modo de edición
         this.editingMode = this.currentUser?.id == userId;
       } catch (error) {
-        console.error('Error cargando user data:', error);
+         if (
+            error.response &&
+            error.response.status === 400 &&
+            error.response.data?.detail?.includes('has been deleted')
+          ) {
+            this.userDeleted = true;
+          } else {
+            console.error('Error al cargar los datos del usuario:', error);
+          }
       }
+    },
+    async confirmAccountDelete() {
+      UserService.deleteUserAccount(this.currentUser.id)
+        .then( () => {
+          this.$store.dispatch('auth/logout').then(
+            data => {
+              console.log('Logout successful:', data);
+              this.$router.push({ path: '/' });
+            },
+            error => {
+              var snackbarText = 'No se pudo eliminar la cuenta';
+              console.log(error);
+              this.$root.InformationSnackbar.show({message: snackbarText, color: 'dark', buttonColor:'red'})
+            }
+          );
+        })
+        .catch(error => {
+          console.error('Error al eliminar cuenta', error);
+        });
     }
   },
   watch: {

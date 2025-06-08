@@ -603,6 +603,14 @@ export default {
       this.sendRejectionMessage();
     },
     prepareUserSelection(columnId, postulationId) {
+      var postulationToUpdate = this.columns[columnId].items.find(postulation => postulation.id == postulationId);
+      if (postulationToUpdate.state.includes('Eliminada')) {
+        this.$root.InformationSnackbar.show({
+          message: 'No se puede elegir una postulación eliminada',
+          color: 'error'
+        });
+        return;
+      }
       this.columnIdToChoose = columnId;
       this.postulationIdToChoose= postulationId;
       this.confirmChoiceDialog = true;
@@ -657,24 +665,30 @@ export default {
       //Si viene con postulationId, significa que se selecciono una postulacion invidual para
       //mandarle un mensaje. Sino significa que se seleccionaron varias postulaciones para enviarles un mensaje
       if (postulationId) {
-        let postulationToSendMessage = this.columns[columnId].items.filter(
-          item => item.id == postulationId
-        );
-        //Remuevo el apellido para restar formalidad
-        const name = postulationToSendMessage[0].name.split(' ')[0];
-        this.postulationsToSendMessage.push({'postulationId': postulationId, 
-          'postulatedUserId': postulationToSendMessage[0].owner_id,
-          'postulatedUserName': name,
-        })
+        const postulationToSendMessage = this.columns[columnId].items.find(
+            item => item.id == postulationId
+          );
 
+        //Si fue eliminada por usuario postulado no se envia ningun mensaje, es innecesario
+        if (!postulationToSendMessage.state.includes('Eliminada')) {
+          //Remuevo el apellido para restar formalidad
+          const name = postulationToSendMessage[0].name.split(' ')[0];
+          this.postulationsToSendMessage.push({'postulationId': postulationId, 
+            'postulatedUserId': postulationToSendMessage[0].owner_id,
+            'postulatedUserName': name,
+          })
+        }
       } else {
-        this.postulationsToSendMessage = this.columns[columnId].items.filter(
-          item => this.selected[columnId].includes(item.id)
-        ).map(item => ({
-          postulationId: item.id,
-          postulatedUserId: item.owner_id,
-          postulatedUserName: item.name
-        }));
+        this.postulationsToSendMessage = this.columns[columnId].items
+          .filter(item => 
+            this.selected[columnId].includes(item.id) && 
+            !item.state.includes('Eliminada')
+          )
+          .map(item => ({
+            postulationId: item.id,
+            postulatedUserId: item.owner_id,
+            postulatedUserName: item.name.split(' ')[0],
+          }));
       }
 
       if (openMessageDialog)

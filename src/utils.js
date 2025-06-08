@@ -142,7 +142,9 @@ export function getPostulationStateColor(state) {
       case 'Pendiente/Pre-seleccionada': return 'amber-darken-4';
       case 'Elegida': return 'success';
       case 'Rechazada': return 'red';
-      case 'Eliminada': return 'error';
+      case 'Eliminada':
+      case 'Eliminada por el usuario':
+        return 'error';
       default: return 'grey';
     }
 }
