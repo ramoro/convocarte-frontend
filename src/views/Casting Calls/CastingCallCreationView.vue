@@ -552,11 +552,18 @@
                         await castingCallService.createCastingCall(this.castingCall, this.castingPhotos, this.rolesToCast);
                         this.$router.push({ path: '/user-casting-calls', query: { title: this.castingCall.title, status: 'created' } });
                     } catch (error) {
-                        console.log('Error al crear el casting:', error);
+                        console.log('Error al crear el casting:', error.response.status );
+        
+                        let errorMessage = 'Error al crear el casting.';
+                        if (error.response && error.response.status === 400 && 
+                            error.response.data.detail && error.response.data.detail.includes('already published')) {
+                            errorMessage = 'Error: Se ha seleccionado un rol ya publicado en otro casting.';
+                        }
+
                         this.$root.InformationSnackbar.show({
-                        message: 'Error al crear el casting.',
-                        color: 'dark', 
-                        buttonColor: 'red'
+                            message: errorMessage,
+                            color: 'dark', 
+                            buttonColor: 'red'
                         });
                     }
                 }

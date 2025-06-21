@@ -3,7 +3,7 @@
         <v-card>
         <v-card-title class="text-h6">Confirmación de Eliminación</v-card-title>
         <v-card-text>
-            Estás a punto de eliminar {{ manyItems ? 'estos items' : 'este item' }} de {{itemName}}?
+            Estás a punto de eliminar {{ manyItems ? 'estos items' : 'este item' }} de {{itemName}}.
             {{extraInfo}}
         </v-card-text>
         <v-card-actions>
