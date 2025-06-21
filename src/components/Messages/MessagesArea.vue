@@ -36,8 +36,11 @@
                     >
                     <template #prepend>
                         <v-avatar size="40" class="mr-3">
-                        <v-img :src="message.sentByMe ? currentUserProfilePicture : message.senderProfilePicture" />
-                        </v-avatar>
+                          <v-img 
+                            :src="(message.sentByMe ? currentUserProfilePicture : message.senderProfilePicture) 
+                            || require('@/assets/empty-photo.png')" 
+                          />                        
+                      </v-avatar>
                     </template>
 
                     <v-list-item-title class="d-flex justify-space-between">
@@ -79,6 +82,7 @@
                 <MessageForm
                 :isSending="isSending"
                 :rejectionTemplate="castingRejectionTemplate"
+                :isArtistPostulationView="artistPostulationView"
                 @send-message="sendMessage"
                 >
                 </MessageForm>             
@@ -117,6 +121,10 @@ import MessageForm from './MessageForm.vue';
           mesaggesExpanded: {
             type: Boolean,
             default: false
+          },
+          isArtistPostulationView: {
+            type: Boolean,
+            default: false
           }
         },
         components: {
@@ -131,6 +139,7 @@ import MessageForm from './MessageForm.vue';
                     content: '',
                     attachments: []
                 },
+                artistPostulationView: this.isArtistPostulationView
             }
 
         },

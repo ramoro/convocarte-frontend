@@ -16,6 +16,7 @@
                 :maxSize="10" 
                 @add-uploaded-file="handleUploadedFile" />
                 <v-btn 
+                    v-if="!isArtistPostulationView"
                     size="small"
                     outlined
                     color="purple-lighten-2"
@@ -65,6 +66,10 @@ import UploadFileButton from '../UploadFileButton.vue';
           rejectionTemplate: {
             type: String,
             default: ''
+          },
+          isArtistPostulationView: {
+            type: Boolean,
+            default: false
           }
         },
         components: {

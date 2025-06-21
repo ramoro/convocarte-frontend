@@ -104,6 +104,7 @@
         :isSending="isSending"
         :titleSize="'20px'"
         :mesagges-expanded="true"
+        :is-artist-postulation-view="true"
         @send-message="sendMessage"
         @mark-as-read="markAsRead"
       />
