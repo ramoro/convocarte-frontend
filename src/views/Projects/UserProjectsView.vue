@@ -65,10 +65,19 @@
                 <div>{{formatDateToTextFormat(project.created_at)}}</div>
               </v-col>
               <v-col cols="2">
-                <div><v-chip small variant="elevated" :class="`${translateState(project.is_used)} caption mt-2`">{{project.is_used ? "En Uso" : "Sin Usar"}}</v-chip></div>
+                <div>
+                  <v-chip small variant="elevated" :class="`${translateState(project.is_used)} caption mt-2`">
+                    {{project.is_used ? "Publicado" : "Sin Usar"}}
+                  </v-chip>
+                </div>
               </v-col>
               <v-col cols="2">
                 <div justify="space-between" class="mt-2">
+                  <v-tooltip text="Ver" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-icon v-bind="props" class="edition-icon mr-2" @click="$router.push(`/my-project/${project.id}`)">mdi-eye</v-icon>
+                    </template>
+                  </v-tooltip>
                   <v-tooltip text="Editar" location="top">
                     <template v-slot:activator="{ props }">
                       <v-icon v-bind="props" class="edition-icon mr-2" @click="editProject(project)">mdi-pencil</v-icon>
@@ -167,7 +176,7 @@ export default {
     },
     prepareDelete(project, index) {
       if (project.is_used) {
-        this.$root.InformationSnackbar.show({message: 'El Proyecto está en uso. Finalizá él o los castings que lo contengan para eliminarlo.', color: 'dark', buttonColor:'red'});
+        this.$root.InformationSnackbar.show({message: 'El Proyecto está en uso. Para eliminarlo frená la publicación del o los castings que lo contengan.', color: 'dark', buttonColor:'red'});
         return;
       }
       this.itemToDelete = project;
@@ -206,17 +215,5 @@ export default {
   align-items: center; 
   justify-content: center; 
   width: 80%;
-}
-.project.unused {
-  border-left: 4px solid rgb(116, 104, 104);
-}
-.project.used {
-  border-left: 4px solid rgb(45, 185, 27);
-}
-.v-chip.unused {
-  background-color: rgb(116, 104, 104);
-}
-.v-chip.used {
-  background-color: rgb(45, 185, 27);
 }
 </style>

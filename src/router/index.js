@@ -63,7 +63,8 @@ const routes = [
     component: () => import('../views/Forms/FormTemplateBuilderView.vue'),
   },
   {
-    path: '/form-builder/:id/:castingid', //Aca el id seria ya de un form y no de un form template. Cuando esta ya asignado a un casting es un form
+    //Aca el id seria ya de un form y no de un form template. Cuando esta ya asignado a un casting es un form
+    path: '/form-builder/:id/:castingid', 
     name: 'editcastingform',
     component: () => import('../views/Forms/FormTemplateBuilderView.vue'),
   },
@@ -81,6 +82,11 @@ const routes = [
     path: '/project/:id',
     name: 'projectedition',
     component: () => import('../views/Projects/ProjectCreationView.vue')
+  },
+  {
+    path: '/my-project/:projectId',
+    name: 'myprojectview',
+    component: () => import('../views/Projects/MyProjectView.vue')
   },
   {
     path: '/user-casting-calls',

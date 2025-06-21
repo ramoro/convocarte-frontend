@@ -68,7 +68,8 @@
               <!-- Iconos a la derecha -->
               <v-col class="text-right d-flex" cols="auto">
                 <v-btn
-                  v-if="casting.state == 'Borrador' || casting.state == 'Pausado'" 
+                  v-if="casting.state == 'Borrador' || casting.state == 'Pausado' 
+                  || casting.state == 'Vencido'" 
                   size="small"
                   color="green"
                   class="no-bg"
@@ -87,7 +88,8 @@
                 >
                   Pausar
                 </v-btn>
-                <div class="ml-2" v-if="casting.state == 'Publicado' || casting.state == 'Pausado'">
+                <div class="ml-2" v-if="casting.state == 'Publicado' || casting.state == 'Pausado'
+                 || casting.state == 'Vencido'">
                   
                   <v-btn
                       size="small"

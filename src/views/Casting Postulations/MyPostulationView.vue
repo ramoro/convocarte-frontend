@@ -1,6 +1,6 @@
 <template>
     <v-container>
-      <!-- Cargando Casting Publicado -->
+      <!-- Cargando Postulacion -->
       <v-row v-if="isLoading" justify="center" align="center" style="height: 60vh;">
         <v-container class="text-center">
             <v-progress-circular indeterminate color="cyan"></v-progress-circular>

@@ -84,4 +84,17 @@ p.Vencido {
 p.Eliminado {
   color: rgb(244, 35, 3);
 }
+
+.project.unused {
+  border-left: 4px solid rgb(116, 104, 104);
+}
+.project.used {
+  border-left: 4px solid rgb(45, 185, 27);
+}
+.v-chip.unused {
+  background-color: rgb(116, 104, 104);
+}
+.v-chip.used {
+  background-color: rgb(45, 185, 27);
+}
 </style>
