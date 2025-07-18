@@ -149,12 +149,12 @@
     },
     async mounted() {
       this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
-      this.isLoading = false;
     },
     async created() {
       const castingPostulationId = this.$route.params.postulationId;
       await this.loadCastingPostulationData(castingPostulationId);
       await this.loadMessages();
+      this.isLoading = false; 
     },
     computed:{
       currentUser() {

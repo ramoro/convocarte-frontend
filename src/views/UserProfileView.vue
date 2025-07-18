@@ -7,7 +7,13 @@
     @delete-confirmed="confirmAccountDelete"
     @delete-cancelled="openDeleteAccountDialog = false"
   />
-  <v-container v-if="userDeleted" class="mt-4">
+  <v-row v-if="isLoading" justify="center" align="center" style="height: 60vh;">
+    <v-container class="text-center">
+        <v-progress-circular indeterminate color="cyan"></v-progress-circular>
+        <div>Cargando postulación...</div>
+    </v-container>
+  </v-row>
+  <v-container v-else-if="userDeleted" class="mt-4">
     <v-alert
       type="warning"
       border="left"
@@ -238,8 +244,9 @@ export default {
   mounted() {
     this.$root.InformationSnackbar = this.$refs.InformationSnackbar;
   },
-  created() {
-    this.loadUserData(this.$route.params.userId);
+  async created(){
+    await this.loadUserData(this.$route.params.userId);
+    this.isLoading = false;
   },
   data() {
     return {
@@ -263,13 +270,17 @@ export default {
       userEmail: null,
       editingMode: true,
       openDeleteAccountDialog: false,
-      userDeleted: false
+      userDeleted: false,
+      isLoading: true
     };
   },
   methods: {
     openCropperDialog() {
-      this.selectedImage = this.resizedImage; // Pasas la imagen actual si ya hay una
-      this.cropperDialog = true;
+      if (this.editingMode) {
+        this.selectedImage = this.resizedImage; // Pasas la imagen actual si ya hay una
+        this.cropperDialog = true;
+      }
+
     },
     async handleCroppedImage(croppedImageBlob, fileName) {
       this.cropperDialog = false;
