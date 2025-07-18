@@ -116,6 +116,7 @@
       </v-row>
       <MessagesArea
         :messages="messages"
+        :mesaggesExpanded="isMessagesExpanded"
         :current-user-profile-picture="this.$store.state.auth.user?.profile_picture"
         :isSending="isSending"
         :castingRejectionTemplate="rejectionTemplate"
@@ -161,7 +162,8 @@
         postulatedUserId: null,
         messages: [],
         isSending: false,
-        rejectionTemplate: ''
+        rejectionTemplate: '',
+        isMessagesExpanded: false
     };
   },
     beforeMount() {
@@ -170,6 +172,9 @@
       }
     },
     async created() {
+      if (this.$route.query.sendMsg) {
+        this.isMessagesExpanded = true;
+      }
       await this.loadPostulationData();
       await this.loadMessages();
     },
@@ -183,24 +188,24 @@
     },
     methods: {
       async loadPostulationData() {
-      try {
-        const postulationId = this.$route.params.postulationId;
-        const response = await CastingPostulacionService.getCastingPostulationById(postulationId);
-        this.postulatedUserId = response.data.owner_id;
-        this.openRoleId = response.data.open_role.id;
-        this.castingCallId = response.data.casting_call.id;
-        this.rejectionTemplate = response.data.casting_call.rejection_template;
-        this.postulationData = JSON.parse(response.data.postulation_data);
-      } catch (error) {
-        console.error('Error al obtener postulación:', error);
-        this.$root.InformationSnackbar.show({
-          message: 'Error al cargar los datos de la postulación',
-          color: 'error'
-        });
-      } finally {
-        this.isLoading = false;
-      }
-    },
+        try {
+          const postulationId = this.$route.params.postulationId;
+          const response = await CastingPostulacionService.getCastingPostulationById(postulationId);
+          this.postulatedUserId = response.data.owner_id;
+          this.openRoleId = response.data.open_role.id;
+          this.castingCallId = response.data.casting_call.id;
+          this.rejectionTemplate = response.data.casting_call.rejection_template;
+          this.postulationData = JSON.parse(response.data.postulation_data);
+        } catch (error) {
+          console.error('Error al obtener postulación:', error);
+          this.$root.InformationSnackbar.show({
+            message: 'Error al cargar los datos de la postulación',
+            color: 'error'
+          });
+        } finally {
+          this.isLoading = false;
+        }
+      },
 
     openImgDialog(url) {
       this.imageSrc = url;

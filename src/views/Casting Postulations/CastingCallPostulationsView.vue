@@ -346,7 +346,7 @@
                             </template>
                             <v-list-item-title>Ver Postulación</v-list-item-title>
                           </v-list-item>
-                          <v-list-item @click="prepareSendingMessage(columnId, false, item.id)">
+                          <v-list-item @click="$router.push(getPostulationLinkWithMsgParam(item.id))">
                             <template v-slot:prepend>
                               <v-icon size="small" class="mr-2">mdi-message-outline</v-icon>
                             </template>
@@ -779,6 +779,10 @@ export default {
 
     getPostulationLink(postulationId) {
       return `/casting-call-user-postulation/${postulationId}`;
+    },
+
+    getPostulationLinkWithMsgParam(postulationId) {
+      return `/casting-call-user-postulation/${postulationId}?sendMsg=true`;
     },
     
     getStateColor(state) {
