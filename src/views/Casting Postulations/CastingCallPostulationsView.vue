@@ -58,7 +58,7 @@
     <!-- Contenedor específico para el botón de rechazo -->
     <div class="d-flex justify-end align-center my-4" style="position: relative;">
       <v-chip 
-        v-if="Object.keys(chosenPostulation).length > 0"
+        v-if="Object.keys(chosenPostulation)?.length > 0"
         color="green"
         elevated
         class="mx-auto"
@@ -175,10 +175,10 @@
                 <p v-else-if="role.max_height_required" class="mt-1">
                   Altura: Hasta {{ role.max_height_required }} cm
                 </p>
-                <p v-if="role.hair_colors_required.length > 0" class="mt-1">
+                <p v-if="role.hair_colors_required?.length > 0" class="mt-1">
                   Requisitos Pelo: {{ role.hair_colors_required}}
                 </p>
-                <p v-if="role.additional_requirements.length > 0" class="mt-1">
+                <p v-if="role.additional_requirements?.length > 0" class="mt-1">
                   Requisitos Adicionales: {{ role.additional_requirements }} 
                 </p>
             </div>
@@ -207,13 +207,13 @@
             <div class="d-flex align-center">
               <h2 class="text-h5 font-weight-medium">{{ column.title }}</h2>
               <v-chip class="ml-2" size="small">
-                {{ column.items.length }}
+                {{ column.items?.length }}
               </v-chip>
             </div>
 
             <div class="d-flex align-center">
               <v-checkbox
-                :model-value="selected[columnId].length === column.items.length && column.items.length > 0"
+                :model-value="selected[columnId]?.length === column.items?.length && column.items?.length > 0"
                 @update:model-value="selectAll(columnId)"
                 hide-details
                 density="compact"
@@ -225,7 +225,7 @@
 
           <!-- Barra de acciones para seleccionados -->
           <v-sheet
-            v-if="selected[columnId].length > 0"
+            v-if="selected[columnId]?.length > 0"
             color="grey-lighten-4"
             rounded
             class="d-flex align-center pa-2 mb-4"
@@ -352,7 +352,7 @@
                             </template>
                             <v-list-item-title>Enviar mensaje</v-list-item-title>
                           </v-list-item>
-                          <v-list-item v-if="Object.keys(chosenPostulation).length == 0" 
+                          <v-list-item v-if="Object.keys(chosenPostulation)?.length == 0" 
                           @click="prepareUserSelection(columnId, item.id)" class="text-success">
                             <template v-slot:prepend>
                               <v-icon size="small" class="mr-2" color="success">mdi-account-star</v-icon>
@@ -372,7 +372,7 @@
                 </v-card>
               </template>
 
-              <template #footer v-if="column.items.length === 0">
+              <template #footer v-if="column.items?.length === 0">
                 <div class="d-flex align-center justify-center text-grey-darken-1 text-body-2 font-italic h-100" style="height: 200px">
                   No hay postulaciones
                 </div>
@@ -450,12 +450,14 @@ export default {
   created() {
     const castingCallId = this.$route.params.castingCallId;
     const openRoleId = this.$route.query.roleId;
-
+    console.log('antes de getcastingcallwithpostulations');
     CastingCallService.getCastingCallWithPostulations(castingCallId)
       .then(response => {
         this.castingCallInfo = response.data;
-                console.log("Response: ", this.castingCallInfo);
+        console.log("Response: ", this.castingCallInfo);
         this.openRoles = this.castingCallInfo.open_roles;
+            console.log('llego aca');
+
 
         if (openRoleId) {
           const role = this.openRoles.find(r => r.id == openRoleId);
@@ -465,6 +467,7 @@ export default {
             return;
           }
         } 
+        console.log('llego aca2');
         this.isLoading = false;
         this.isSelectingRole = true; 
       })
@@ -572,7 +575,7 @@ export default {
     
     // Seleccionar todos los ítems de una columna
     selectAll(columnId) {
-      if (this.selected[columnId].length === this.columns[columnId].items.length) {
+      if (this.selected[columnId]?.length === this.columns[columnId].items?.length) {
         // Si todos están seleccionados, deseleccionar todos
         this.selected[columnId] = [];
       } else {
@@ -583,7 +586,7 @@ export default {
 
     prepareDelete(columnId, manyPostulationsToDelete, postulationId = null) {
       //Si eligió eliminar de la seleccion de postulaciones y no selecciono nada, no sucede nada
-      if (manyPostulationsToDelete && this.selected[columnId].length === 0) return;
+      if (manyPostulationsToDelete && this.selected[columnId]?.length === 0) return;
 
       this.columnIdToDelete = columnId;
       this.postulationIdToDelete = postulationId;
@@ -660,7 +663,7 @@ export default {
     },
     prepareSendingMessage(columnId, manyPostulationsToSendMessage, postulationId = null, openMessageDialog = true) {
       //Si eligió enviar mensaje de la seleccion de postulaciones y no selecciono nada, no sucede nada
-      if (manyPostulationsToSendMessage && this.selected[columnId].length === 0) return;
+      if (manyPostulationsToSendMessage && this.selected[columnId]?.length === 0) return;
 
       //Si viene con postulationId, significa que se selecciono una postulacion invidual para
       //mandarle un mensaje. Sino significa que se seleccionaron varias postulaciones para enviarles un mensaje
