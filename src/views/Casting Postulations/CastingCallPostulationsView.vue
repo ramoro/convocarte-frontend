@@ -450,14 +450,11 @@ export default {
   created() {
     const castingCallId = this.$route.params.castingCallId;
     const openRoleId = this.$route.query.roleId;
-    console.log('antes de getcastingcallwithpostulations');
     CastingCallService.getCastingCallWithPostulations(castingCallId)
       .then(response => {
         this.castingCallInfo = response.data;
         console.log("Response: ", this.castingCallInfo);
         this.openRoles = this.castingCallInfo.open_roles;
-            console.log('llego aca');
-
 
         if (openRoleId) {
           const role = this.openRoles.find(r => r.id == openRoleId);
@@ -467,7 +464,6 @@ export default {
             return;
           }
         } 
-        console.log('llego aca2');
         this.isLoading = false;
         this.isSelectingRole = true; 
       })
@@ -634,7 +630,6 @@ export default {
           var postulationToUpdate = this.openRoles[indexToUpdate].casting_postulations
           .find(postulation => postulation.id == this.postulationIdToChoose)
           postulationToUpdate.state = 'Elegida';
-          console.log(postulationToUpdate);
           this.chosenPostulation = this.parsePostulation(postulationToUpdate);
           console.log("chosenpostulation: ", this.chosenPostulation);
           this.confirmChoiceDialog = false;
@@ -671,13 +666,12 @@ export default {
         const postulationToSendMessage = this.columns[columnId].items.find(
             item => item.id == postulationId
           );
-
         //Si fue eliminada por usuario postulado no se envia ningun mensaje, es innecesario
         if (!postulationToSendMessage.state.includes('Eliminada')) {
           //Remuevo el apellido para restar formalidad
-          const name = postulationToSendMessage[0].name.split(' ')[0];
+          const name = postulationToSendMessage.name?.split(' ')[0];
           this.postulationsToSendMessage.push({'postulationId': postulationId, 
-            'postulatedUserId': postulationToSendMessage[0].owner_id,
+            'postulatedUserId': postulationToSendMessage.owner_id,
             'postulatedUserName': name,
           })
         }
